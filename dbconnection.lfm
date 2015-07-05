@@ -1,0 +1,33 @@
+object DBDataModule: TDBDataModule
+  OnCreate = DataModuleCreate
+  OldCreateOrder = False
+  Height = 56
+  HorizontalOffset = 849
+  VerticalOffset = 240
+  Width = 256
+  object IBConnection: TIBConnection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Transaction = SQLTransaction
+    CharSet = 'UTF8'
+    LogEvents = []
+    left = 24
+  end
+  object SQLTransaction: TSQLTransaction
+    Active = False
+    Database = IBConnection
+    left = 96
+  end
+  object SQLQuery: TSQLQuery
+    FieldDefs = <>
+    Database = IBConnection
+    Transaction = SQLTransaction
+    Params = <>
+    left = 216
+  end
+  object DSource: TDataSource
+    DataSet = SQLQuery
+    left = 160
+  end
+end

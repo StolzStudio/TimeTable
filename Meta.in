@@ -1,0 +1,43 @@
+﻿
+id=ИН
+name=Имя
+teacher_id=Преподаватель_ИН
+subject_id=Предмет_ИН
+group_id=Группа_ИН
+pair_id=Пара_ИН
+weekday_id=День_ИН
+classroom_id=Аудитория_ИН
+
+classrooms=Аудитории
+groups=Группы
+groups_subjects=Предмет у группы
+lessons=Расписание
+pair=Пара
+pairs=Пары
+subjects=Предметы
+teachers=Преподаватели
+teachers_subjects=Преподаватель курирует
+weekdays=Дни Недели
+weekday=День Недели
+num=Номер
+connect=подключена
+disconnect=отключена 
+error=ошибка
+width_id=80
+width_name=410
+width_num=45
+width_weekday=120
+width_group_id=80
+width_subject_id=150
+width_pair_id=90
+width_weekday_id=120
+width_group_id=110
+width_classroom_id=130
+width_teacher_id=210
+reference_pair_id=Номер пары
+reference_weekday_id=День недели
+reference_group_id=Группa
+reference_subject_id=Предмет
+reference_classroom_id=Аудитория
+reference_teacher_id=Преподователь
+
