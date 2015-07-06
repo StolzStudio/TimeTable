@@ -51,8 +51,7 @@ begin
   FSQLQuery.Close;
   FSQLQuery.SQL.Text := SQLGenParams(Tag).Text;
   FSQLQuery.Active:= true;
-  if not (Moderator.id_visible) then
-    FDBGrid.Columns.Items[0].Visible := false;
+  FDBGrid.Columns.Items[0].Visible := Moderator.id_visible;
   for i:=0 to FDBGrid.Columns.Count - 1 do
   begin
     FDBGrid.Columns.Items[i].Title.Caption := MetaData.Tables[Tag].Fields[i].Caption;

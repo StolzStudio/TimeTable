@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
-  DBConnection, ExtCtrls, ModeratorMode, TypInfo, Meta,
+  DBConnection, ExtCtrls, StdCtrls, ModeratorMode, TypInfo, Meta,
   DirectoryForms;
 
 type

@@ -5,7 +5,7 @@ unit ModeratorMode;
 interface
 
 uses
-  Classes, SysUtils, ExtCtrls, StdCtrls, Forms, DBconnection;
+  Classes, SysUtils, ExtCtrls, StdCtrls, Forms, DBconnection, Dialogs;
 
 type
   TModeratorMode = class
@@ -36,14 +36,14 @@ type
 var
   Moderator: TModeratorMode;
   ConnectButtonClick: TnotifyEvent;
-  IdcheckboxClick: TnotifyEvent;
+  IdCheckBoxClick: TnotifyEvent;
 
 const ChngForm = 50;
 const Component_offset = 5;
 const Label_offset = 25;
 const Cnct = 'Подключение';
 const DisCnct = 'Отключение';
-const ProgName = 'TimeTable Client';
+const ProgName = 'Flame Olga';
 
 implementation
 
@@ -68,12 +68,27 @@ begin
   AboutConnectLabel.Left := Label_offset;
 
   { Id checkbox }
-  IdCheckBox := TCheckBox.Create(AForm);
-  IdCheckBox.Parent := AForm;
-  IdCheckBox.Top := AboutConnectLabel.Top + AboutConnectLabel.Height + 4*Component_offset;
-  IdCheckBox.Left := Label_offset;
-  IdCheckBox.Caption := 'Показывать ИН';
-  IdCheckBox.OnClick := IdCheckBoxClick;
+  if IdCheckBox = nil then
+  begin
+    IdCheckBox := TCheckBox.Create(AForm);
+    IdCheckBox.Parent := AForm;
+    IdCheckBox.Top := AboutConnectLabel.Top + AboutConnectLabel.Height + 4*Component_offset;
+    IdCheckBox.Left := Label_offset;
+    IdCheckBox.Caption := 'Показывать ИН';
+    IdCheckBox.OnClick := IdCheckBoxClick;
+  end
+  else
+  begin
+    if (Moderator.id_visible = true) then
+    begin
+      showmessage('true');
+      IdCheckBox.Checked := true;
+      IdCheckBox.State := cbChecked;
+    end
+    else
+      IdCheckBox.Checked := false;
+    IdCheckBox.Visible := true;
+  end;
 
   { ConnectPanel }
   ConnectPanel := Tpanel.Create(AForm);
@@ -147,8 +162,8 @@ begin
   Moderator.Moderator_check := false;
   AForm.Height := AForm.Height - ChngForm;
   AForm.Caption := ProgName;
-  ConnectPanel.free;
   IdCheckBox.free;
+  ConnectPanel.free;
   HelpLabel.free;
   AboutConnectLabel.free;
 end;
