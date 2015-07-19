@@ -7,7 +7,8 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  DBConnection, Forms, Main, ModeratorMode, Meta, directoryforms, SQLgen
+  DBConnection, Forms, Main, ModeratorMode, Meta, directoryforms, SQLgen,
+begin_prog
   { you can add units after this };
 
 {$R *.res}
@@ -15,6 +16,10 @@ uses
 begin
   RequireDerivedFormResource := True;
   Application.Initialize;
+  BeginForm := TBeginForm.Create(Application);
+  BeginForm.Show;
+  while BeginForm.BeginTimer.Enabled do
+    Application.ProcessMessages;
   Application.CreateForm(TDBDataModule, DBDataModule);
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TDirectoryForm, DirectoryForm);

@@ -43,14 +43,13 @@ const Component_offset = 5;
 const Label_offset = 25;
 const Cnct = 'Подключение';
 const DisCnct = 'Отключение';
-const ProgName = 'Flame Olga';
+const ProgName = 'ELCARO';
 
 implementation
 
 procedure TModeratorMode.OnModeratorMode(AForm: TForm);
 begin
   Moderator.Moderator_check := true;
-  Moderator.id_visible := false;
   AForm.Height := AForm.Height + ChngForm;
   AForm.Caption := ProgName + ' - Moderator Mode';
 
@@ -81,9 +80,7 @@ begin
   begin
     if (Moderator.id_visible = true) then
     begin
-      showmessage('true');
       IdCheckBox.Checked := true;
-      IdCheckBox.State := cbChecked;
     end
     else
       IdCheckBox.Checked := false;
@@ -162,7 +159,7 @@ begin
   Moderator.Moderator_check := false;
   AForm.Height := AForm.Height - ChngForm;
   AForm.Caption := ProgName;
-  IdCheckBox.free;
+  IdCheckBox.visible := false;
   ConnectPanel.free;
   HelpLabel.free;
   AboutConnectLabel.free;

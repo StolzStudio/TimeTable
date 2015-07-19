@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DBConnection, ExtCtrls, StdCtrls, ModeratorMode, TypInfo, Meta,
-  DirectoryForms;
+  DirectoryForms, begin_prog;
 
 type
 
@@ -52,6 +52,7 @@ begin
   except
     DBProperties.DBConnect := Error;
   end;
+  MainForm.show;
 end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;

@@ -20,9 +20,11 @@ teachers_subjects=Преподаватель курирует
 weekdays=Дни Недели
 weekday=День Недели
 num=Номер
+
 connect=подключена
 disconnect=отключена 
 error=ошибка
+
 width_id=80
 width_name=410
 width_num=45
@@ -34,6 +36,7 @@ width_weekday_id=120
 width_group_id=110
 width_classroom_id=130
 width_teacher_id=210
+
 reference_pair_id=Номер пары
 reference_weekday_id=День недели
 reference_group_id=Группa
