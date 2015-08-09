@@ -6,6 +6,8 @@ object DirectoryForm: TDirectoryForm
   ClientHeight = 505
   ClientWidth = 750
   Color = clWindow
+  Constraints.MinHeight = 505
+  Constraints.MinWidth = 750
   Icon.Data = {
     D45C01000000010001000000000001002000BE5C01001600000089504E470D0A
     1A0A0000000D4948445200000200000002000806000000F478D4FA00015C8549
@@ -2805,6 +2807,7 @@ object DirectoryForm: TDirectoryForm
     Height = 464
     Top = 8
     Width = 440
+    Anchors = [akTop, akLeft, akRight, akBottom]
     Color = clWindow
     Columns = <>
     DataSource = FDataSource

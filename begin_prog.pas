@@ -44,7 +44,7 @@ var
   ChngSize: integer;
 begin
   Size := 355;
-  ChngSize := 1;
+  ChngSize := 2;
   rgn := CreateEllipticRgn(0 + ChngSize, 0 + ChngSize,
                            Size - ChngSize, Size - ChngSize);
   SetWindowRgn(Handle, rgn, true);

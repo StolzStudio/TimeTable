@@ -50,7 +50,6 @@ implementation
 procedure TModeratorMode.OnModeratorMode(AForm: TForm);
 begin
   Moderator.Moderator_check := true;
-  AForm.Height := AForm.Height + ChngForm;
   AForm.Caption := ProgName + ' - Moderator Mode';
 
   { HelpLabel }
@@ -157,7 +156,6 @@ end;
 procedure TModeratorMode.OffModeratorMode(AForm: Tform);
 begin
   Moderator.Moderator_check := false;
-  AForm.Height := AForm.Height - ChngForm;
   AForm.Caption := ProgName;
   IdCheckBox.visible := false;
   ConnectPanel.free;

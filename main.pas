@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
-  DBConnection, ExtCtrls, StdCtrls, ModeratorMode, TypInfo, Meta,
-  DirectoryForms, begin_prog;
+  DBConnection, ExtCtrls, ModeratorMode, TypInfo, Meta,
+  DirectoryForms;
 
 type
 
@@ -21,6 +21,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormUpdate(Sender: TObject);
+    procedure MenuItemAboutClick(Sender: TObject);
     procedure PressConnectBtn(Sender: TObject);
     procedure ClickIdCheckBox(Sender: TObject);
     procedure CreateDirectoryMenuItems();
@@ -70,6 +71,12 @@ begin
   if Moderator.Moderator_check = true then
     Moderator.AboutConnectLabel.Caption := 'Состояние подключения к базе данных: '
     + TranslateList.Values[GetEnumName(TypeInfo(Tconnect), ord(DBProperties.DBConnect))];
+end;
+
+procedure TMainForm.MenuItemAboutClick(Sender: TObject);
+begin
+  ShowMessage('Программа разработана студентом Б8103А' + #13 +
+              'Глущенко Николаем');
 end;
 
 procedure TMainForm.CreateDirectoryMenuItems();
