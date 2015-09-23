@@ -1,12 +1,7 @@
 *.exe
-
 *.res
-
 *.txt
-
 *.fdb
-
 *.lps
 backup/
-
 lib/
