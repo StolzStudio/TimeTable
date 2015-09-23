@@ -1,0 +1,8 @@
+object FormData: TFormData
+  Left = 430
+  Height = 240
+  Top = 248
+  Width = 320
+  Caption = 'FormData'
+  LCLVersion = '1.4.0.4'
+end

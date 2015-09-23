@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DBConnection, ExtCtrls, ModeratorMode, TypInfo, Meta,
-  DirectoryForms;
+  DirectoryForms, SQLgen;
 
 type
 
@@ -44,6 +44,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   Moderator := TModeratorMode.Create;
   Moderator.Moderator_check := false;
+  MetaData := TMeta.Create;
+  SQLGenerator := TSQL.Create;
   MainForm.Caption := ProgName;
   ConnectButtonClick := @PressConnectBtn;
   IdCheckBoxClick := @ClickIdCheckBox;
@@ -69,14 +71,14 @@ end;
 procedure TMainForm.FormUpdate(Sender: TObject);
 begin
   if Moderator.Moderator_check = true then
-    Moderator.AboutConnectLabel.Caption := 'Состояние подключения к базе данных: '
-    + TranslateList.Values[GetEnumName(TypeInfo(Tconnect), ord(DBProperties.DBConnect))];
+    Moderator.AboutConnectLabel.Caption := MetaData.TranslateList.Values['ConnectStatus']
+    + MetaData.TranslateList.Values[GetEnumName(TypeInfo(Tconnect), ord(DBProperties.DBConnect))];
 end;
 
 procedure TMainForm.MenuItemAboutClick(Sender: TObject);
 begin
-  ShowMessage('Программа разработана студентом Б8103А' + #13 +
-              'Глущенко Николаем');
+  ShowMessage(MetaData.TranslateList.Values['AboutProgram'] + #13 +
+              MetaData.TranslateList.Values['AboutProgramName']);
 end;
 
 procedure TMainForm.CreateDirectoryMenuItems();
@@ -85,13 +87,12 @@ var
   i: integer;
   s: string;
 begin
-  TranslateList := TStringList.Create;
-  TranslateList.LoadFromFile('Meta.in');
+  MetaData.TranslateList := TStringList.Create;
+  MetaData.TranslateList.LoadFromFile('ruRUMeta.in');
   DBDataModule.SQLQuery.Active := false;
   DBDataModule.SQLQuery.SQL.Text := 'SELECT RDB$RELATION_NAME FROM RDB$RELATIONS '
                                  + 'WHERE RDB$SYSTEM_FLAG = 0';
   DBDataModule.SQLQuery.Open;
-  MetaData:= TMeta.Create;
   i := 0;
   while not DBDataModule.SQLQuery.EOF do
   begin
@@ -100,7 +101,7 @@ begin
     MetaData.Tables[high(MetaData.Tables)] := TTable.Create;
     MetaData.Tables[high(MetaData.Tables)].FillDataTable(s);
     MenuItem:= TMenuItem.Create(MenuItemDirectory);
-    MenuItem.Caption := TranslateList.Values[CreateItemName(s)];
+    MenuItem.Caption := MetaData.TranslateList.Values[CreateItemName(s)];
     MenuItem.OnClick := @OnClickMenuItem;
     MenuItem.Tag := i;
     MenuItemDirectory.Add(MenuItem);
@@ -133,17 +134,17 @@ end;
 
 procedure TMainForm.PressConnectBtn(Sender: TObject);
 begin
-  if Moderator.ConnectBtn.Caption = DisCnct then
+  if Moderator.ConnectBtn.Caption = MetaData.TranslateList.Values['Disconnection'] then
   begin
       DestroyDirectoryMenuItems();
-      Moderator.ConnectBtn.Caption := Cnct;
+      Moderator.ConnectBtn.Caption := MetaData.TranslateList.Values['Connection'];
       DBDataModule.DBDisconnect();
   end
   else begin
     try
       Moderator.SetDBProperties();
       DBDataModule.DBConnect();
-      Moderator.ConnectBtn.Caption := DisCnct;
+      Moderator.ConnectBtn.Caption := MetaData.TranslateList.Values['Disconnection'];
       CreateDirectoryMenuItems();
     except
       DBProperties.DBConnect := Error;

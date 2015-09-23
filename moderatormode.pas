@@ -5,7 +5,7 @@ unit ModeratorMode;
 interface
 
 uses
-  Classes, SysUtils, ExtCtrls, StdCtrls, Forms, DBconnection, Dialogs;
+  Classes, SysUtils, ExtCtrls, StdCtrls, Forms, DBconnection, Dialogs, Meta;
 
 type
   TModeratorMode = class
@@ -41,8 +41,8 @@ var
 const ChngForm = 50;
 const Component_offset = 5;
 const Label_offset = 25;
-const Cnct = 'Подключение';
-const DisCnct = 'Отключение';
+const Left_offset = 50;
+const Width_label = 80;
 const ProgName = 'ELCARO';
 
 implementation
@@ -50,14 +50,14 @@ implementation
 procedure TModeratorMode.OnModeratorMode(AForm: TForm);
 begin
   Moderator.Moderator_check := true;
-  AForm.Caption := ProgName + ' - Moderator Mode';
+  AForm.Caption := ProgName + MetaData.TranslateList.Values['ModerMode'];
 
   { HelpLabel }
   HelpLabel := TLabel.Create(AForm);
   HelpLabel.Parent := AForm;
   HelpLabel.Top := 10;
   HelpLabel.Left := Label_offset;
-  HelpLabel.Caption := 'Для выхода из режима администрирования нажмите "Ctrl + M"';
+  HelpLabel.Caption := MetaData.TranslateList.Values['HelpLabel'];
 
   { AboutConnectLabel }
   AboutConnectLabel := TLabel.Create(AForm);
@@ -72,7 +72,7 @@ begin
     IdCheckBox.Parent := AForm;
     IdCheckBox.Top := AboutConnectLabel.Top + AboutConnectLabel.Height + 4*Component_offset;
     IdCheckBox.Left := Label_offset;
-    IdCheckBox.Caption := 'Показывать ИН';
+    IdCheckBox.Caption := MetaData.TranslateList.Values['ShowID'];
     IdCheckBox.OnClick := IdCheckBoxClick;
   end
   else
@@ -82,7 +82,9 @@ begin
       IdCheckBox.Checked := true;
     end
     else
+    begin
       IdCheckBox.Checked := false;
+    end;
     IdCheckBox.Visible := true;
   end;
 
@@ -97,45 +99,47 @@ begin
   { Address }
   AddressLabel := TLabel.Create(ConnectPanel);
   AddressLabel.Parent := ConnectPanel;
-  AddressLabel.Left := 101;
-  AddressLabel.Width := 30;
+  AddressLabel.Left := Left_offset;
+  AddressLabel.Width := Width_label;
   AddressLabel.Top := Component_offset;
-  AddressLabel.Caption := 'Адрес:';
+  AddressLabel.Alignment := taRightJustify;
+  AddressLabel.Caption := MetaData.TranslateList.Values['Address'];
 
   AddressEdit := Tedit.Create(ConnectPanel);
   AddressEdit.Parent := ConnectPanel;
   AddressEdit.Width := 150;
-  AddressEdit.Left := AddressLabel.Left + AddressLabel.Width + Component_offset;
+  AddressEdit.Left := AddressLabel.Left + Width_label + Component_offset;
   AddressEdit.Caption := 'TIMETABLE.FDB';
 
   { UserName }
   UserLabel := TLabel.Create(ConnectPanel);
   UserLabel.Parent := ConnectPanel;
-  UserLabel.Left := 56;
-  UserLabel.Width := 30;
+  UserLabel.Left := Left_offset;
+  UserLabel.Width := Width_label;
   UserLabel.Top := AddressEdit.Height + 2 * Component_offset;
-  UserLabel.Caption := 'Пользователь:';
+  UserLabel.Alignment := taRightJustify;
+  UserLabel.Caption := MetaData.TranslateList.Values['User'];
 
   UserEdit := Tedit.Create(ConnectPanel);
   UserEdit.Parent := ConnectPanel;
   UserEdit.Width := 150;
   UserEdit.Top := UserLabel.Top - Component_offset;
-  UserEdit.Left := UserLabel.Left + UserLabel.Width + Component_offset;
+  UserEdit.Left := UserLabel.Left + Width_label + Component_offset;
   UserEdit.Caption := 'SYSDBA';
 
   { Password }
   PasswordLabel := TLabel.Create(ConnectPanel);
   PasswordLabel.Parent := ConnectPanel;
-  PasswordLabel.Left := 92;
+  PasswordLabel.Left := Left_offset;
   PasswordLabel.Width := 30;
   PasswordLabel.Top := UserEdit.Top + UserEdit.Height + 2 * Component_offset;
-  PasswordLabel.Caption := 'Пароль:';
+  PasswordLabel.Caption := MetaData.TranslateList.Values['Password'];
 
   PasswordEdit := Tedit.Create(ConnectPanel);
   PasswordEdit.Parent := ConnectPanel;
   PasswordEdit.Width := 150;
   PasswordEdit.Top := PasswordLabel.Top - Component_offset;
-  PasswordEdit.Left := PasswordLabel.Left + PasswordLabel.Width + Component_offset;
+  PasswordEdit.Left := PasswordLabel.Left + Width_label + Component_offset;
   PasswordEdit.PasswordChar := '*';
   PasswordEdit.Caption := 'masterkey';
 
@@ -147,9 +151,13 @@ begin
   ConnectBtn.Left := ConnectPanel.Width - ConnectBtn.Width - 3 * Component_offset;
   ConnectBtn.Top := Component_offset;
   if (DBProperties.DBConnect = Connect) or (DBProperties.DBConnect = Error) then
-    ConnectBtn.Caption := DisCnct
+  begin
+    ConnectBtn.Caption := MetaData.TranslateList.Values['Disconnection'];
+  end
   else
-    ConnectBtn.Caption := Cnct;
+  begin
+    ConnectBtn.Caption := MetaData.TranslateList.Values['Connection'];
+  end;
   ConnectBtn.OnClick := ConnectButtonClick;
 end;
 

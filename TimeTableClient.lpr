@@ -8,8 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   DBConnection, Forms, Main, ModeratorMode, Meta, directoryforms, SQLgen,
-begin_prog
-  { you can add units after this };
+  begin_prog, Filters, ChangeFormData;
 
 {$R *.res}
 
@@ -23,6 +22,7 @@ begin
   Application.CreateForm(TDBDataModule, DBDataModule);
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TDirectoryForm, DirectoryForm);
+  Application.CreateForm(TFormData, FormData);
   Application.Run;
 end.
 

@@ -21,9 +21,24 @@ weekdays=Дни Недели
 weekday=День Недели
 num=Номер
 
-connect=подключена
-disconnect=отключена 
+connect=подключено
+disconnect=отключено 
 error=ошибка
+
+ConnectStatus=Состояние подключения к базе данных: 
+AboutProgram=Программа разработана студентом Б8103А
+AboutProgramName=Глущенко Николаем
+CreateFilter=добавить новый фильтр
+include=включает
+Connection=подключение
+Disconnection=отключение
+ModerMode= - Режим администрирования
+HelpLabel=Для выхода из режима администрирования нажмите "Ctrl + M"
+ShowID=показывать ин
+Address=Адрес:
+User=Пользователь:
+Password=Пароль:
+CheckFilter=Заполните все поля
 
 width_id=80
 width_name=410

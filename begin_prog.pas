@@ -17,10 +17,6 @@ type
     BeginTimer: TTimer;
     procedure BeginTimerTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-  private
-    { private declarations }
-  public
-    { public declarations }
   end;
 
 var
@@ -44,7 +40,7 @@ var
   ChngSize: integer;
 begin
   Size := 355;
-  ChngSize := 2;
+  ChngSize := 1;
   rgn := CreateEllipticRgn(0 + ChngSize, 0 + ChngSize,
                            Size - ChngSize, Size - ChngSize);
   SetWindowRgn(Handle, rgn, true);

@@ -10,6 +10,7 @@ uses
 type
 
   TTypeField = (TInt, TStr);
+  TLanguage = (ruRU, enUS);
 
   TField = class
   private
@@ -45,12 +46,14 @@ type
 
   TMeta = class
     Tables: array of TTable;
+    TranslateList: TStringList;
     function FindTableName(AName: string): TTable;
   end;
 
+
 var
   MetaData: TMeta;
-  TranslateList: TStringList;
+
 
   function CreateItemName(AName: string): string;
   function CheckReference(AName: string): integer;
@@ -89,7 +92,7 @@ function CheckReference(AName: string): integer;
 procedure TTable.FillDataTable(ANameTable: string);
 begin
    Name := CreateItemName(ANameTable);
-   FCaption := TranslateList.Values[Name];
+   FCaption := MetaData.TranslateList.Values[Name];
    FillDataField(ANameTable);
 end;
 
@@ -121,9 +124,9 @@ begin
      SetLength(Fields, length(Fields) + 1);
      Fields[high(Fields)] := TField.Create;
      Fields[high(Fields)].Name := s;
-     Fields[high(Fields)].Caption := TranslateList.Values[s];
+     Fields[high(Fields)].Caption := MetaData.TranslateList.Values[s];
      Fields[high(Fields)].TableTag := high(MetaData.Tables);
-     Fields[high(Fields)].Width := StrToInt(TranslateList.Values['width_' + s]);
+     Fields[high(Fields)].Width := StrToInt(MetaData.TranslateList.Values['width_' + s]);
      TempSQLQuery.Next;
    end;
    TempSQLQuery.Close;
@@ -149,7 +152,7 @@ begin
         s1 += Fields[i].Name[j];
       Fields[i].Reference := TField.Create;
       Fields[i].Reference := MetaData.FindTableName(s + 'S').FindFieldName(s1);
-      Fields[i].Caption := TranslateList.Values['reference_' + Fields[i].Name];
+      Fields[i].Caption := MetaData.TranslateList.Values['reference_' + Fields[i].Name];
     end;
   end;
 end;

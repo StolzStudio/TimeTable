@@ -39,7 +39,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="8">
+    <Units Count="10">
       <Unit0>
         <Filename Value="TimeTableClient.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -58,14 +58,17 @@
         <ComponentName Value="DBDataModule"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="DataModule"/>
+        <UnitName Value="DBConnection"/>
       </Unit2>
       <Unit3>
         <Filename Value="moderatormode.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ModeratorMode"/>
       </Unit3>
       <Unit4>
         <Filename Value="meta.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="Meta"/>
       </Unit4>
       <Unit5>
         <Filename Value="directoryforms.pas"/>
@@ -73,10 +76,12 @@
         <ComponentName Value="DirectoryForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="directoryforms"/>
       </Unit5>
       <Unit6>
         <Filename Value="sqlgen.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="SQLgen"/>
       </Unit6>
       <Unit7>
         <Filename Value="begin_prog.pas"/>
@@ -84,7 +89,21 @@
         <ComponentName Value="BeginForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="begin_prog"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="filters.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Filters"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="changeformdata.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormData"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ChangeFormData"/>
+      </Unit9>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
