@@ -167,13 +167,13 @@ begin
     k := SQLGenerator.GenUniqId();
     with MetaData.Tables[ATag] do
     begin
-      for i:= 0 to high(MetaData.Tables[ATag].Fields) do
+      for i:= 0 to high(Fields) do
       begin
         if (Fields[i].Caption <> MetaData.TranslateList.Values['id']) then
         begin
           temp:= GetDataFieldOfIndex(i);
           SetLength(DataControl, length(DataControl) + 1);
-          if Fields[i].Reference <> nil then
+          if (Fields[i].Reference <> nil) then
           begin
             CreateComboBox(temp, Fields[i].Caption, Fields[i].Width);
             k:= high(DataControl);
@@ -193,15 +193,15 @@ begin
             (DataControl[k] as TEdit).Text:= Alist[i];
           end;
         end;
-        if AChangeType = ctEdit then
-        begin
-          Caption:= 'Редактирование записи'
-        end
-        else
-        begin
-          Caption:= 'Новая запись';
-        end;
       end;
+    end;
+    if AChangeType = ctEdit then
+    begin
+      Caption:= MetaData.TranslateList.Values['UpdateRecord'];
+    end
+    else
+    begin
+      Caption:= MetaData.TranslateList.Values['InsertRecord'];
     end;
     DataControl[0].Tag:= high(FFormsChange);
     CreateApplyBtn();
@@ -221,7 +221,7 @@ var
 begin
   DBDataModule.SQLQuery.Close;
   DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenDeleteQuery(MetaData.Tables[ATag].Name, AId);
-  i := MessageDLG('Вы действительно хотите удалить эту запись?',
+  i := MessageDLG(MetaData.TranslateList.Values['DeleteRecord'],
       mtConfirmation, mbYesNoCancel, 0);
   if (i = mrYes) then
   begin
@@ -232,7 +232,7 @@ begin
       if temp <> nil then
         temp.close;
     except
-      MessageDLG('Невозможно удалить эту запись т.к. она используется другой таблицей',
+      MessageDLG(MetaData.TranslateList.Values['DeleteError'],
       mtError,[mbYes], 0);
     end;
   end;

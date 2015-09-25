@@ -4,5 +4,7 @@ object FormData: TFormData
   Top = 248
   Width = 320
   Caption = 'FormData'
+  OnCloseQuery = FormCloseQuery
+  Position = poDesktopCenter
   LCLVersion = '1.4.0.4'
 end

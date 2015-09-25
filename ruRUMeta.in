@@ -41,6 +41,10 @@ Password=Пароль:
 CheckFilter=Заполните все поля
 FillField=Заполните все поля
 Apply=Применить
+DeleteRecord=Вы действительно хотите удалить эту запись?
+DeleteError=Невозможно удалить эту запись т.к. она используется другой таблицей
+UpdateRecord=Редактирование записи
+InsertRecord=Новая запись
 
 width_id=80
 width_name=410

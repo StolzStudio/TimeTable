@@ -17,6 +17,7 @@ type
   TUpdateEvent = procedure () of Object;
 
   TFormData = class(TForm)
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
   private
     FID: integer;
     FAction : TChangeType;
@@ -43,6 +44,17 @@ implementation
 {$R *.lfm}
 
 { TFormData }
+
+procedure TFormData.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+var
+  i: integer;
+begin
+  for i:=0 to high(DataControl) do
+  begin
+    DataControl[i].Free;
+  end;
+  SetLength(DataControl, 0);
+end;
 
 procedure TFormData.FormCreate(Sender: TObject);
 begin
@@ -142,12 +154,17 @@ var
   s: string;
 
   function CheckEdit(): boolean;
+  var
+    i: integer;
   begin
-    if (DataControl[0] as TEdit).text = '' then
+    for i := 0 to high(DataControl) do
     begin
-      exit(true);
+      if (DataControl[i] is TEdit) then
+      begin
+        if (DataControl[i] as TEdit).text = '' then exit(true);
+      end
     end;
-    result := false;
+    result:= false;
   end;
 
 begin
