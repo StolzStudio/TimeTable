@@ -1,0 +1,58 @@
+
+id=id
+name=Name
+teacher_id=Teacher_id
+subject_id=Subject_id
+group_id=Group_id
+pair_id=Pair_id
+weekday_id=Weekday_id
+classroom_id=Classroom_id
+
+classrooms=classrooms
+groups=groups
+groups_subjects=Groups subjects
+lessons=Lessons
+pair=Pair
+pairs=Pairs
+subjects=Subjcets
+teachers=Teachers
+teachers_subjects=Teachers subjects
+weekdays=Weekdays
+weekday=Weekday
+num=Number
+
+connect=connect
+disconnect=sisconnect 
+error=error
+
+ConnectStatus=Database status: 
+AboutProgram=The program is developed by student B8203A
+AboutProgramName=Glushchenko Nicholas
+CreateFilter=add new filter
+Connection=connection
+Disconnection=disconnection
+ModerMode= - moderator mode
+HelpLabel=if you want close moderator mode, click "Ctrl + M"
+ShowID=show id
+Address=Address:
+User=User:
+Password=Password:
+
+width_id=80
+width_name=410
+width_num=45
+width_weekday=120
+width_group_id=80
+width_subject_id=150
+width_pair_id=90
+width_weekday_id=120
+width_group_id=110
+width_classroom_id=130
+width_teacher_id=210
+
+reference_pair_id=Pair number
+reference_weekday_id=Weekday
+reference_group_id=Group
+reference_subject_id=Subject
+reference_classroom_id=Classroom
+reference_teacher_id=Teacher

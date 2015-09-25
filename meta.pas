@@ -36,6 +36,7 @@ type
     procedure FillDataField(ANameTable: string);
     procedure FillReferencedField();
     function FindFieldName(AName: string): TField;
+    function GetDataFieldOfIndex(AIndex: integer): TStringList;
   private
     FName: string;
     FCaption: string;
@@ -157,7 +158,7 @@ begin
   end;
 end;
 
-function TMeta.FindTableName (AName: string): TTable;
+function TMeta.FindTableName(AName: string): TTable;
 var
   i: integer = 0;
 begin
@@ -170,7 +171,7 @@ begin
   result:= nil;
 end;
 
-function TTable.FindFieldName (AName: string): TField;
+function TTable.FindFieldName(AName: string): TField;
  var
    i: integer;
  begin
@@ -183,5 +184,29 @@ function TTable.FindFieldName (AName: string): TField;
    end;
    result:= nil;
  end;
+
+function TTable.GetDataFieldOfIndex(AIndex: integer): TStringList;
+ var
+   i: integer;
+   temp: TStringList;
+ begin
+   temp:= TStringList.Create;
+   DBDataModule.SQLQuery.Close;
+   DBDataModule.SQLQuery.SQL.Text:= 'SELECT * FROM ';
+   if Fields[AIndex].Reference <> nil then
+     DBDataModule.SQLQuery.SQL.Text:= DBDataModule.SQLQuery.SQL.Text +
+       MetaData.Tables[Fields[AIndex].Reference.TableTag].Name
+   else
+     DBDataModule.SQLQuery.SQL.Text:= DBDataModule.SQLQuery.SQL.Text +
+       MetaData.Tables[Fields[AIndex].TableTag].Name;
+   DBDataModule.SQLQuery.Open;
+   while not DBDataModule.SQLQuery.EOF do
+   begin
+     temp.Append(DBDataModule.SQLQuery.Fields[1].AsString);
+     DBDataModule.SQLQuery.Next;
+   end;
+   result:= temp;
+ end;
+
 end.
 

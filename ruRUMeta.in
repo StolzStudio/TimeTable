@@ -39,6 +39,8 @@ Address=Адрес:
 User=Пользователь:
 Password=Пароль:
 CheckFilter=Заполните все поля
+FillField=Заполните все поля
+Apply=Применить
 
 width_id=80
 width_name=410
