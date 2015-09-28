@@ -10,218 +10,231 @@ uses
 
 type
   TSQL = class
-    function GenParams(ANum: integer): TStringList;
-    function GenUniqId(): integer;
-    function GenInsertQuery(ANum: integer): TStringList;
-    function GenUpdateQuery(ANum: integer): TStringList;
-    function GenDeleteQuery(AName: string; ANum: integer): string;
-    function GetId(ATag, ANum, Index: integer): integer;
-    procedure GenFilters(ANum: integer; AFilter: array of TDirectoryFilter; ASQLQuery: TSQLQuery);
-    procedure SetColName(ADBGrid: TDBGrid; ANum: integer);
+    function GenParams(ANum : integer)                        : TStringList;
+    function GenUniqId()                                      : integer;
+    function GenInsertQuery(ANum : integer)                   : TStringList;
+    function GenUpdateQuery(ANum : integer)                   : TStringList;
+    function GenDeleteQuery(AName : string; ANum : integer)   : string;
+    function GetId(ATag, ANum, Index : integer)               : integer;
+
+    procedure SetColName(ADBGrid : TDBGrid; ANum : integer);
+    procedure GenFilters(ANum : integer; AFilter : array of TDirectoryFilter;
+      ASQLQuery : TSQLQuery);
   private
-    QueryCmd: string;
-    ResultQuery: TStringList;
+   // ResultQuery  : TStringList;
   end;
 
 var
-  SQLGenerator: TSQL;
+  SQLGenerator   : TSQL;
 
 implementation
 
-function TSQL.GenParams(ANum: integer): TStringList;
+function TSQL.GenParams(ANum : integer) : TStringList;
 var
-  i: integer;
-  a, b: TStringList;
-  s: String;
-  temp: TField;
+  i, j       : integer;
+  a, b       : TStringList;
+  s          : String;
+  fld        : TField;
+  QueryCmd   : string;
 begin
-  a := TStringList.Create;
-  b := TStringList.Create;
-  ResultQuery := TStringList.Create;
-  QueryCmd := 'SELECT ';
-  a.Append('FROM ' + MetaData.Tables[ANum].Name);
-  for i:=0 to high(MetaData.Tables[ANum].Fields) do
-  begin
-    temp:= MetaData.Tables[ANum].Fields[i];
-    if i > 0 then QueryCmd += ', ';
-    if temp.Reference <> nil then
-    begin
-      QueryCmd += MetaData.Tables[temp.Reference.TableTag].Name + '.' +
-           MetaData.Tables[temp.Reference.TableTag].Fields[1].Name;
-      s := 'INNER JOIN ' + MetaData.Tables[temp.Reference.TableTag].Name +
-         ' ON ' + MetaData.Tables[temp.Reference.TableTag].Name  + '.' +
-         temp.Reference.Name + ' = ' + MetaData.Tables[ANum].Name + '.' +
-         MetaData.Tables[ANum].Fields[i].Name;
-      b.Append(s);
-      a.Append(b.text);
-      b.clear;
-    end
-    else
-    begin
-      QueryCmd += ' '+ MetaData.Tables[ANum].Name + '.' +
-          MetaData.Tables[ANum].Fields[i].Name;
-    end;
-  end;
-  ResultQuery.Append(QueryCmd);
-  ResultQuery.Append(a.text);
-  Result := ResultQuery;
-end;
+  a          := TStringList.Create;
+  b          := TStringList.Create;
+  Result     := TStringList.Create;
+  QueryCmd   := 'SELECT ';
 
-procedure TSQL.SetColName(ADBGrid: TDBGrid; ANum: integer);
-var
-  i: integer;
-begin
-  ADBGrid.Columns.Items[0].Visible := Moderator.id_visible;
-  for i:=0 to ADBGrid.Columns.Count - 1 do
+  with (MetaData) do
   begin
-    ADBGrid.Columns.Items[i].Title.Caption := MetaData.Tables[ANum].Fields[i].Caption;
-    ADBGrid.Columns.Items[i].Width := MetaData.Tables[ANum].Fields[i].Width;
-  end;
-end;
-
-procedure TSQL.GenFilters(ANum: integer; AFilter: array of TDirectoryFilter; ASQLQuery: TSQLQuery);
-var
-  i, param: integer;
-  First: boolean = True;
-begin
-  ASQLQuery.Active := False;
-  param := 0;
-  ResultQuery := GenParams(ANum);
-  QueryCmd := '';
-  for i := 1 to high(AFilter) do
-  begin
-    if (AFilter[i].Status) then
+    a.Append('FROM ' + Tables[ANum].Name);
+    for i :=0 to high(Tables[ANum].Fields) do
     begin
-      if (First) then
+      fld    := Tables[ANum].Fields[i];
+
+      if i > 0 then QueryCmd += ', ';
+      if fld.Reference <> nil then
       begin
-        QueryCmd := 'WHERE ';
+        j          := fld.Reference.TableTag;
+        QueryCmd   += Tables[j].Name + '.' + Tables[j].Fields[1].Name;
+        s          := 'INNER JOIN ' + Tables[j].Name + ' ON ' + Tables[j].Name
+                      + '.' + fld.Reference.Name + ' = ' + Tables[ANum].Name
+                      + '.' + Tables[ANum].Fields[i].Name;
+        b.Append(s);
+        a.Append(b.text);
+        b.clear;
       end
       else
-      begin
-        QueryCmd += ' AND ';
-      end;
-      QueryCmd += AFilter[i].FieldName
-               + ' ' + AFilter[i].Action + ':' + IntToStr(param);
-      inc(param);
-      First := False;
-
+        QueryCmd   +=   ' ' + Tables[ANum].Name
+                      + '.' + Tables[ANum].Fields[i].Name;
     end;
   end;
+  Result.Append(QueryCmd);
+  Result.Append(a.text);
+end;
+
+procedure TSQL.SetColName(ADBGrid : TDBGrid; ANum : integer);
+var
+  i : integer;
+begin
+  with (ADBGrid.Columns) do
+  begin
+    Items[0].Visible            := Moderator.id_visible;
+    for i :=0 to Count - 1 do
+    begin
+      Items[i].Title.Caption    := MetaData.Tables[ANum].Fields[i].Caption;
+      Items[i].Width            := MetaData.Tables[ANum].Fields[i].Width;
+    end;
+  end;
+end;
+
+procedure TSQL.GenFilters(ANum : integer; AFilter : array of TDirectoryFilter;
+  ASQLQuery : TSQLQuery);
+var
+  i, param      : integer;
+  First         : boolean = True;
+  QueryCmd      : string;
+  ResultQuery   : TStringList;
+begin
+  ASQLQuery.Active   := False;
+  param              := 0;
+  ResultQuery        := GenParams(ANum);
+
+  for i := 1 to high(AFilter) do
+    if (AFilter[i].Status) then
+    begin
+      if (First) then QueryCmd   := 'WHERE '
+      else QueryCmd              += ' AND ';
+      First                      := False;
+      QueryCmd                   += AFilter[i].FieldName
+                                    + ' ' + AFilter[i].Action
+                                    + ':' + IntToStr(param);
+      inc(param);
+    end;
   ResultQuery.Append(QueryCmd);
   ASQLQuery.SQL.Text := ResultQuery.Text;
+
+  { /set perameters }
   if (param > 0) then
   begin
     param := 0;
     for i := 1 to high(AFilter) do
-    begin
       if (AFilter[i].status) then
       begin
         with ASQLQuery.ParamByName(IntToStr(param)) do
         begin
           if (AFilter[i].Action = 'LIKE ') then
-          begin
-            AsString := '%' + AFilter[i].TextEdit + '%';
-          end
+            AsString := '%' + AFilter[i].TextEdit + '%'
           else
-          begin
             AsString := AFilter[i].TextEdit;
-          end;
         end;
         param += 1;
       end;
-    end;
   end;
+  { /end }
+
   ASQLQuery.Active := true;
 end;
 
-function TSQL.GenUniqId(): integer;
+function TSQL.GenUniqId() : integer;
 begin
-  DBDataModule.SQLQuery.Close;
-  DBDataModule.SQLQuery.SQL.Text:=
-    'SELECT GEN_ID(genuniq_id, 1) FROM RDB$DATABASE';
-  DBDataModule.SQLQuery.Open;
-  result := DBDataModule.SQLQuery.Fields[0].AsInteger;
+  with (DBDataModule.SQLQuery) do
+  begin
+    Close;
+    SQL.Text   := 'SELECT GEN_ID(genuniq_id, 1) FROM RDB$DATABASE';
+    Open;
+    Result     := Fields[0].AsInteger;
+  end;
 end;
 
-function TSQL.GenInsertQuery(ANum: integer): TStringList;
+function TSQL.GenInsertQuery(ANum : integer) : TStringList;
 var
-  i, k: integer;
-  s1, s2, s3: string;
-  temp: TStringList;
+  i            : integer;
+  s1, s2, s3   : string;
 begin
-  temp := TStringList.Create;
-  s1 := 'INSERT INTO ' + MetaData.Tables[ANum].Name;
-  for i:=0 to high(MetaData.Tables[ANum].Fields) do
+  with (MetaData.Tables[ANum]) do
   begin
-    s2 := s2 + MetaData.Tables[ANum].Fields[i].Name;
-    if i <> high(MetaData.Tables[ANum].Fields) then
-      s2 += ', ';
-    s3 := s3 + ':p' + IntToStr(i) + ' ';
-    if i <> high(MetaData.Tables[ANum].Fields) then
-      s3 += ', ';
+    Result   := TStringList.Create;
+    s1       := 'INSERT INTO ' + Name;
+    s2       := '';
+    s3       := '';
+    for i := 0 to high(Fields) do
+    begin
+      s2  := s2 + Fields[i].Name;
+      if i <> high(Fields) then s2 += ', ';
+
+      s3  := s3 + ':p' + IntToStr(i) + ' ';
+      if i <> high(Fields) then s3 += ', ';
+    end;
   end;
+
   s1 += ' (' + s2 + ')';
-  temp.Append(s1);
-  temp.Append('VALUES (' + s3 + ')');
-  result := temp;
+  Result.Append(s1);
+  Result.Append('VALUES (' + s3 + ')');
 end;
 
-function TSQL.GenUpdateQuery(ANum: integer): TStringList;
+function TSQL.GenUpdateQuery(ANum : integer) : TStringList;
 var
-  i, k: integer;
-  s1, s2: string;
-  temp: TStringList;
+  i      : integer;
+  s     : string;
 begin
-  temp := TStringList.Create;
-  s1 := 'UPDATE ' + MetaData.Tables[ANum].Name + ' SET ';
-  temp.Append(s1);
-  s1 := '';
-  for i := 1 to high(MetaData.Tables[ANum].Fields) do
+  Result  := TStringList.Create;
+  s       := '';
+
+  with (MetaData.Tables[ANum]) do
   begin
-    s1 :=MetaData.Tables[ANum].Fields[i].Name + ' = :p' + IntToStr(i);
-    if i <> high(MetaData.Tables[ANum].Fields) then
-      s1 += ' , ';
-    temp.Append(s1);
+    Result.Append('UPDATE ' + Name + ' SET ');
+    for i := 1 to high(Fields) do
+    begin
+      s   := Fields[i].Name + ' = :p' + IntToStr(i);
+      if i <> high(Fields) then
+        s += ' , ';
+      Result.Append(s);
+    end;
   end;
-  temp.Append('WHERE ID = :p0' );
-  result := temp;
+  Result.Append('WHERE ID = :p0' );
 end;
 
-function TSQL.GenDeleteQuery(AName: string; ANum: integer): string;
+function TSQL.GenDeleteQuery(AName : string; ANum : integer) : string;
 begin
-  Result :='DELETE FROM ' + AName + ' WHERE ID = ' + IntToStr(ANum);
+  Result := 'DELETE FROM ' + AName + ' WHERE ID = ' + IntToStr(ANum);
 end;
 
-function TSQL.GetId(ATag, ANum, Index: integer): integer;
+function TSQL.GetId(ATag, ANum, Index : integer) : integer;
 var
-  i, k, j: integer;
-  temp: TStringList;
-  TempDSource: TDataSource;
-  TempSQLQuery: TSQLQuery;
-  TempSQLTransaction: TSQLTransaction;
+  i                 : integer;
+  SL                : TStringList;
+  LDSource          : TDataSource;
+  LSQLQuery         : TSQLQuery;
+  LSQLTrans         : TSQLTransaction;
 begin
-  TempDSource:= TDataSource.Create(DBDataModule);
-  TempSQLQuery:= TSQLQuery.Create(DBDataModule);
-  TempSQLTransaction:= TSQLTransaction.Create(DBDataModule);
-  TempDSource.DataSet:= TempSQLQuery;
-  TempSQLQuery.DataBase:= DBDataModule.IBConnection;
-  TempSQLQuery.Transaction:= TempSQLTransaction;
-  TempSQLTransaction.DataBase:= DBDataModule.IBConnection;
-  temp:= TStringList.Create;
-  i:= MetaData.Tables[ATag].Fields[ANum + 1].Reference.TableTag;
-  TempSQLQuery.Close;
-  TempSQLQuery.SQL.Text:= 'SELECT * FROM ' + MetaData.Tables[i].Name;
-  TempSQLQuery.Open;
-  while not TempSQLQuery.EOF do
+  SL                   := TStringList.Create;
+  LDSource             := TDataSource.Create(DBDataModule);
+  LSQLQuery            := TSQLQuery.Create(DBDataModule);
+  LSQLTrans            := TSQLTransaction.Create(DBDataModule);
+  LDSource.DataSet     := LSQLQuery;
+  LSQLTrans.DataBase   := DBDataModule.IBConnection;
+  with (LSQLQuery) do
   begin
-    temp.Append(TempSQLQuery.Fields[0].AsString);
-    TempSQLQuery.Next;
+    DataBase           := DBDataModule.IBConnection;
+    Transaction        := LSQLTrans;
   end;
-  TempSQLQuery.Close;
-  TempDSource.Free;
-  TempSQLQuery.Free;
-  TempSQLTransaction.Free;
-  result:= StrToInt(temp[Index]);
+
+  with (LSQLQuery) do
+  begin
+    Close;
+    i          := MetaData.Tables[ATag].Fields[ANum + 1].Reference.TableTag;
+    SQL.Text   := 'SELECT * FROM ' + MetaData.Tables[i].Name;
+    Open;
+  end;
+
+  while not LSQLQuery.EOF do
+  begin
+    SL.Append(LSQLQuery.Fields[0].AsString);
+    LSQLQuery.Next;
+  end;
+  LSQLQuery.Close;
+  LDSource.Free;
+  LSQLQuery.Free;
+  LSQLTrans.Free;
+  result := StrToInt(SL[Index]);
 end;
 end.
 

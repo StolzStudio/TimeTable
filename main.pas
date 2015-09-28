@@ -14,25 +14,32 @@ type
   { TMainForm }
 
   TMainForm = class(TForm)
-    MainMenu: TMainMenu;
-    MenuItemFile: TMenuItem;
-    MenuItemDirectory: TMenuItem;
-    MenuItemAbout: TMenuItem;
-    procedure FormCreate(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure FormUpdate(Sender: TObject);
-    procedure MenuItemAboutClick(Sender: TObject);
-    procedure PressConnectBtn(Sender: TObject);
-    procedure ClickIdCheckBox(Sender: TObject);
+    { /menu }
+    MainMenu              : TMainMenu;
+    MenuItemFile          : TMenuItem;
+    MenuItemDirectory     : TMenuItem;
+    MenuItemAbout         : TMenuItem;
+
+    { /form procedures }
+    procedure FormCreate(Sender : TObject);
+    procedure FormKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
+    procedure FormUpdate(Sender : TObject);
+    procedure MenuItemAboutClick(Sender : TObject);
+    procedure OnClickMenuItem(Sender : TObject);
+
+    { /work with derectory}
     procedure CreateDirectoryMenuItems();
     procedure DestroyDirectoryMenuItems();
-    procedure OnClickMenuItem(Sender: TObject);
+
+    { /moderator mode }
+    procedure PressConnectBtn(Sender : TObject);
+    procedure ClickIdCheckBox(Sender : TObject);
   end;
 
 var
-  MainForm: TMainForm;
+  MainForm : TMainForm;
 
-  const M = 77;
+
 
 implementation
 
@@ -40,15 +47,19 @@ implementation
 
 { TMainForm }
 
-procedure TMainForm.FormCreate(Sender: TObject);
+procedure TMainForm.FormCreate(Sender : TObject);
 begin
-  Moderator := TModeratorMode.Create;
-  Moderator.Moderator_check := false;
-  MetaData := TMeta.Create;
-  SQLGenerator := TSQL.Create;
   MainForm.Caption := ProgName;
-  ConnectButtonClick := @PressConnectBtn;
-  IdCheckBoxClick := @ClickIdCheckBox;
+
+  { /moderator}
+  Moderator                   := TModeratorMode.Create;
+  Moderator.Moderator_check   := false;
+  ConnectButtonClick          := @PressConnectBtn;
+  IdCheckBoxClick             := @ClickIdCheckBox;
+
+  MetaData       := TMeta.Create;
+  SQLGenerator   := TSQL.Create;
+
   try
     DBDataModule.DBConnect();
     CreateDirectoryMenuItems();
@@ -58,58 +69,82 @@ begin
   MainForm.show;
 end;
 
-procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.FormKeyDown(Sender : TObject; var Key : Word;
+  Shift : TShiftState);
+var
+  M : integer = 77;
 begin
-  if (ssCtrl in Shift) and (Key = M) then
+  if ((ssCtrl in Shift) and (Key = M)) then
     if (Moderator.Moderator_check = false) then
       Moderator.OnModeratorMode(MainForm)
     else
       Moderator.OffModeratorMode(MainForm);
 end;
 
-procedure TMainForm.FormUpdate(Sender: TObject);
+procedure TMainForm.FormUpdate(Sender : TObject);
 begin
-  if Moderator.Moderator_check = true then
-    Moderator.AboutConnectLabel.Caption := MetaData.TranslateList.Values['ConnectStatus']
-    + MetaData.TranslateList.Values[GetEnumName(TypeInfo(Tconnect), ord(DBProperties.DBConnect))];
+  if (Moderator.Moderator_check = true) then
+    with MetaData.TranslateList do
+      Moderator.AboutConnectLabel.Caption := Values['ConnectStatus'] +
+                                             Values[GetEnumName(TypeInfo(Tconnect),
+                                             ord(DBProperties.DBConnect))];
 end;
 
-procedure TMainForm.MenuItemAboutClick(Sender: TObject);
+procedure TMainForm.MenuItemAboutClick(Sender : TObject);
 begin
-  ShowMessage(MetaData.TranslateList.Values['AboutProgram'] + #13 +
-              MetaData.TranslateList.Values['AboutProgramName']);
+  with (MetaData.TranslateList) do
+    ShowMessage(Values['AboutProgram'] + #13 + Values['AboutProgramName']);
 end;
 
 procedure TMainForm.CreateDirectoryMenuItems();
 var
-  MenuItem: TMenuItem;
-  i: integer;
-  s: string;
+  MenuItem    : TMenuItem;
+  i           : integer;
+  s           : string;
 begin
+  { /set meta }
   MetaData.TranslateList := TStringList.Create;
   MetaData.TranslateList.LoadFromFile('ruRUMeta.in');
-  DBDataModule.SQLQuery.Active := false;
-  DBDataModule.SQLQuery.SQL.Text := 'SELECT RDB$RELATION_NAME FROM RDB$RELATIONS '
-                                 + 'WHERE RDB$SYSTEM_FLAG = 0';
-  DBDataModule.SQLQuery.Open;
+
+  with (DBDataModule.SQLQuery) do
+  begin
+    Active     := false;
+    SQL.Text   := 'SELECT RDB$RELATION_NAME FROM RDB$RELATIONS '
+                  + 'WHERE RDB$SYSTEM_FLAG = 0';
+    Open;
+  end;
   i := 0;
   while not DBDataModule.SQLQuery.EOF do
   begin
     s := DBDataModule.SQLQuery.Fields[0].AsString;
-    SetLength(MetaData.Tables, length(MetaData.Tables) + 1);
-    MetaData.Tables[high(MetaData.Tables)] := TTable.Create;
-    MetaData.Tables[high(MetaData.Tables)].FillDataTable(s);
-    MenuItem:= TMenuItem.Create(MenuItemDirectory);
-    MenuItem.Caption := MetaData.TranslateList.Values[CreateItemName(s)];
-    MenuItem.OnClick := @OnClickMenuItem;
-    MenuItem.Tag := i;
+
+    { /fill tables }
+    with (MetaData) do
+    begin
+      SetLength(Tables, length(Tables) + 1);
+      Tables[high(Tables)] := TTable.Create;
+      Tables[high(Tables)].FillDataTable(s);
+    end;
+
+    { /set new menu item }
+    MenuItem := TMenuItem.Create(MenuItemDirectory);
+    with (MenuItem) do
+    begin
+      Caption   := MetaData.TranslateList.Values[MetaData.CreateItemName(s)];
+      OnClick   := @OnClickMenuItem;
+      Tag       := i;
+    end;
     MenuItemDirectory.Add(MenuItem);
     inc(i);
+
     DBDataModule.SQLQuery.Next;
   end;
-  for i := 0 to high(MetaData.Tables) do
-     MetaData.Tables[i].FillReferencedField;
+
+  { /fill reference table }
+  with (MetaData) do
+    for i := 0 to high(Tables) do
+    Tables[i].FillReferencedField;
+
   TableForms := TTableForms.Create;
   DBDataModule.SQLQuery.Close;
 end;
@@ -119,33 +154,41 @@ begin
   MenuItemDirectory.Clear;
   SetLength(MetaData.Tables, 0);
   TableForms.Destroy;
-  MetaData.Destroy;
 end;
 
-procedure TMainForm.OnClickMenuItem(Sender: TObject);
+procedure TMainForm.OnClickMenuItem(Sender : TObject);
+var
+  i : integer;
 begin
-  if TableForms.FForms[(Sender as TMenuItem).Tag] = nil then
-    TableForms.FForms[(Sender as TMenuItem).Tag] := TDirectoryForm.Create(Application);
-  TableForms.FForms[(Sender as TMenuItem).Tag].SetParams(Sender);
-  TableForms.FForms[(Sender as TMenuItem).Tag].Show;
+  i := (Sender as TMenuItem).Tag;
+  with (TableForms) do
+  begin
+    if (FForms[i] = nil) then
+      FForms[i] := TDirectoryForm.Create(Application);
+    FForms[i].SetParams(Sender);
+    FForms[i].Show;
+
+  end;
 end;
 
 { Moderator Mode }
-
-procedure TMainForm.PressConnectBtn(Sender: TObject);
+procedure TMainForm.PressConnectBtn(Sender : TObject);
+var
+  stl: TStringList;
 begin
-  if Moderator.ConnectBtn.Caption = MetaData.TranslateList.Values['Disconnection'] then
+  stl := MetaData.TranslateList;
+  if Moderator.ConnectBtn.Caption = stl.Values['Disconnection'] then
   begin
+      Moderator.ConnectBtn.Caption := stl.Values['Connection'];
       DestroyDirectoryMenuItems();
-      Moderator.ConnectBtn.Caption := MetaData.TranslateList.Values['Connection'];
       DBDataModule.DBDisconnect();
   end
   else begin
     try
       Moderator.SetDBProperties();
       DBDataModule.DBConnect();
-      Moderator.ConnectBtn.Caption := MetaData.TranslateList.Values['Disconnection'];
       CreateDirectoryMenuItems();
+      Moderator.ConnectBtn.Caption := stl.Values['Disconnection'];
     except
       DBProperties.DBConnect := Error;
     end;
@@ -153,7 +196,7 @@ begin
   MainForm.Invalidate;
 end;
 
-procedure TMainForm.ClickIdCheckBox(Sender: TObject);
+procedure TMainForm.ClickIdCheckBox(Sender : TObject);
 begin
   Moderator.id_visible := Moderator.IdCheckBox.Checked;
 end;

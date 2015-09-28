@@ -4,7 +4,7 @@ object DBDataModule: TDBDataModule
   Height = 56
   HorizontalOffset = 849
   VerticalOffset = 240
-  Width = 256
+  Width = 260
   object IBConnection: TIBConnection
     Connected = False
     LoginPrompt = False

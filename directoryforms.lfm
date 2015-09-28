@@ -2811,7 +2811,7 @@ object DirectoryForm: TDirectoryForm
     Left = 8
     Height = 464
     Top = 8
-    Width = 768
+    Width = 832
     Anchors = [akTop, akLeft, akRight, akBottom]
     Color = clWindow
     Columns = <>

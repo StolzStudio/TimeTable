@@ -4,6 +4,7 @@ object MainForm: TMainForm
   Top = 238
   Width = 402
   BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'TimeTable Client'
   Color = clWindow
   Constraints.MaxHeight = 291

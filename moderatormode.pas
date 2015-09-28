@@ -10,162 +10,207 @@ uses
 type
   TModeratorMode = class
   public
-    ConnectPanel: TPanel;
-    HelpLabel: TLabel;
-    AboutConnectLabel: Tlabel;
-    AddressEdit: TEdit;
-    AddressLabel: TLabel;
-    PasswordEdit: TEdit;
-    PasswordLabel: TLabel;
-    UserEdit: TEdit;
-    UserLabel: TLabel;
-    ConnectBtn: TButton;
-    IdCheckBox: TCheckBox;
-    procedure OnModeratorMode(AForm: TForm);
-    procedure OffModeratorMode(AForm: TForm);
+    ConnectPanel         : TPanel;
+    HelpLabel            : TLabel;
+    AboutConnectLabel    : Tlabel;
+
+    { /db interface }
+    AddressEdit          : TEdit;
+    AddressLabel         : TLabel;
+
+    PasswordEdit         : TEdit;
+    PasswordLabel        : TLabel;
+
+    UserEdit             : TEdit;
+    UserLabel            : TLabel;
+
+    ConnectBtn           : TButton;
+    IdCheckBox           : TCheckBox;
+    { /end }
+
+    procedure OnModeratorMode(AForm : TForm);
+    procedure OffModeratorMode(AForm : TForm);
     procedure SetDBProperties();
   private
-    ModeratorCheck: boolean;
-    CheckIdVisible: boolean;
+    ModeratorCheck       : boolean;
+    CheckIdVisible       : boolean;
   published
-    property Moderator_check: boolean read ModeratorCheck write ModeratorCheck;
-    property id_visible: boolean read CheckIdVisible write CheckIdVisible;
+    property Moderator_check  : boolean read ModeratorCheck write ModeratorCheck;
+    property id_visible       : boolean read CheckIdVisible write CheckIdVisible;
   end;
 
 
 var
-  Moderator: TModeratorMode;
-  ConnectButtonClick: TnotifyEvent;
-  IdCheckBoxClick: TnotifyEvent;
+  Moderator              : TModeratorMode;
+  ConnectButtonClick     : TnotifyEvent;
+  IdCheckBoxClick        : TnotifyEvent;
 
-const ChngForm = 50;
-const Component_offset = 5;
-const Label_offset = 25;
-const Left_offset = 50;
-const Width_label = 80;
-const ProgName = 'ELCARO';
+const ChngForm           = 50;
+const Component_offset   = 5;
+const Label_offset       = 25;
+const Left_offset        = 50;
+const Width_label        = 80;
+const ProgName           = 'ELCARO';
 
 implementation
 
-procedure TModeratorMode.OnModeratorMode(AForm: TForm);
+procedure TModeratorMode.OnModeratorMode(AForm : TForm);
+var
+  SL : TStringList;
 begin
-  Moderator.Moderator_check := true;
-  AForm.Caption := ProgName + MetaData.TranslateList.Values['ModerMode'];
+  SL               := MetaData.TranslateList;
+  Moderator_check  := true;
+  AForm.Caption    := ProgName + SL.Values['ModerMode'];
 
-  { HelpLabel }
+  { /HelpLabel }
   HelpLabel := TLabel.Create(AForm);
-  HelpLabel.Parent := AForm;
-  HelpLabel.Top := 10;
-  HelpLabel.Left := Label_offset;
-  HelpLabel.Caption := MetaData.TranslateList.Values['HelpLabel'];
-
-  { AboutConnectLabel }
-  AboutConnectLabel := TLabel.Create(AForm);
-  AboutConnectLabel.Parent := AForm;
-  AboutConnectLabel.Top := HelpLabel.Top + HelpLabel.Height + Component_offset;
-  AboutConnectLabel.Left := Label_offset;
-
-  { Id checkbox }
-  if IdCheckBox = nil then
+  with (HelpLabel) do
   begin
-    IdCheckBox := TCheckBox.Create(AForm);
-    IdCheckBox.Parent := AForm;
-    IdCheckBox.Top := AboutConnectLabel.Top + AboutConnectLabel.Height + 4*Component_offset;
-    IdCheckBox.Left := Label_offset;
-    IdCheckBox.Caption := MetaData.TranslateList.Values['ShowID'];
-    IdCheckBox.OnClick := IdCheckBoxClick;
+    Parent    := AForm;
+    Top       := 10;
+    Left      := Label_offset;
+    Caption   := SL.Values['HelpLabel'];
+  end;
+  { /end }
+
+  { /AboutConnectLabel }
+  AboutConnectLabel := TLabel.Create(AForm);
+  with (AboutConnectLabel) do
+  begin
+    Parent    := AForm;
+    Top       := HelpLabel.Top + HelpLabel.Height + Component_offset;
+    Left      := Label_offset;
+  end;
+  { /end }
+
+  { /Id checkbox }
+  if (IdCheckBox = nil) then
+  begin
+    IdCheckBox    := TCheckBox.Create(AForm);
+    with (IdCheckbox) do
+    begin
+      Parent      := AForm;
+      Top         := AboutConnectLabel.Top + AboutConnectLabel.Height + 4*Component_offset;
+      Left        := Label_offset;
+      Caption     := SL.Values['ShowID'];
+      OnClick     := IdCheckBoxClick;
+    end;
   end
   else
   begin
     if (Moderator.id_visible = true) then
-    begin
-      IdCheckBox.Checked := true;
-    end
+      IdCheckBox.Checked := true
     else
-    begin
       IdCheckBox.Checked := false;
-    end;
-    IdCheckBox.Visible := true;
+  end;
+  IdCheckBox.Visible     := true;
+  { /end }
+
+  { /ConnectPanel }
+  ConnectPanel    := Tpanel.Create(AForm);
+  with (ConnectPanel) do
+  begin
+    Parent        := AForm;
+    Height        := 2 * ChngForm;
+    Top           := AForm.Height - ConnectPanel.Height;
+    Width         := AForm.Width;
+    BevelOuter    := TPanelBevel.bvNone;
+  end;
+  { /end }
+
+  { /Address }
+  AddressLabel    := TLabel.Create(ConnectPanel);
+  with (AddressLAbel) do
+  begin
+    Parent        := ConnectPanel;
+    Left          := Left_offset;
+    Width         := Width_label;
+    Top           := Component_offset;
+    Alignment     := taRightJustify;
+    Caption       := SL.Values['Address'];
   end;
 
-  { ConnectPanel }
-  ConnectPanel := Tpanel.Create(AForm);
-  ConnectPanel.Parent := AForm;
-  ConnectPanel.Height := 2 * ChngForm;
-  ConnectPanel.Top := AForm.Height - ConnectPanel.Height;
-  ConnectPanel.Width := AForm.Width;
-  ConnectPanel.BevelOuter := TPanelBevel.bvNone;
-
-  { Address }
-  AddressLabel := TLabel.Create(ConnectPanel);
-  AddressLabel.Parent := ConnectPanel;
-  AddressLabel.Left := Left_offset;
-  AddressLabel.Width := Width_label;
-  AddressLabel.Top := Component_offset;
-  AddressLabel.Alignment := taRightJustify;
-  AddressLabel.Caption := MetaData.TranslateList.Values['Address'];
-
-  AddressEdit := Tedit.Create(ConnectPanel);
-  AddressEdit.Parent := ConnectPanel;
-  AddressEdit.Width := 150;
-  AddressEdit.Left := AddressLabel.Left + Width_label + Component_offset;
-  AddressEdit.Caption := 'TIMETABLE.FDB';
-
-  { UserName }
-  UserLabel := TLabel.Create(ConnectPanel);
-  UserLabel.Parent := ConnectPanel;
-  UserLabel.Left := Left_offset;
-  UserLabel.Width := Width_label;
-  UserLabel.Top := AddressEdit.Height + 2 * Component_offset;
-  UserLabel.Alignment := taRightJustify;
-  UserLabel.Caption := MetaData.TranslateList.Values['User'];
-
-  UserEdit := Tedit.Create(ConnectPanel);
-  UserEdit.Parent := ConnectPanel;
-  UserEdit.Width := 150;
-  UserEdit.Top := UserLabel.Top - Component_offset;
-  UserEdit.Left := UserLabel.Left + Width_label + Component_offset;
-  UserEdit.Caption := 'SYSDBA';
-
-  { Password }
-  PasswordLabel := TLabel.Create(ConnectPanel);
-  PasswordLabel.Parent := ConnectPanel;
-  PasswordLabel.Left := Left_offset;
-  PasswordLabel.Width := 30;
-  PasswordLabel.Top := UserEdit.Top + UserEdit.Height + 2 * Component_offset;
-  PasswordLabel.Caption := MetaData.TranslateList.Values['Password'];
-
-  PasswordEdit := Tedit.Create(ConnectPanel);
-  PasswordEdit.Parent := ConnectPanel;
-  PasswordEdit.Width := 150;
-  PasswordEdit.Top := PasswordLabel.Top - Component_offset;
-  PasswordEdit.Left := PasswordLabel.Left + Width_label + Component_offset;
-  PasswordEdit.PasswordChar := '*';
-  PasswordEdit.Caption := 'masterkey';
-
-  { ConnectButton }
-  ConnectBtn := Tbutton.Create(AForm);
-  ConnectBtn.Parent := ConnectPanel;
-  ConnectBtn.Width := 90;
-  ConnectBtn.Height := ConnectBtn.Width - 20;
-  ConnectBtn.Left := ConnectPanel.Width - ConnectBtn.Width - 3 * Component_offset;
-  ConnectBtn.Top := Component_offset;
-  if (DBProperties.DBConnect = Connect) or (DBProperties.DBConnect = Error) then
+  AddressEdit     := Tedit.Create(ConnectPanel);
+  with (AddressEdit) do
   begin
-    ConnectBtn.Caption := MetaData.TranslateList.Values['Disconnection'];
-  end
-  else
-  begin
-    ConnectBtn.Caption := MetaData.TranslateList.Values['Connection'];
+    Parent        := ConnectPanel;
+    Width         := 150;
+    Left          := AddressLabel.Left + Width_label + Component_offset;
+    Caption       := 'TIMETABLE.FDB';
   end;
-  ConnectBtn.OnClick := ConnectButtonClick;
+  { /end }
+
+  { /UserName }
+  UserLabel       := TLabel.Create(ConnectPanel);
+  with (UserLabel) do
+  begin
+    Parent        := ConnectPanel;
+    Left          := Left_offset;
+    Width         := Width_label;
+    Top           := AddressEdit.Height + 2 * Component_offset;
+    Alignment     := taRightJustify;
+    Caption       := SL.Values['User'];
+  end;
+
+  UserEdit        := Tedit.Create(ConnectPanel);
+  with (UserEdit) do
+  begin
+    Parent        := ConnectPanel;
+    Width         := 150;
+    Top           := UserLabel.Top - Component_offset;
+    Left          := UserLabel.Left + Width_label + Component_offset;
+    Caption       := 'SYSDBA';
+  end;
+  { /end }
+
+  { /Password }
+  PasswordLabel   := TLabel.Create(ConnectPanel);
+  with (PasswordLabel) do
+  begin
+    Parent        := ConnectPanel;
+    Left          := Left_offset;
+    Width         := 30;
+    Top           := UserEdit.Top + UserEdit.Height + 2 * Component_offset;
+    Caption       := SL.Values['Password'];
+  end;
+
+  PasswordEdit    := Tedit.Create(ConnectPanel);
+  with (PasswordEdit) do
+  begin
+    Parent        := ConnectPanel;
+    Width         := 150;
+    Top           := PasswordLabel.Top - Component_offset;
+    Left          := PasswordLabel.Left + Width_label + Component_offset;
+    PasswordChar  := '*';
+    Caption       := 'masterkey';
+  end;
+  { /end }
+
+  { /ConnectButton }
+  ConnectBtn      := Tbutton.Create(AForm);
+  with (ConnectBtn) do
+  begin
+    Parent        := ConnectPanel;
+    Width         := 90;
+    Height        := Width - 20;
+    Left          := ConnectPanel.Width - Width - 3 * Component_offset;
+    Top           := Component_offset;
+    if ((DBProperties.DBConnect = Connect) or (DBProperties.DBConnect = Error)) then
+      Caption     := SL.Values['Disconnection']
+    else
+      Caption     := SL.Values['Connection'];
+    OnClick       := ConnectButtonClick;
+  end;
+  { /end }
 end;
 
-procedure TModeratorMode.OffModeratorMode(AForm: Tform);
+
+procedure TModeratorMode.OffModeratorMode(AForm : Tform);
 begin
   Moderator.Moderator_check := false;
-  AForm.Caption := ProgName;
-  IdCheckBox.visible := false;
+  AForm.Caption             := ProgName;
+  IdCheckBox.visible        := false;
+
   ConnectPanel.free;
   HelpLabel.free;
   AboutConnectLabel.free;
@@ -173,9 +218,12 @@ end;
 
 procedure TModeratorMode.SetDBProperties();
 begin
-  DBProperties.DBPassword := PasswordEdit.Caption;
-  DBProperties.DBName := AddressEdit.Caption;
-  DBProperties.DBUserName := UserEdit.Caption;
+  with (DBProperties) do
+  begin
+    DBPassword   := PasswordEdit.Caption;
+    DBName       := AddressEdit.Caption;
+    DBUserName   := UserEdit.Caption;
+  end;
 end;
 
 end.

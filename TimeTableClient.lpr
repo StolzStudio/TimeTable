@@ -7,8 +7,8 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  DBConnection, Forms, Main, ModeratorMode, Meta, directoryforms, SQLgen,
-  begin_prog, Filters, ChangeFormData;
+  DBConnection, Forms, Main, ModeratorMode, Meta, directoryforms,
+  SQLgen, begin_prog, Filters, ChangeFormData;
 
 {$R *.res}
 
@@ -21,7 +21,6 @@ begin
     Application.ProcessMessages;
   Application.CreateForm(TDBDataModule, DBDataModule);
   Application.CreateForm(TMainForm, MainForm);
-  Application.CreateForm(TDirectoryForm, DirectoryForm);
   Application.CreateForm(TFormData, FormData);
   Application.Run;
 end.
