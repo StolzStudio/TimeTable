@@ -39,7 +39,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="10">
+    <Units Count="11">
       <Unit0>
         <Filename Value="TimeTableClient.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -104,6 +104,14 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ChangeFormData"/>
       </Unit9>
+      <Unit10>
+        <Filename Value="utimetable.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="TimeTableForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Utimetable"/>
+      </Unit10>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -125,7 +133,7 @@
     </Linking>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="4">
+    <Exceptions Count="5">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -138,6 +146,9 @@
       <Item4>
         <Name Value="EIBDatabaseError"/>
       </Item4>
+      <Item5>
+        <Name Value="Exception"/>
+      </Item5>
     </Exceptions>
   </Debugging>
 </CONFIG>

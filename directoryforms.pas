@@ -44,7 +44,7 @@ type
     procedure AddNewFilter();
     procedure OpenFormEditingTable(AChangeType : TChangeType;
                                    ATag : integer; AList : TStringList);
-    function GenDATA(ATag : integer) : TStringList;
+
     function CheckFormOpenForId(AId : integer) : TFormData;
   private
     FilterNum         : integer;
@@ -58,6 +58,7 @@ type
     constructor Create;
   end;
 
+  function GenDATA(ATag : integer) : TStringList;
 var
   TableForms: TTableForms;
 
@@ -331,7 +332,7 @@ begin
   inc(FilterNum);
 end;
 
-function TDirectoryForm.GenDATA(ATag : integer) : TStringList;
+function GenDATA(ATag : integer) : TStringList;
 var
   TempList : TStringList;
   i        : integer;
