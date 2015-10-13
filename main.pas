@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DBConnection, ExtCtrls, ModeratorMode, TypInfo, Meta,
-  DirectoryForms, SQLgen;
+  DirectoryForms, SQLgen, UTimeTable;
 
 type
 
@@ -15,16 +15,18 @@ type
 
   TMainForm = class(TForm)
     { /menu }
-    MainMenu              : TMainMenu;
-    MenuItemFile          : TMenuItem;
-    MenuItemDirectory     : TMenuItem;
-    MenuItemAbout         : TMenuItem;
+    MainMenu            : TMainMenu;
+    MenuItemTimeTable   : TMenuItem;
+    MenuItemFile        : TMenuItem;
+    MenuItemDirectory   : TMenuItem;
+    MenuItemAbout       : TMenuItem;
 
     { /form procedures }
     procedure FormCreate(Sender : TObject);
     procedure FormKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
     procedure FormUpdate(Sender : TObject);
     procedure MenuItemAboutClick(Sender : TObject);
+    procedure MenuItemTimeTableClick(Sender : TObject);
     procedure OnClickMenuItem(Sender : TObject);
 
     { /work with derectory}
@@ -94,6 +96,13 @@ procedure TMainForm.MenuItemAboutClick(Sender : TObject);
 begin
   with (MetaData.TranslateList) do
     ShowMessage(Values['AboutProgram'] + #13 + Values['AboutProgramName']);
+end;
+
+procedure TMainForm.MenuItemTimeTableClick(Sender: TObject);
+begin
+  TimeTableForm := TTimeTableForm.Create(Application);
+  TimeTableForm.SetParam(Sender);
+  TimeTableForm.Show;
 end;
 
 procedure TMainForm.CreateDirectoryMenuItems();

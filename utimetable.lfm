@@ -1,0 +1,135 @@
+object TimeTableForm: TTimeTableForm
+  Left = 47
+  Height = 616
+  Top = 143
+  Width = 1336
+  Caption = 'TimeTableForm'
+  ClientHeight = 616
+  ClientWidth = 1336
+  Color = clWindow
+  OnCreate = FormCreate
+  LCLVersion = '1.4.0.4'
+  object StringGrid: TStringGrid
+    Left = 0
+    Height = 504
+    Top = 112
+    Width = 896
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 0
+    OnDblClick = StringGridDblClick
+    OnDrawCell = StringGridDrawCell
+    OnMouseDown = StringGridMouseDown
+  end
+  object FilterPanel: TPanel
+    Left = 896
+    Height = 506
+    Top = 112
+    Width = 448
+    Anchors = [akTop, akRight, akBottom]
+    ClientHeight = 506
+    ClientWidth = 448
+    TabOrder = 1
+    object FilterButton: TButton
+      Left = 8
+      Height = 25
+      Top = 472
+      Width = 424
+      Anchors = [akRight, akBottom]
+      Caption = 'Добавить новый фильтр'
+      TabOrder = 0
+    end
+  end
+  object FilterLabel: TLabel
+    Left = 1096
+    Height = 15
+    Top = 96
+    Width = 53
+    Anchors = [akTop, akRight]
+    Caption = 'Фильтры:'
+    ParentColor = False
+  end
+  object DataListBox: TCheckListBox
+    Left = 720
+    Height = 96
+    Top = 8
+    Width = 176
+    ItemHeight = 0
+    TabOrder = 2
+  end
+  object ColListBox: TCheckListBox
+    Left = 536
+    Height = 96
+    Top = 8
+    Width = 176
+    ItemHeight = 0
+    TabOrder = 3
+  end
+  object RowListBox: TCheckListBox
+    Left = 352
+    Height = 96
+    Top = 8
+    Width = 176
+    ItemHeight = 0
+    TabOrder = 4
+  end
+  object ColComboBox: TComboBox
+    Left = 88
+    Height = 23
+    Top = 64
+    Width = 168
+    ItemHeight = 15
+    TabOrder = 5
+  end
+  object ColLabel: TLabel
+    Left = 16
+    Height = 15
+    Top = 64
+    Width = 53
+    Caption = 'Столбцы:'
+    ParentColor = False
+  end
+  object RowComboBox: TComboBox
+    Left = 88
+    Height = 23
+    Top = 24
+    Width = 168
+    ItemHeight = 15
+    TabOrder = 6
+  end
+  object RowLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 24
+    Width = 43
+    Caption = 'Строки:'
+    ParentColor = False
+  end
+  object ApplyButton: TButton
+    Left = 264
+    Height = 66
+    Top = 22
+    Width = 75
+    Caption = 'применить'
+    OnClick = ApplyButtonClick
+    TabOrder = 7
+  end
+  object FSQLQuery: TSQLQuery
+    FieldDefs = <>
+    Database = DBDataModule.IBConnection
+    Transaction = DBDataModule.SQLTransaction
+    Params = <>
+    left = 280
+    top = 352
+  end
+  object FSQLTransaction: TSQLTransaction
+    Active = False
+    Database = DBDataModule.IBConnection
+    left = 320
+    top = 400
+  end
+  object FDataSource: TDataSource
+    DataSet = FSQLQuery
+    left = 376
+    top = 448
+  end
+end

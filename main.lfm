@@ -2820,6 +2820,10 @@ object MainForm: TMainForm
     object MenuItemDirectory: TMenuItem
       Caption = 'Справочник'
     end
+    object MenuItemTimeTable: TMenuItem
+      Caption = 'Расписание'
+      OnClick = MenuItemTimeTableClick
+    end
     object MenuItemAbout: TMenuItem
       Caption = 'Справка'
       OnClick = MenuItemAboutClick

@@ -16,12 +16,11 @@ type
     function GenUpdateQuery(ANum : integer)                   : TStringList;
     function GenDeleteQuery(AName : string; ANum : integer)   : string;
     function GetId(ATag, ANum, Index : integer)               : integer;
+    function GetNameField(ATag, Index : integer)              : string;
 
     procedure SetColName(ADBGrid : TDBGrid; ANum : integer);
     procedure GenFilters(ANum : integer; AFilter : array of TDirectoryFilter;
       ASQLQuery : TSQLQuery);
-  private
-   // ResultQuery  : TStringList;
   end;
 
 var
@@ -195,6 +194,21 @@ end;
 function TSQL.GenDeleteQuery(AName : string; ANum : integer) : string;
 begin
   Result := 'DELETE FROM ' + AName + ' WHERE ID = ' + IntToStr(ANum);
+end;
+
+function TSQL.GetNameField(ATag, Index: integer): string;
+var
+  t: integer;
+begin
+  if MetaData.Tables[ATag].Fields[index + 1].Reference <> nil then
+  begin
+    t:= MetaData.Tables[ATag].Fields[index + 1].Reference.TableTag;
+    Result:= MetaData.Tables[t].Name + '.' +
+      MetaData.Tables[t].Fields[1].Name;
+  end
+  else
+    Result:= MetaData.Tables[ATag].Name + '.' +
+      MetaData.Tables[ATag].Fields[index + 1].Name;
 end;
 
 function TSQL.GetId(ATag, ANum, Index : integer) : integer;
