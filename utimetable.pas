@@ -327,11 +327,6 @@ var
 begin
   FSQLQuery.Close;
   SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
-
-  with (SQLGenerator) do
-    FSQLQuery.SQL.Append('ORDER BY ' + GetNameField(Tag, ColComboBox.ItemIndex) +
-                         ', ' + GetNameField(Tag, RowComboBox.ItemIndex));
-
   FSQLQuery.Open;
 
   RowSL := MetaData.Tables[Tag].GetDataFieldOfIndex(RowComboBox.ItemIndex + 1);

@@ -1,7 +1,7 @@
 object DirectoryForm: TDirectoryForm
-  Left = 351
+  Left = 162
   Height = 505
-  Top = 100
+  Top = 207
   Width = 1069
   Anchors = [akTop, akLeft, akRight, akBottom]
   ClientHeight = 505
