@@ -27,7 +27,7 @@ type
     FilterEdit   : TEdit;
     ApplyBtn     : TSpeedButton;
     DelBtn       : TSpeedButton;
-    procedure CreateFilter(AForm : TForm; ANum : integer; AList : TStringList);
+    procedure CreateFilter(APanel : TPanel; ANum : integer; AList : TStringList);
     procedure DeleteFilter(Sender : TObject);
     procedure ApplyFilter(Sender : TObject);
     procedure ChangeParam(Sender : TObject);
@@ -57,7 +57,7 @@ var
 
 implementation
 
-procedure TDirectoryFilter.CreateFilter(AForm : TForm; ANum : integer;
+procedure TDirectoryFilter.CreateFilter(APanel : TPanel; ANum : integer;
                                                 AList : TStringList);
 var
   TopSize, i : integer;
@@ -67,11 +67,11 @@ begin
   Status    := False;
 
   { FilPanel }
-  FilPanel        := TPanel.Create(AForm);
+  FilPanel        := TPanel.Create(APanel);
   with (FilPanel) do
   begin
-    Parent        := AForm;
-    Left          := AForm.Width - PnlWidth;
+    Parent        := APanel;
+    Left          := APanel.Width - PnlWidth;
     Width         := PnlWidth    - BrdrSize;
     Top           := PnlHeight   * (ANum - 1) + BrdrSize;
     Height        := PnlHeight;

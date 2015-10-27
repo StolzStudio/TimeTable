@@ -305,7 +305,7 @@ begin
   SetLength(DirectoryFilter, FilterNum + 1);
   DirectoryFilter[FilterNum] := TDirectoryFilter.Create;
   DirectoryFilter[FilterNum].FormTag := Tag;
-  DirectoryFilter[FilterNum].CreateFilter(TableForms.FForms[Tag], FilterNum, GenDATA(Tag));
+  DirectoryFilter[FilterNum].CreateFilter(TableForms.FForms[Tag].FilterPanel, FilterNum, GenDATA(Tag));
   inc(FilterNum);
 end;
 
