@@ -37,8 +37,10 @@ type
     StringGrid        : TStringGrid;
 
     procedure ApplyButtonClick(Sender : TObject);
-    procedure FilterPanelClick(Sender: TObject);
+    procedure FilterButtonClick(Sender: TObject);
+    procedure AddNewFilter();
     procedure FormCreate(Sender : TObject);
+    procedure FormPaint(Sender: TObject);
     procedure StringGridDblClick(Sender : TObject);
     procedure StringGridDrawCell(Sender : TObject; aCol, aRow : Integer;
                                  aRect : TRect; aState : TGridDrawState);
@@ -48,6 +50,7 @@ type
   private
     DirectoryFilter   : array of TDirectoryFilter;
     DataArray         : array of array of TStringList;
+    FilterNum         : integer;
     CurrentRowHeight  : integer;
     Row               : integer;
     Col               : integer;
@@ -79,6 +82,34 @@ implementation
 procedure TTimeTableForm.FormCreate(Sender : TObject);
 begin
   SetLength(DirectoryFilter, 0);
+  InvalidateEvent := @FormPaint;
+  FilterNum := 1;
+end;
+
+procedure TTimeTableForm.FormPaint(Sender: TObject);
+var
+  i : integer;
+begin
+  if (DelFilterNum <> -1) then
+  begin
+    for i := DelFilterNum to high(DirectoryFilter) - 1 do
+    begin
+      DirectoryFilter[i]                := DirectoryFilter[i + 1];
+      DirectoryFilter[i].Tag            := i;
+      DirectoryFilter[i].FilPanel.Top   := PnlHeight * (i - 1) + BrdrSize;
+    end;
+    SetLength(DirectoryFilter, Length(DirectoryFilter) - 1);
+    DelFilterNum   := -1;
+    FilterNum      := FilterNum - 1;
+  end;
+
+  if (FilterChangeStatus = true) then
+  begin
+    FillGridData();
+    FilterChangeStatus := false;
+  end;
+
+
 end;
 
 procedure TTimeTableForm.StringGridDblClick(Sender : TObject);
@@ -188,9 +219,24 @@ begin
   UpdateHeaderVisible();
 end;
 
-procedure TTimeTableForm.FilterPanelClick(Sender: TObject);
+procedure TTimeTableForm.FilterButtonClick(Sender: TObject);
+var
+  MaxNum: integer;
 begin
+  MaxNum := 16;
+  if (FilterNum < MaxNum) then
+  begin
+    AddNewFilter();
+  end;
+end;
 
+procedure TTimeTableForm.AddNewFilter();
+begin
+  SetLength(DirectoryFilter, FilterNum + 1);
+  DirectoryFilter[FilterNum] := TDirectoryFilter.Create;
+  DirectoryFilter[FilterNum].FormTag := Tag;
+  DirectoryFilter[FilterNum].CreateFilter(FilterPanel, FilterNum, GenDATA(Tag));
+  inc(FilterNum);
 end;
 
 procedure TTimeTableForm.UpdateHeaderVisible();

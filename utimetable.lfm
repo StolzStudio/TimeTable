@@ -1,42 +1,32 @@
 object TimeTableForm: TTimeTableForm
-  Left = -426
+  Left = 32
   Height = 616
-  Top = 154
+  Top = 138
   Width = 1336
   Caption = 'TimeTableForm'
   ClientHeight = 616
   ClientWidth = 1336
   Color = clWindow
   OnCreate = FormCreate
+  OnPaint = FormPaint
   LCLVersion = '1.4.0.4'
-  object StringGrid: TStringGrid
-    Left = 0
-    Height = 504
-    Top = 112
-    Width = 896
-    Anchors = [akTop, akLeft, akRight, akBottom]
-    TabOrder = 0
-    OnDblClick = StringGridDblClick
-    OnDrawCell = StringGridDrawCell
-    OnMouseDown = StringGridMouseDown
-  end
   object FilterPanel: TPanel
-    Left = 896
+    Left = 888
     Height = 506
-    Top = 112
+    Top = 110
     Width = 448
     Anchors = [akTop, akRight, akBottom]
     ClientHeight = 506
     ClientWidth = 448
     TabOrder = 1
-    OnClick = FilterPanelClick
     object FilterButton: TButton
-      Left = 8
+      Left = 24
       Height = 25
       Top = 472
-      Width = 424
+      Width = 416
       Anchors = [akRight, akBottom]
       Caption = 'Добавить новый фильтр'
+      OnClick = FilterButtonClick
       TabOrder = 0
     end
   end
@@ -113,6 +103,17 @@ object TimeTableForm: TTimeTableForm
     Caption = 'применить'
     OnClick = ApplyButtonClick
     TabOrder = 7
+  end
+  object StringGrid: TStringGrid
+    Left = 0
+    Height = 504
+    Top = 112
+    Width = 896
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 0
+    OnDblClick = StringGridDblClick
+    OnDrawCell = StringGridDrawCell
+    OnMouseDown = StringGridMouseDown
   end
   object FSQLQuery: TSQLQuery
     FieldDefs = <>
