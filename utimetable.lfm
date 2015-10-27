@@ -1,7 +1,7 @@
 object TimeTableForm: TTimeTableForm
-  Left = 47
+  Left = -426
   Height = 616
-  Top = 143
+  Top = 154
   Width = 1336
   Caption = 'TimeTableForm'
   ClientHeight = 616
@@ -29,6 +29,7 @@ object TimeTableForm: TTimeTableForm
     ClientHeight = 506
     ClientWidth = 448
     TabOrder = 1
+    OnClick = FilterPanelClick
     object FilterButton: TButton
       Left = 8
       Height = 25

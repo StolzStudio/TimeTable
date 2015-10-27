@@ -13,9 +13,9 @@ type
 
   { TDirectoryForm }
   TDirectoryForm = class(TForm)
-    { /interface }
-    FilterButton      : TSpeedButton;
     AddFilterButton   : TSpeedButton;
+    FilterButton1: TButton;
+    FilterPanel: TPanel;
     InsertButton      : TSpeedButton;
     EditButton        : TSpeedButton;
     DeleteButton      : TSpeedButton;
@@ -30,7 +30,6 @@ type
     procedure InsertButtonClick(Sender : TObject);
     procedure DeleteButtonClick(Sender : TObject);
     procedure EditButtonClick(Sender : TObject);
-    procedure FilterButtonClick(Sender : TObject);
     procedure FormCreate(Sender : TObject);
     procedure FormPaint(Sender : TObject);
     procedure FormShow(Sender : TObject);
@@ -99,28 +98,6 @@ begin
 
   SQLGenerator.SetColName(FDBGrid, Tag);
   FilterNum := 1;
-end;
-
-procedure TDirectoryForm.FilterButtonClick(Sender : TObject);
-var
- Frm : TDirectoryForm;
-begin
-  FilterButton.free;
-  FDBGrid.Width     := Width - (PnlWidth + 2 * BrdrSize);
-  Frm               := TableForms.FForms[Tag];
-  { AddFilterButton }
-  AddFilterButton   := TSpeedButton.Create(Frm);
-  with(AddFilterButton) do
-  begin
-    Parent    := Frm;
-    Left      := Frm.Width - PnlWidth;
-    Top       := Frm.Height - BrdrSize - Height;
-    Width     := PnlWidth - BrdrSize;
-    Caption   := MetaData.TranslateList.Values['CreateFilter'];
-    OnClick   := @AddFilterButtonClick;
-    Anchors   := [akRight, akBottom];
-  end;
-  AddNewFilter();
 end;
 
 procedure TDirectoryForm.EditButtonClick(Sender: TObject);

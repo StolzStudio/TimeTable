@@ -37,6 +37,7 @@ type
     StringGrid        : TStringGrid;
 
     procedure ApplyButtonClick(Sender : TObject);
+    procedure FilterPanelClick(Sender: TObject);
     procedure FormCreate(Sender : TObject);
     procedure StringGridDblClick(Sender : TObject);
     procedure StringGridDrawCell(Sender : TObject; aCol, aRow : Integer;
@@ -185,6 +186,11 @@ begin
   FillListBox(ColSL, RowSL);
   FillGridData();
   UpdateHeaderVisible();
+end;
+
+procedure TTimeTableForm.FilterPanelClick(Sender: TObject);
+begin
+
 end;
 
 procedure TTimeTableForm.UpdateHeaderVisible();
