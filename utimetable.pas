@@ -75,6 +75,7 @@ implementation
 var
   ListNamesImg: array [0..2] of string = ('tt_add.png','tt_edit.png',
     'tt_del.png');
+
   const Margin          = 2;
   const DefHeightFont   = 17;
   const DefCountStr     = 8;
@@ -156,12 +157,14 @@ procedure TTimeTableForm.StringGridDrawCell(Sender : TObject;
                                             aCol, aRow : Integer; aRect : TRect;
                                             aState : TGridDrawState);
 var
-  i, c, j, count : integer;
+  i, c, j : integer;
 begin
   if (length(DataArray) <> 0) and (aRow <> 0) and (aCol <> 0) then
     with StringGrid.Canvas do
     begin
-      count := GetCountCheckedItems + 1;
+
+      Draw(DefWidthCol + aRect.Left - ImgArray[0].Width - Margin, aRect.Top +
+        Margin, ImgArray[0].Graphic);
 
       if (DataArray[aRow - 1][aCol - 1] <> nil) and
          (DataArray[aRow - 1][aCol - 1].Count <> 0) then
