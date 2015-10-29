@@ -46,6 +46,8 @@ type
                                  aRect : TRect; aState : TGridDrawState);
     procedure StringGridMouseDown(Sender : TObject; Button : TMouseButton;
                                   Shift : TShiftState; X, Y : Integer);
+    procedure DrawImg(ACanvas : TCanvas; ARect : TRect;
+                      ACountItems : integer; ANum : integer);
     { /end }
   private
     DirectoryFilter   : array of TDirectoryFilter;
@@ -157,8 +159,9 @@ procedure TTimeTableForm.StringGridDrawCell(Sender : TObject;
                                             aCol, aRow : Integer; aRect : TRect;
                                             aState : TGridDrawState);
 var
-  i, c, j : integer;
+  i, c, j, cnt : integer;
 begin
+  cnt := GetCountCheckedItems + 1;
   if (length(DataArray) <> 0) and (aRow <> 0) and (aCol <> 0) then
     with StringGrid.Canvas do
     begin
@@ -169,6 +172,7 @@ begin
       if (DataArray[aRow - 1][aCol - 1] <> nil) and
          (DataArray[aRow - 1][aCol - 1].Count <> 0) then
       begin
+        DrawImg(StringGrid.Canvas, aRect, cnt, 0);
         c  := DataArray[aRow - 1][aCol - 1].Count div 8;
         j  := -1;
 
@@ -188,6 +192,7 @@ begin
             inc(j);
             TextOut(aRect.Left + Margin, aRect.Top + j * DefHeightFont,
                     DataArray[aRow - 1][aCol - 1][i]);
+            DrawImg (StringGrid.Canvas, aRect, cnt, round(i / DefCountStr));
           end;
 
         if StringGrid.RowHeights[aRow] < c*CurrentRowHeight then
@@ -204,6 +209,20 @@ begin
           Font.Size   := 0;
         end;
       end;
+    end;
+end;
+
+procedure TTimeTableForm.DrawImg(ACanvas: TCanvas; ARect: TRect;
+                                 ACountItems: integer; ANum: integer);
+var
+  i: integer;
+begin
+  with ACanvas do
+    for i:= 1 to 2 do
+    begin
+      Draw(DefWidthCol + aRect.Left - ImgArray[i].Width - Margin,
+        aRect.Top + (i)*ImgArray[i].Height + 2*Margin +
+        ACountItems*DefHeightFont*ANum, ImgArray[i].Graphic);
     end;
 end;
 
