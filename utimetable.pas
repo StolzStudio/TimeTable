@@ -50,6 +50,7 @@ type
   private
     DirectoryFilter   : array of TDirectoryFilter;
     DataArray         : array of array of TStringList;
+    ImgArray          : array [0..2] of TPicture;
     FilterNum         : integer;
     CurrentRowHeight  : integer;
     Row               : integer;
@@ -71,6 +72,9 @@ var
 
 implementation
 
+var
+  ListNamesImg: array [0..2] of string = ('tt_add.png','tt_edit.png',
+    'tt_del.png');
   const Margin          = 2;
   const DefHeightFont   = 17;
   const DefCountStr     = 8;
@@ -80,10 +84,18 @@ implementation
 { TTimeTableForm }
 
 procedure TTimeTableForm.FormCreate(Sender : TObject);
+var
+  i : integer;
 begin
   SetLength(DirectoryFilter, 0);
   InvalidateEvent := @FormPaint;
   FilterNum := 1;
+
+  for i := 0 to high(ListNamesImg) do
+  begin
+    ImgArray[i] := TPicture.Create;
+    ImgArray[i].LoadFromFile('icon\' + ListNamesImg[i]);
+  end;
 end;
 
 procedure TTimeTableForm.FormPaint(Sender: TObject);
