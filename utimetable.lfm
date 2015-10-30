@@ -45,6 +45,7 @@ object TimeTableForm: TTimeTableForm
     Top = 8
     Width = 176
     ItemHeight = 0
+    OnItemClick = DataListBoxItemClick
     TabOrder = 2
   end
   object ColListBox: TCheckListBox
@@ -53,6 +54,7 @@ object TimeTableForm: TTimeTableForm
     Top = 8
     Width = 176
     ItemHeight = 0
+    OnItemClick = RowListBoxItemClick
     TabOrder = 3
   end
   object RowListBox: TCheckListBox
@@ -61,6 +63,7 @@ object TimeTableForm: TTimeTableForm
     Top = 8
     Width = 176
     ItemHeight = 0
+    OnItemClick = RowListBoxItemClick
     TabOrder = 4
   end
   object ColComboBox: TComboBox

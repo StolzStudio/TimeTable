@@ -37,10 +37,12 @@ type
     StringGrid        : TStringGrid;
 
     procedure ApplyButtonClick(Sender : TObject);
+    procedure DataListBoxItemClick(Sender: TObject; Index: integer);
     procedure FilterButtonClick(Sender: TObject);
     procedure AddNewFilter();
     procedure FormCreate(Sender : TObject);
     procedure FormPaint(Sender: TObject);
+    procedure RowListBoxItemClick(Sender: TObject; Index: integer);
     procedure StringGridDblClick(Sender : TObject);
     procedure StringGridDrawCell(Sender : TObject; aCol, aRow : Integer;
                                  aRect : TRect; aState : TGridDrawState);
@@ -48,6 +50,7 @@ type
                                   Shift : TShiftState; X, Y : Integer);
     procedure DrawImg(ACanvas : TCanvas; ARect : TRect;
                       ACountItems : integer; ANum : integer);
+    procedure UpdateRowsHeight(Index : integer);
     { /end }
   private
     DirectoryFilter   : array of TDirectoryFilter;
@@ -125,6 +128,11 @@ begin
   end;
 
 
+end;
+
+procedure TTimeTableForm.RowListBoxItemClick(Sender: TObject; Index: integer);
+begin
+  UpdateHeaderVisible();
 end;
 
 procedure TTimeTableForm.StringGridDblClick(Sender : TObject);
@@ -251,6 +259,38 @@ begin
   FillListBox(ColSL, RowSL);
   FillGridData();
   UpdateHeaderVisible();
+end;
+
+procedure TTimeTableForm.DataListBoxItemClick(Sender: TObject; Index: integer);
+begin
+  if GetCountCheckedItems < 3 then
+    DataListBox.Checked[Index] := true
+  else
+  begin
+    CurrentRowHeight := (GetCountCheckedItems + 1) * DefHeightFont;
+    UpdateRowsHeight(Index);
+    StringGrid.Invalidate;
+  end;
+end;
+
+procedure TTimeTableForm.UpdateRowsHeight(Index: integer);
+var
+  k, c: integer;
+begin
+  with (StringGrid) do
+  begin
+    for k := 1 to RowCount - 1 do
+      if CurrentRowHeight >= RowHeights[k] then
+        RowHeights[k] := CurrentRowHeight
+      else
+      begin
+        if DataListBox.Checked[Index] then
+          c := round(RowHeights[k] / (GetCountCheckedItems * DefHeightFont))
+        else
+          c := round(RowHeights[k] / ((GetCountCheckedItems + 2) * DefHeightFont));
+        RowHeights[k] := c * CurrentRowHeight;
+      end;
+  end;
 end;
 
 procedure TTimeTableForm.FilterButtonClick(Sender: TObject);
