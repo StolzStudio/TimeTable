@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
-  Grids, ExtCtrls, StdCtrls, CheckLst, Filters, DirectoryForms, Meta, SQLGen,
-  ChangeFormData, DBConnection;
+  Grids, ExtCtrls, StdCtrls, CheckLst, Menus, Filters, DirectoryForms, Meta,
+  SQLGen, ChangeFormData, DBConnection;
 
 type
 
@@ -17,12 +17,15 @@ type
     { /interface }
     ApplyButton       : TButton;
     ColComboBox       : TComboBox;
+    MainMenu          : TMainMenu;
+    ExportMenuItem    : TMenuItem;
     RowLabel          : TLabel;
     RowComboBox       : TComboBox;
     DataListBox       : TCheckListBox;
     ColListBox        : TCheckListBox;
     ColLabel          : TLabel;
     RowListBox        : TCheckListBox;
+    SaveDialog        : TSaveDialog;
     StringGrid        : TStringGrid;
     { /end }
 
@@ -40,6 +43,7 @@ type
 
     procedure ApplyButtonClick(Sender : TObject);
     procedure DataListBoxItemClick(Sender: TObject; Index: integer);
+    procedure ExportMenuItemClick(Sender: TObject);
     procedure FilterButtonClick(Sender: TObject);
 
     procedure FormCreate(Sender : TObject);
@@ -435,6 +439,16 @@ begin
     DefRowHeight := (GetCountCheckedItems + 1) * DefHeightFont;
     UpdateRowsHeight(Index);
     StringGrid.Invalidate;
+  end;
+end;
+
+procedure TTimeTableForm.ExportMenuItemClick(Sender: TObject);
+var
+  s : String;
+begin
+  if SaveDialog.Execute then
+  begin
+    s := SaveDialog.FileName;
   end;
 end;
 

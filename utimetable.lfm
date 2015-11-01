@@ -4,25 +4,26 @@ object TimeTableForm: TTimeTableForm
   Top = 138
   Width = 1336
   Caption = 'TimeTableForm'
-  ClientHeight = 616
+  ClientHeight = 596
   ClientWidth = 1336
   Color = clWindow
+  Menu = MainMenu
   OnCreate = FormCreate
   OnPaint = FormPaint
   LCLVersion = '1.4.0.4'
   object FilterPanel: TPanel
     Left = 888
-    Height = 506
+    Height = 486
     Top = 110
     Width = 448
     Anchors = [akTop, akRight, akBottom]
-    ClientHeight = 506
+    ClientHeight = 486
     ClientWidth = 448
     TabOrder = 1
     object FilterButton: TButton
       Left = 24
       Height = 25
-      Top = 472
+      Top = 452
       Width = 416
       Anchors = [akRight, akBottom]
       Caption = 'Добавить новый фильтр'
@@ -109,7 +110,7 @@ object TimeTableForm: TTimeTableForm
   end
   object StringGrid: TStringGrid
     Left = 0
-    Height = 504
+    Height = 484
     Top = 112
     Width = 896
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -138,5 +139,18 @@ object TimeTableForm: TTimeTableForm
     DataSet = FSQLQuery
     left = 376
     top = 448
+  end
+  object MainMenu: TMainMenu
+    left = 944
+    top = 16
+    object ExportMenuItem: TMenuItem
+      Caption = 'Сохранить'
+      OnClick = ExportMenuItemClick
+    end
+  end
+  object SaveDialog: TSaveDialog
+    Filter = '.html|.html'
+    left = 1008
+    top = 16
   end
 end

@@ -96,7 +96,6 @@ begin
   SQLGenerator.SetColName(FDBGrid, Tag);
   FilterNum := 1;
   EditingManager := TEditingManager.Create;
-  invalidate;
 end;
 
 procedure TDirectoryForm.EditButtonClick(Sender: TObject);
