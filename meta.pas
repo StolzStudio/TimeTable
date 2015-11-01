@@ -200,7 +200,7 @@ var
   SL        : TStringList;
   FSQLQuery : TSQLQuery;
 begin
-  FSQLQuery            := DBDataModule.SQLQuery;
+  FSQLQuery            := DBDataModule.SQLQuery1;
   FSQLQuery.Close;
   FSQLQuery.SQL.Text   := 'SELECT * FROM ';
   SL                   := TStringList.Create;

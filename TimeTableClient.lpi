@@ -58,6 +58,7 @@
         <ComponentName Value="DBDataModule"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="DataModule"/>
+        <UnitName Value="DBConnection"/>
       </Unit2>
       <Unit3>
         <Filename Value="moderatormode.pas"/>

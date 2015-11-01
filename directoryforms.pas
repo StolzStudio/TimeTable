@@ -24,9 +24,6 @@ type
     procedure DeleteRecord(AId, ATag: integer);
 
     function CheckFormOpenForId(AId : integer) : TFormData;
-    //procedure FillComboBox(AList: TStringList; ANum: integer; Index: integer);
-    //function isFormOpenedForId(AId: integer): TFormChangeData1;
-    //function GetCountForms(): integer;
     procedure SetItemIndex(ANum, AIndex, ANum1, AIndex1: integer);
   end;
 
@@ -56,12 +53,7 @@ type
     { /work with sql }
     procedure SetParams(Sender : TObject);
     procedure AddFilterButtonClick(Sender : TObject);
-    //procedure EditRecord(ATag : integer; AList : TStringList);
-    //procedure InsertRecord(ATag : integer; AList : TStringList);
-    //procedure DeleteRecord(AId, ATag : integer);
     procedure AddNewFilter();
-    //procedure OpenFormEditingTable(AChangeType : TChangeType;
-    //                               ATag : integer; AList : TStringList);
   private
     FilterNum         : integer;
     EditingManager    : TEditingManager;
@@ -175,7 +167,7 @@ begin
       for i := 0 to high(Fields) do
         if (Fields[i].Caption <> MetaData.TranslateList.Values['id']) then
         begin
-          SL:= GetDataFieldOfIndex(i);
+          SL := GetDataFieldOfIndex(i);
 
           SetLength(DataControl, length(DataControl) + 1);
           if (Fields[i].Reference <> nil) then
