@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DBConnection, ExtCtrls, ModeratorMode, TypInfo, Meta,
-  DirectoryForms, SQLgen, UTimeTable;
+  DirectoryForms, SQLgen, UTimeTable, ChangeFormData;
 
 type
 
@@ -21,6 +21,7 @@ type
     MenuItemDirectory   : TMenuItem;
     MenuItemAbout       : TMenuItem;
 
+    procedure GlobalUpdate();
     { /form procedures }
     procedure FormCreate(Sender : TObject);
     procedure FormKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
@@ -52,6 +53,7 @@ implementation
 procedure TMainForm.FormCreate(Sender : TObject);
 begin
   MainForm.Caption := ProgName;
+  UpdateEvent      := @GlobalUpdate;
 
   { /moderator}
   Moderator                   := TModeratorMode.Create;
@@ -210,5 +212,19 @@ begin
   Moderator.id_visible := Moderator.IdCheckBox.Checked;
 end;
 
+procedure TMainForm.GlobalUpdate();
+var
+  i: integer;
+begin
+  for i := 0 to high(TableForms.FForms) do
+    if (TableForms.FForms[i] <> nil) then
+      with (TableForms.FForms[i]) do
+      begin
+        SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+        SQLGenerator.SetColName(FDBGrid, Tag);
+      end;
+  if (TimeTableForm <> nil) then
+    TimeTableForm.FillGridData();
+end;
 end.
 

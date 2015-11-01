@@ -54,15 +54,16 @@ type
     procedure SetParams(Sender : TObject);
     procedure AddFilterButtonClick(Sender : TObject);
     procedure AddNewFilter();
+  public
+    DirectoryFilter   : array of TDirectoryFilter;
   private
     FilterNum         : integer;
     EditingManager    : TEditingManager;
-    DirectoryFilter   : array of TDirectoryFilter;
   end;
 
   TTableForms = class
     FForms : array of TDirectoryForm;
-    procedure GlobalUpdate();
+    //procedure GlobalUpdate();
     constructor Create;
   end;
 
@@ -79,27 +80,14 @@ implementation
 constructor TTableForms.Create;
 begin
   SetLength(FForms, length(MetaData.Tables));
-  UpdateEvent    := @GlobalUpdate;
   DelFilterNum   := -1;
 end;
 
-procedure TTableForms.GlobalUpdate();
-var
-  i: integer;
-begin
-  for i := 0 to high(FForms) do
-    if (FForms[i] <> nil) then
-      with FForms[i] do
-      begin
-        SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
-        SQLGenerator.SetColName(FDBGrid, Tag);
-      end;
-end;
 
 procedure TDirectoryForm.SetParams(Sender: TObject);
 begin
-  Tag       := (Sender as TMenuItem).Tag;
-  Caption   := MetaData.Tables[Tag].Caption;
+  Tag         := (Sender as TMenuItem).Tag;
+  Caption     := MetaData.Tables[Tag].Caption;
 
   FSQLQuery.Close;
   FSQLQuery.SQL.Text   := SQLGenerator.GenParams(Tag).Text;
@@ -108,6 +96,7 @@ begin
   SQLGenerator.SetColName(FDBGrid, Tag);
   FilterNum := 1;
   EditingManager := TEditingManager.Create;
+  invalidate;
 end;
 
 procedure TDirectoryForm.EditButtonClick(Sender: TObject);

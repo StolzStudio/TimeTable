@@ -56,6 +56,7 @@ type
       Shift: TShiftState; X, Y: Integer);
 
     procedure UpdateRowsHeight(Index : integer);
+    procedure FillGridData();
   private
     DirectoryFilter   : array of TDirectoryFilter;
     DataArray         : array of array of TStringList;
@@ -73,7 +74,6 @@ type
 
     procedure FillComboBox(AList : TStringList);
     procedure FillListBox(AColList, ARowList : TStringList);
-    procedure FillGridData();
     procedure UpdateHeaderVisible();
     procedure ChangeCaptionColumn(AColList, ARowList : TStringList);
     procedure DrawImg(ACanvas : TCanvas; ARect : TRect;
