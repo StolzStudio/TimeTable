@@ -82,7 +82,8 @@ type
     procedure DrawArrow(ACanvas : TCanvas; ARect : TRect;
                         aRow : Integer; AText : String);
     procedure DrawText(ACanvas : TCanvas; ARect : TRect;
-                       ASL : TStringList; Acnt : integer);
+                       ASL : TStringList; Acnt : integer;
+                       aRow, aCol : integer);
 
     { /editing }
     procedure InsertClick(Ax, Ay: integer);
@@ -211,7 +212,7 @@ begin
       begin
         DrawImg(StringGrid.Canvas, aRect, cnt, 0);
         c := SL.Count div PairNum;
-        DrawText(Canvas, aRect, Sl, cnt);
+        DrawText(Canvas, aRect, Sl, cnt, aRow, aCol);
 
         if (StringGrid.RowHeights[aRow] < c * DefRowHeight) then
           DrawArrow(StringGrid.Canvas, aRect, aRow, ' ↓ ' +
@@ -221,7 +222,8 @@ begin
 end;
 
 procedure TTimeTableForm.DrawText(ACanvas : TCanvas; ARect : TRect;
-                                  ASL : TStringList; Acnt : integer);
+                                  ASL : TStringList; Acnt : integer;
+                                  aRow, aCol : integer);
 var
   i, j: integer;
 begin
@@ -235,7 +237,8 @@ begin
         ACanvas.TextOut(ARect.Left + Margin, ARect.Top + j * DefHeightFont, ASL[i]);
       end;
     end
-    else begin
+    else if (i <> DataArray[aRow - 1][aCol - 1].Count - 1) then
+    begin
       inc(j);
       DrawImg (StringGrid.Canvas, ARect, Acnt, round(i / DefCountStr));
     end;
