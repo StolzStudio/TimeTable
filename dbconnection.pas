@@ -28,8 +28,10 @@ type
   TDBDataModule = class(TDataModule)
     { /SQL }
     DSource          : TDataSource;
+    DSource1         : TDataSource;
     IBConnection     : TIBConnection;
     SQLQuery         : TSQLQuery;
+    SQLQuery1        : TSQLQuery;
     SQLTransaction   : TSQLTransaction;
     { /end }
 

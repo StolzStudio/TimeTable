@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
   Grids, ExtCtrls, StdCtrls, CheckLst, Filters, DirectoryForms, Meta, SQLGen,
-  ChangeFormData;
+  ChangeFormData, DBConnection;
 
 type
 
@@ -50,6 +50,8 @@ type
                                  aRect : TRect; aState : TGridDrawState);
     procedure StringGridMouseDown(Sender : TObject; Button : TMouseButton;
                                   Shift : TShiftState; X, Y : Integer);
+    procedure StringGridMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure StringGridMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
 
@@ -59,13 +61,15 @@ type
     DataArray         : array of array of TStringList;
     ImgArray          : array [0..2] of TPicture;
     EditingManager    : TEditingManager;
+    DragDropFlag      : boolean;
+    MouseDownFlag     : Boolean;
     FilterNum         : integer;
     DefRowHeight      : integer;
     CurrRowHeight     : integer;
     Row               : integer;
     Col               : integer;
-    Rect              : TRect;
-    State             : TGridDrawState;
+    kX, kY            : integer;
+    cX, cY            : integer;
 
     procedure FillComboBox(AList : TStringList);
     procedure FillListBox(AColList, ARowList : TStringList);
@@ -84,6 +88,7 @@ type
     procedure InsertClick(Ax, Ay: integer);
     procedure DeleteClick(Ax, Ay: integer);
     procedure EditClick(Ax, Ay: integer);
+    procedure DragDropRecord(EndX, EndY: integer);
     { /end }
 
     function GetCountCheckedItems() : integer;
@@ -118,6 +123,7 @@ begin
   InvalidateEvent := @FormPaint;
   EditingManager  := TEditingManager.Create;
   FilterNum       := 1;
+  DragDropFlag    := False;
 
   for i := 0 to high(ListNamesImg) do
   begin
@@ -148,8 +154,6 @@ begin
     FillGridData();
     FilterChangeStatus := false;
   end;
-
-
 end;
 
 procedure TTimeTableForm.RowListBoxItemClick(Sender: TObject; Index: integer);
@@ -272,6 +276,81 @@ procedure TTimeTableForm.StringGridMouseDown(Sender : TObject;
   Button : TMouseButton; Shift : TShiftState; X, Y : Integer);
 begin
   StringGrid.MouseToCell(X, Y, Col, Row);
+  kX := x; kY := y;
+  MouseDownFlag:= true;
+end;
+
+procedure TTimeTableForm.StringGridMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  cX := x; cY := y;
+  if MouseDownFlag then DragDropFlag := true;
+end;
+
+
+procedure TTimeTableForm.DragDropRecord(EndX, EndY: integer);
+var
+  i            : integer;
+  tX, tY       : integer;
+  NumRec       : integer;
+  ParamNum     :integer;
+  DataCell, SL : TStringList;
+  s: string;
+
+  function ParsingDataCell(aRow, aCol, ANum: integer): TStringList;
+  var
+    i           : integer;
+    SL, curr    : TStringList;
+    s           : string;
+  begin
+    SL   := TStringList.Create;
+    curr := DataArray[aRow - 1][aCol - 1];
+
+    for i := DefCountStr * ANum to DefCountStr * (ANum + 1) - 2 do
+    begin
+      s := curr[i];
+      delete(s, 1, pos(':', s) + 1);
+      SL.Append(s);
+    end;
+
+    result:= SL;
+  end;
+
+begin
+  tY     := kY - StringGrid.CellRect(Col, Row).Top;
+  tX     := kX - StringGrid.CellRect(Col, Row).Left;
+  NumRec := tY div DefRowHeight;
+
+  DataCell := ParsingDataCell(Row, Col, NumRec);
+  StringGrid.MouseToCell(EndX, EndY, Col, Row);
+
+  DBDataModule.SQLQuery.Close;
+  DBDataModule.SQLQuery.SQL.Text := 'DELETE FROM ' + MetaData.Tables[Tag].Name +
+                                    ' WHERE ID = ' + DataCell[0];
+  DBDataModule.SQLQuery.ExecSQL;
+
+  DataCell[RowComboBox.ItemIndex + 1] := StringGrid.Cells[0, Row];
+  DataCell[ColComboBox.ItemIndex + 1] := StringGrid.Cells[Col, 0];
+
+  DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenInsertQuery(Tag).Text;
+  DBDataModule.SQLQuery.ParamByName('p0').AsInteger := StrToInt(DataCell[0]);
+
+  for i := 1 to high(MetaData.Tables[Tag].Fields) do
+  begin
+    s := 'p' + IntToStr(i);
+    if MetaData.Tables[Tag].Fields[i].Reference <> nil then
+    begin
+      SL := MetaData.Tables[Tag].GetDataFieldOfIndex(i);
+      ParamNum := SQLGenerator.GetId(Tag, i - 1, SL.IndexOf(DataCell[i]));
+      DBDataModule.SQLQuery.ParamByName(s).AsInteger := ParamNum;
+    end
+    else
+      DBDataModule.SQLQuery.ParamByName(s).AsString := DataCell[i];
+  end;
+
+  DBDataModule.SQLQuery.ExecSQL;
+  DBDataModule.SQLTransaction.Commit;
+  FillGridData();
 end;
 
 procedure TTimeTableForm.StringGridMouseUp(Sender: TObject; Button: TMouseButton;
@@ -280,12 +359,16 @@ var
   i, count: integer;
   tCol, tRow: integer;
   Fy, Fx, NumCol, r: integer;
-  s: string;
-  RowSL, ColSL: TStringList;
 begin
   StringGrid.MouseToCell(x, y, tCol, tRow);
 
   if (tCol = 0) or (tRow = 0) then exit;
+
+  if ((Row <> tRow) or (Col <> tCol)) and (DataArray[Row - 1][Col - 1] <> nil) then
+  begin
+    DragDropRecord(x, y);
+    exit;
+  end;
 
   CurrRowHeight := StringGrid.RowHeights[Row];
 
@@ -296,10 +379,10 @@ begin
   Fx    := x - StringGrid.CellRect(Col, Row).Left;
 
   if (Fx < DefWidthCol - Margin) and (Fx > DefWidthCol - DefWidthImg - Margin) then
+  begin
     if (Fy < DefWidthImg + Margin) and (Fy > Margin) then
       InsertClick(Fx, Fy)
-    else
-    begin
+    else begin
       NumCol := Fy div (count*DefHeightFont);
       r      := 0;
 
@@ -315,8 +398,8 @@ begin
          2 : DeleteClick(Fx, Fy);
        end;
     end;
-
-  FillGridData();
+    FillGridData();
+  end;
 end;
 
 function TTimeTableForm.GetCountCheckedItems() : integer;
@@ -508,8 +591,6 @@ begin
 
   ChangeCaptionColumn(ColSL, RowSL);
   UpdateHeaderVisible();
-
-  StringGrid.Invalidate;
 end;
 
 procedure TTImeTableForm.SetParam(Sender : TObject);

@@ -117,6 +117,7 @@ object TimeTableForm: TTimeTableForm
     OnDblClick = StringGridDblClick
     OnDrawCell = StringGridDrawCell
     OnMouseDown = StringGridMouseDown
+    OnMouseMove = StringGridMouseMove
     OnMouseUp = StringGridMouseUp
   end
   object FSQLQuery: TSQLQuery

@@ -1,7 +1,7 @@
 object DBDataModule: TDBDataModule
   OnCreate = DataModuleCreate
   OldCreateOrder = False
-  Height = 56
+  Height = 114
   HorizontalOffset = 849
   VerticalOffset = 240
   Width = 260
@@ -29,5 +29,18 @@ object DBDataModule: TDBDataModule
   object DSource: TDataSource
     DataSet = SQLQuery
     left = 160
+  end
+  object SQLQuery1: TSQLQuery
+    FieldDefs = <>
+    Database = IBConnection
+    Transaction = SQLTransaction
+    Params = <>
+    left = 216
+    top = 48
+  end
+  object DSource1: TDataSource
+    DataSet = SQLQuery1
+    left = 160
+    top = 48
   end
 end
