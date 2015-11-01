@@ -28,6 +28,7 @@ type
     ApplyBtn     : TSpeedButton;
     DelBtn       : TSpeedButton;
     procedure CreateFilter(APanel : TPanel; ANum : integer; AList : TStringList);
+    procedure EditKeyPress(Sender: TObject; var Key: char);
     procedure DeleteFilter(Sender : TObject);
     procedure ApplyFilter(Sender : TObject);
     procedure ChangeParam(Sender : TObject);
@@ -117,6 +118,7 @@ begin
     Width      := 174;
     Top        := TopSize;
     OnChange   := @ChangeParam;
+    OnKeyPress := @EditKeyPress;
   end;
 
   { ApplyBtn }
@@ -139,6 +141,24 @@ begin
     Top       := TopSize;
     OnClick   := @DeleteFilter;
     Glyph.LoadFromFile('del_icon.bmp');
+  end;
+end;
+
+procedure TDirectoryFilter.EditKeyPress(Sender: TObject; var Key: char);
+var
+  Field: TField;
+begin
+  Field := MetaData.Tables[Tag].Fields[FieldBox.ItemIndex + 1];
+  if (Field.Reference = nil) then
+  begin
+    if (Field.FieldType = TInt) then
+      if not (key in ['0'..'9', #8]) then
+        key := #0;
+  end
+  else begin
+    if (MetaData.Tables[Field.Reference.TableTag].Fields[1].FieldType = TInt) then
+      if not (key in ['0'..'9', #8]) then
+        key := #0;
   end;
 end;
 
