@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
-  Grids, ExtCtrls, StdCtrls, CheckLst, Filters, DirectoryForms, Meta, SQLGen;
+  Grids, ExtCtrls, StdCtrls, CheckLst, Filters, DirectoryForms, Meta, SQLGen,
+  ChangeFormData;
 
 type
 
@@ -49,16 +50,22 @@ type
                                  aRect : TRect; aState : TGridDrawState);
     procedure StringGridMouseDown(Sender : TObject; Button : TMouseButton;
                                   Shift : TShiftState; X, Y : Integer);
+    procedure StringGridMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
 
     procedure UpdateRowsHeight(Index : integer);
   private
     DirectoryFilter   : array of TDirectoryFilter;
     DataArray         : array of array of TStringList;
     ImgArray          : array [0..2] of TPicture;
+    EditingManager    : TEditingManager;
     FilterNum         : integer;
-    DefRowHeight  : integer;
+    DefRowHeight      : integer;
+    CurrRowHeight     : integer;
     Row               : integer;
     Col               : integer;
+    Rect              : TRect;
+    State             : TGridDrawState;
 
     procedure FillComboBox(AList : TStringList);
     procedure FillListBox(AColList, ARowList : TStringList);
@@ -73,7 +80,14 @@ type
     procedure DrawText(ACanvas : TCanvas; ARect : TRect;
                        ASL : TStringList; Acnt : integer);
 
+    { /editing }
+    procedure InsertClick(Ax, Ay: integer);
+    procedure DeleteClick(Ax, Ay: integer);
+    procedure EditClick(Ax, Ay: integer);
+    { /end }
+
     function GetCountCheckedItems() : integer;
+    function GetListDataCell(Ax, Ay: integer): TStringList;
   public
     procedure SetParam(Sender : TObject);
   end;
@@ -91,6 +105,7 @@ var
   const DefHeightFont   = 17;
   const DefCountStr     = 8;
   const DefWidthCol     = 350;
+  const DefWidthImg     = 15;
 {$R *.lfm}
 
 { TTimeTableForm }
@@ -101,7 +116,8 @@ var
 begin
   SetLength(DirectoryFilter, 0);
   InvalidateEvent := @FormPaint;
-  FilterNum := 1;
+  EditingManager  := TEditingManager.Create;
+  FilterNum       := 1;
 
   for i := 0 to high(ListNamesImg) do
   begin
@@ -244,11 +260,11 @@ var
   i: integer;
 begin
   with ACanvas do
-    for i:= 1 to 2 do
+    for i := 1 to 2 do
     begin
       Draw(DefWidthCol + aRect.Left - ImgArray[i].Width - Margin,
-        aRect.Top + (i)*ImgArray[i].Height + 2*Margin +
-        ACountItems*DefHeightFont*ANum, ImgArray[i].Graphic);
+           aRect.Top + (i) * ImgArray[i].Height + 2 * Margin +
+           ACountItems * DefHeightFont * ANum, ImgArray[i].Graphic);
     end;
 end;
 
@@ -256,6 +272,51 @@ procedure TTimeTableForm.StringGridMouseDown(Sender : TObject;
   Button : TMouseButton; Shift : TShiftState; X, Y : Integer);
 begin
   StringGrid.MouseToCell(X, Y, Col, Row);
+end;
+
+procedure TTimeTableForm.StringGridMouseUp(Sender: TObject; Button: TMouseButton;
+                                           Shift: TShiftState; X, Y: Integer);
+var
+  i, count: integer;
+  tCol, tRow: integer;
+  Fy, Fx, NumCol, r: integer;
+  s: string;
+  RowSL, ColSL: TStringList;
+begin
+  StringGrid.MouseToCell(x, y, tCol, tRow);
+
+  if (tCol = 0) or (tRow = 0) then exit;
+
+  CurrRowHeight := StringGrid.RowHeights[Row];
+
+  StringGrid.MouseToCell(x, y, Col, Row);
+
+  count := GetCountCheckedItems + 1;
+  Fy    := y - StringGrid.CellRect(Col, Row).Top;
+  Fx    := x - StringGrid.CellRect(Col, Row).Left;
+
+  if (Fx < DefWidthCol - Margin) and (Fx > DefWidthCol - DefWidthImg - Margin) then
+    if (Fy < DefWidthImg + Margin) and (Fy > Margin) then
+      InsertClick(Fx, Fy)
+    else
+    begin
+      NumCol := Fy div (count*DefHeightFont);
+      r      := 0;
+
+      for i := 1 to 2 do
+        if (Fy > (Margin + DefWidthImg) * i + DefRowHeight * NumCol) and
+           (Fy < (Margin + DefWidthImg) * (i + 1) + DefRowHeight * NumCol) then
+        begin
+          r := i;
+          break;
+        end;
+       case r of
+         1 : EditClick(Fx, Fy);
+         2 : DeleteClick(Fx, Fy);
+       end;
+    end;
+
+  FillGridData();
 end;
 
 function TTimeTableForm.GetCountCheckedItems() : integer;
@@ -343,7 +404,7 @@ begin
       else if StringGrid.RowHeights[i] = 0 then
         RowHeights[i] := DefRowHeight;
 
-    for i:= 1 to ColCount - 1 do
+    for i := 1 to ColCount - 1 do
       if not ColListBox.Checked[i - 1] then
         ColWidths[i] := 0
       else
@@ -382,11 +443,11 @@ procedure TTimeTableForm.FillListBox(AColList, ARowList : TStringList);
     for i :=0 to AList.Count - 1 do
     begin
       AListBox.Items.Add(AList[i]);
-      if length(AList[i]) > max then max := length(AList[i]);
+      if (length(AList[i]) > max) then max := length(AList[i]);
     end;
 
     AListBox.CheckAll(cbChecked);
-    if max > 25 then max := 25;
+    if (max > 25) then max := 25;
   end;
 
 begin
@@ -492,6 +553,60 @@ begin
     ItemIndex  := 1;
     ReadOnly   := true;
   end;
+end;
+
+{ /Editing }
+
+procedure TTimeTableForm.InsertClick(Ax, Ay: integer);
+begin
+  EditingManager.OpenFormEditingTable(ctInsert, Tag, GetListDataCell(Ax, Ay));
+  EditingManager.SetItemIndex(RowComboBox.ItemIndex, Row - 1, ColComboBox.ItemIndex, Col - 1);
+
+  if (Col > 0) and (Row > 0) then
+    StringGrid.Selection := StringGrid.CellRect(Col, Row);
+
+  StringGrid.RowHeights[Row] := CurrRowHeight;
+end;
+
+procedure TTimeTableForm.EditClick(Ax, Ay: integer);
+begin
+  EditingManager.OpenFormEditingTable (ctEdit, Tag, GetListDataCell(Ax, Ay));
+
+  if (Col > 0) and (Row > 0) then
+    StringGrid.Selection := StringGrid.CellRect(Col, Row);
+
+  StringGrid.RowHeights[Row] := CurrRowHeight;
+end;
+
+procedure TTimeTableForm.DeleteClick(Ax, Ay: integer);
+begin
+  EditingManager.DeleteRecord(StrToInt(GetListDataCell(Ax, Ay)[0]), Tag);
+  FillGridData();
+
+  if (Col > 0) and (Row > 0) then
+    StringGrid.Selection := StringGrid.CellRect(Col, Row);
+
+  StringGrid.RowHeights[Row] := CurrRowHeight;
+end;
+
+function TTimeTableForm.GetListDataCell(Ax, Ay: integer): TStringList;
+var
+  i, k, RecordNum : integer;
+  s               : string;
+  SL              : TStringList;
+begin
+  SL        := TStringList.Create;
+  RecordNum := AY div DefRowHeight;
+
+  if DataArray[Row - 1][Col - 1] <> nil then
+    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 6 do
+    begin
+      s := DataArray[Row - 1][Col - 1][i];
+      k := pos(':', s);
+      delete(s, 1, k + 1);
+      SL.Append(s);
+    end;
+  result := SL;
 end;
 
 end.
