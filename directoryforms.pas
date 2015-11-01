@@ -11,6 +11,25 @@ uses
 
 type
 
+  { TEditingManager }
+  TEditingManager = class
+  private
+    FFormsChange : array of TFormData;
+  public
+    procedure OpenFormEditingTable(AChangeType: TChangeType;
+                                   ATag: integer;
+                                   AList: TStringList);
+    procedure InsertRecord(ATag: integer; AList: TStringList);
+    procedure EditRecord(ATag: integer; AList: TStringList);
+    procedure DeleteRecord(AId, ATag: integer);
+
+    function CheckFormOpenForId(AId : integer) : TFormData;
+    //procedure FillComboBox(AList: TStringList; ANum: integer; Index: integer);
+    //function isFormOpenedForId(AId: integer): TFormChangeData1;
+    //function GetCountForms(): integer;
+    procedure SetItemIndex(ANum, AIndex, ANum1, AIndex1: integer);
+  end;
+
   { TDirectoryForm }
   TDirectoryForm = class(TForm)
     AddFilterButton   : TSpeedButton;
@@ -37,17 +56,15 @@ type
     { /work with sql }
     procedure SetParams(Sender : TObject);
     procedure AddFilterButtonClick(Sender : TObject);
-    procedure EditRecord(ATag : integer; AList : TStringList);
-    procedure InsertRecord(ATag : integer; AList : TStringList);
-    procedure DeleteRecord(AId, ATag : integer);
+    //procedure EditRecord(ATag : integer; AList : TStringList);
+    //procedure InsertRecord(ATag : integer; AList : TStringList);
+    //procedure DeleteRecord(AId, ATag : integer);
     procedure AddNewFilter();
-    procedure OpenFormEditingTable(AChangeType : TChangeType;
-                                   ATag : integer; AList : TStringList);
-
-    function CheckFormOpenForId(AId : integer) : TFormData;
+    //procedure OpenFormEditingTable(AChangeType : TChangeType;
+    //                               ATag : integer; AList : TStringList);
   private
     FilterNum         : integer;
-    FFormsChange      : array of TFormData;
+    EditingManager    : TEditingManager;
     DirectoryFilter   : array of TDirectoryFilter;
   end;
 
@@ -98,6 +115,7 @@ begin
 
   SQLGenerator.SetColName(FDBGrid, Tag);
   FilterNum := 1;
+  EditingManager := TEditingManager.Create;
 end;
 
 procedure TDirectoryForm.EditButtonClick(Sender: TObject);
@@ -110,11 +128,11 @@ begin
   begin
     LS.Append(string(FSQLQuery.Fields.Fields[i].Value));
   end;
-  EditRecord(Tag, LS);
+  EditingManager.EditRecord(Tag, LS);
   Ls.free;
 end;
 
-procedure TDirectoryForm.EditRecord(ATag : integer; AList : TStringList);
+procedure TEditingManager.EditRecord(ATag : integer; AList : TStringList);
 var
  Fd  : TFormData;
  i   : integer;
@@ -131,7 +149,7 @@ begin
    Fd.show;
 end;
 
-procedure TDirectoryForm.OpenFormEditingTable(AChangeType : TChangeType;
+procedure TEditingManager.OpenFormEditingTable(AChangeType : TChangeType;
   ATag : integer; AList : TStringList);
 var
   i, k   : integer;
@@ -189,14 +207,15 @@ begin
     CreateApplyBtn();
     Show;
   end;
+  UpdateEvent;
 end;
 procedure TDirectoryForm.DeleteButtonClick(Sender: TObject);
 begin
   if FSQLQuery.Fields.FieldByNumber(1).Value = Null then exit;
-  DeleteRecord(FSQLQuery.Fields.FieldByNumber(1).Value, Tag);
+  EditingManager.DeleteRecord(FSQLQuery.Fields.FieldByNumber(1).Value, Tag);
 end;
 
-procedure TDirectoryForm.DeleteRecord(AId, ATag : integer);
+procedure TEditingManager.DeleteRecord(AId, ATag : integer);
 var
   i: LongInt;
   FD: TFormData;
@@ -221,7 +240,7 @@ begin
   UpdateEvent;
 end;
 
-function TDirectoryForm.CheckFormOpenForId(AId : integer) : TFormData;
+function TEditingManager.CheckFormOpenForId(AId : integer) : TFormData;
 var
   i, k : integer;
 begin
@@ -281,10 +300,10 @@ begin
   temp:= TStringList.Create;
   for i:=0 to FSQLQuery.Fields.Count - 1 do
     temp.Append(string(FSQLQuery.Fields.Fields[i].Value));
-  InsertRecord(Tag, temp);
+  EditingManager.InsertRecord(Tag, temp);
 end;
 
-procedure TDirectoryForm.InsertRecord(ATag : integer; AList : TstringList);
+procedure TEditingManager.InsertRecord(ATag : integer; AList : TstringList);
 begin
   OpenFormEditingTable(ctInsert, ATag, AList);
 end;
@@ -329,5 +348,13 @@ begin
   Result := TempList;
 end;
 
+procedure TEditingManager.SetItemIndex(ANum, AIndex, ANum1, AIndex1 : integer);
+begin
+  with FFormsChange[high(FFormsChange)] do
+  begin
+    (DataControl[ANum] as TComboBox).ItemIndex:= AIndex;
+    (DataControl[ANum1] as TComboBox).ItemIndex:= AIndex1;
+  end;
+end;
 end.
 
