@@ -22,6 +22,7 @@ type
     ColListBox        : TCheckListBox;
     ColLabel          : TLabel;
     RowListBox        : TCheckListBox;
+    StringGrid        : TStringGrid;
     { /end }
 
     { /filter }
@@ -34,12 +35,12 @@ type
     FDataSource       : TDataSource;
     FSQLQuery         : TSQLQuery;
     FSQLTransaction   : TSQLTransaction;
-    StringGrid        : TStringGrid;
+    { /end }
 
     procedure ApplyButtonClick(Sender : TObject);
     procedure DataListBoxItemClick(Sender: TObject; Index: integer);
     procedure FilterButtonClick(Sender: TObject);
-    procedure AddNewFilter();
+
     procedure FormCreate(Sender : TObject);
     procedure FormPaint(Sender: TObject);
     procedure RowListBoxItemClick(Sender: TObject; Index: integer);
@@ -48,16 +49,14 @@ type
                                  aRect : TRect; aState : TGridDrawState);
     procedure StringGridMouseDown(Sender : TObject; Button : TMouseButton;
                                   Shift : TShiftState; X, Y : Integer);
-    procedure DrawImg(ACanvas : TCanvas; ARect : TRect;
-                      ACountItems : integer; ANum : integer);
+
     procedure UpdateRowsHeight(Index : integer);
-    { /end }
   private
     DirectoryFilter   : array of TDirectoryFilter;
     DataArray         : array of array of TStringList;
     ImgArray          : array [0..2] of TPicture;
     FilterNum         : integer;
-    CurrentRowHeight  : integer;
+    DefRowHeight  : integer;
     Row               : integer;
     Col               : integer;
 
@@ -66,6 +65,13 @@ type
     procedure FillGridData();
     procedure UpdateHeaderVisible();
     procedure ChangeCaptionColumn(AColList, ARowList : TStringList);
+    procedure DrawImg(ACanvas : TCanvas; ARect : TRect;
+                      ACountItems : integer; ANum : integer);
+    procedure AddNewFilter();
+    procedure DrawArrow(ACanvas : TCanvas; ARect : TRect;
+                        aRow : Integer; AText : String);
+    procedure DrawText(ACanvas : TCanvas; ARect : TRect;
+                       ASL : TStringList; Acnt : integer);
 
     function GetCountCheckedItems() : integer;
   public
@@ -78,8 +84,8 @@ var
 implementation
 
 var
-  ListNamesImg: array [0..2] of string = ('tt_add.png','tt_edit.png',
-    'tt_del.png');
+  ListNamesImg: array [0..2] of string =
+    ('tt_add.png', 'tt_edit.png', 'tt_del.png');
 
   const Margin          = 2;
   const DefHeightFont   = 17;
@@ -138,86 +144,98 @@ end;
 procedure TTimeTableForm.StringGridDblClick(Sender : TObject);
 var
   count : integer;
+  SL    : TStringList;
 begin
   if (Row = 0) or (Col = 0) then exit;
+  SL := DataArray[Row - 1][Col - 1];
 
   with (StringGrid) do
   begin
-    if RowHeights[Row] > CurrentRowHeight then
+    if RowHeights[Row] > DefRowHeight then
     begin
-      if DataArray[Row - 1][Col - 1] = nil then
+      if (SL = nil) then
       begin
-        RowHeights[Row] := CurrentRowHeight;
+        RowHeights[Row] := DefRowHeight;
         exit;
       end;
-      count:= round(DataArray[Row - 1][Col - 1].Count/DefCountStr);
-      if RowHeights[Row] < CurrentRowHeight*count then
-        RowHeights[Row] := CurrentRowHeight*count
+      count := round(SL.Count / DefCountStr);
+      if RowHeights[Row] < DefRowHeight*count then
+        RowHeights[Row] := DefRowHeight*count
       else
-        RowHeights[Row] := CurrentRowHeight
+        RowHeights[Row] := DefRowHeight
     end
     else
-    if (DataArray[Row - 1][Col - 1] <> nil) then
-      RowHeights[Row] := CurrentRowHeight *
-                         round(DataArray[Row - 1][Col - 1].Count / DefCountStr);
+    if (SL <> nil) then
+      RowHeights[Row] := DefRowHeight * round(SL.Count / DefCountStr);
   end;
 end;
 
-procedure TTimeTableForm.StringGridDrawCell(Sender : TObject;
-                                            aCol, aRow : Integer; aRect : TRect;
-                                            aState : TGridDrawState);
+procedure TTimeTableForm.StringGridDrawCell(Sender : TObject; aCol, aRow : Integer;
+                                            aRect : TRect; aState : TGridDrawState);
 var
-  i, c, j, cnt : integer;
+  c, cnt : integer;
+  SL           : TStringList;
+  PairNum      : integer = 8;
 begin
   cnt := GetCountCheckedItems + 1;
+
   if (length(DataArray) <> 0) and (aRow <> 0) and (aCol <> 0) then
-    with StringGrid.Canvas do
+    with (StringGrid) do
     begin
 
-      Draw(DefWidthCol + aRect.Left - ImgArray[0].Width - Margin, aRect.Top +
+      Canvas.Draw(DefWidthCol + aRect.Left - ImgArray[0].Width - Margin, aRect.Top +
         Margin, ImgArray[0].Graphic);
 
-      if (DataArray[aRow - 1][aCol - 1] <> nil) and
-         (DataArray[aRow - 1][aCol - 1].Count <> 0) then
+      SL := DataArray[aRow - 1][aCol - 1];
+      if (SL <> nil) then
       begin
         DrawImg(StringGrid.Canvas, aRect, cnt, 0);
-        c  := DataArray[aRow - 1][aCol - 1].Count div 8;
-        j  := -1;
+        c := SL.Count div PairNum;
+        DrawText(Canvas, aRect, Sl, cnt);
 
-        for i := 0 to DataArray[aRow - 1][aCol - 1].Count - 1 do
-          if DataArray[aRow - 1][aCol - 1][i] <> '' then
-          begin
-            if (DataListBox.Checked[i - (i div DefCountStr) * DefCountStr]) then
-            begin
-              inc(j);
-              TextOut(aRect.Left + Margin, aRect.Top + j * DefHeightFont,
-                      DataArray[aRow - 1][aCol - 1][i]);
-            end;
-          end
-          else
-          if (i <> DataArray[aRow - 1][aCol - 1].Count - 1) then
-          begin
-            inc(j);
-            TextOut(aRect.Left + Margin, aRect.Top + j * DefHeightFont,
-                    DataArray[aRow - 1][aCol - 1][i]);
-            DrawImg (StringGrid.Canvas, aRect, cnt, round(i / DefCountStr));
-          end;
-
-        if StringGrid.RowHeights[aRow] < c*CurrentRowHeight then
-        begin
-          Font.Bold;
-          Font.Color  := clGreen;
-          Font.Size   := 10;
-
-          TextOut(DefWidthCol + aRect.Left - 27 - Margin,
-                  aRect.Top + StringGrid.RowHeights[aRow] - 20, ' ↓ ' +
-                  IntToStr(c - StringGrid.RowHeights[aRow] div CurrentRowHeight));
-
-          Font.Color  := clBlack;
-          Font.Size   := 0;
-        end;
+        if (StringGrid.RowHeights[aRow] < c * DefRowHeight) then
+          DrawArrow(StringGrid.Canvas, aRect, aRow, ' ↓ ' +
+                    IntToStr(c - RowHeights[aRow] div DefRowHeight));
       end;
+  end;
+end;
+
+procedure TTimeTableForm.DrawText(ACanvas : TCanvas; ARect : TRect;
+                                  ASL : TStringList; Acnt : integer);
+var
+  i, j: integer;
+begin
+  j := -1;
+  for i := 0 to ASL.Count - 1 do
+    if (ASL[i] <> '') then
+    begin
+      if (DataListBox.Checked[i - (i div DefCountStr) * DefCountStr]) then
+      begin
+        inc(j);
+        ACanvas.TextOut(ARect.Left + Margin, ARect.Top + j * DefHeightFont, ASL[i]);
+      end;
+    end
+    else begin
+      inc(j);
+      DrawImg (StringGrid.Canvas, ARect, Acnt, round(i / DefCountStr));
     end;
+end;
+
+procedure TTimeTableForm.DrawArrow(ACanvas : TCanvas; ARect : TRect;
+                                   aRow : Integer; AText : String);
+begin
+  with (ACanvas) do
+  begin
+    Font.Bold;
+    Font.Color  := clGreen;
+    Font.Size   := 10;
+
+    TextOut(DefWidthCol + aRect.Left - 27 - Margin,
+            aRect.Top + StringGrid.RowHeights[aRow] - 20, AText);
+
+    Font.Color  := clBlack;
+    Font.Size   := 0;
+  end;
 end;
 
 procedure TTimeTableForm.DrawImg(ACanvas: TCanvas; ARect: TRect;
@@ -267,7 +285,7 @@ begin
     DataListBox.Checked[Index] := true
   else
   begin
-    CurrentRowHeight := (GetCountCheckedItems + 1) * DefHeightFont;
+    DefRowHeight := (GetCountCheckedItems + 1) * DefHeightFont;
     UpdateRowsHeight(Index);
     StringGrid.Invalidate;
   end;
@@ -280,15 +298,15 @@ begin
   with (StringGrid) do
   begin
     for k := 1 to RowCount - 1 do
-      if CurrentRowHeight >= RowHeights[k] then
-        RowHeights[k] := CurrentRowHeight
+      if DefRowHeight >= RowHeights[k] then
+        RowHeights[k] := DefRowHeight
       else
       begin
         if DataListBox.Checked[Index] then
           c := round(RowHeights[k] / (GetCountCheckedItems * DefHeightFont))
         else
           c := round(RowHeights[k] / ((GetCountCheckedItems + 2) * DefHeightFont));
-        RowHeights[k] := c * CurrentRowHeight;
+        RowHeights[k] := c * DefRowHeight;
       end;
   end;
 end;
@@ -323,7 +341,7 @@ begin
       if not RowListBox.Checked[i - 1] then
         RowHeights[i] := 0
       else if StringGrid.RowHeights[i] = 0 then
-        RowHeights[i] := CurrentRowHeight;
+        RowHeights[i] := DefRowHeight;
 
     for i:= 1 to ColCount - 1 do
       if not ColListBox.Checked[i - 1] then
@@ -345,7 +363,7 @@ begin
 
   for i := 1 to ARowList.Count do
   begin
-    StringGrid.RowHeights[i] := CurrentRowHeight;
+    StringGrid.RowHeights[i] := DefRowHeight;
     StringGrid.Cells[0, i]   := ARowList[i - 1];
   end;
 
@@ -450,7 +468,7 @@ begin
   DataListBox.CheckAll(cbChecked);
   DataListBox.Checked[0] := false;
 
-  CurrentRowHeight := (GetCountCheckedItems + 1) * DefHeightFont;
+  DefRowHeight := (GetCountCheckedItems + 1) * DefHeightFont;
   ApplyButtonClick(Self);
 end;
 
