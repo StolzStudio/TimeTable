@@ -89,6 +89,9 @@ type
                        ASL : TStringList; Acnt : integer;
                        aRow, aCol : integer);
 
+    function GetTextSaveToHTML() : TStringList;
+    function GetDataSelection()  : TStringList;
+    function GetDataStringGrid() : TStringList;
     { /editing }
     procedure InsertClick(Ax, Ay: integer);
     procedure DeleteClick(Ax, Ay: integer);
@@ -444,11 +447,133 @@ end;
 
 procedure TTimeTableForm.ExportMenuItemClick(Sender: TObject);
 var
-  s : String;
+  s      : string;
+  stream : TFileStream;
+  SL     : TStringList;
 begin
   if SaveDialog.Execute then
   begin
     s := SaveDialog.FileName;
+
+    case SaveDialog.FilterIndex of
+      1 : begin
+           SL := TStringList.Create;
+           try
+             Stream := TFileStream.Create(Utf8ToAnsi(s), fmOpenReadWrite);
+           except
+             Stream := TFileStream.Create(Utf8ToAnsi(s), fmCreate);
+           end;
+
+           SL.Append(GetTextSaveToHTML().Text);
+           SL.SaveToStream(stream);
+           SL.free;
+           Stream.Free;
+           exit;
+         end;
+      //2: begin
+      //     SaveInExcel(s);
+      //   end;
+    end;
+  end;
+end;
+
+function TTimeTableForm.GetTextSaveToHTML(): TStringList;
+begin
+  Result := TstringList.Create;
+  Result.Append('<html><head><meta charset="utf-8">' + '<style>' +
+            'table { width: ' + IntToStr(DefWidthCol * GetCountCheckedItems()) +
+            'px;' + 'border: 1px solid #000; border-collapse:collapse;}' +
+            'td { border: 1px solid #000; padding: 5px; vertical-align: top;}' +
+            '</style></head><body>');
+  Result.Append(GetDataSelection ().Text);
+  Result.Append('<table>');
+  Result.Append(GetDataStringGrid().Text);
+  Result.Append('</table></html>');
+end;
+
+function TTimeTableForm.GetDataSelection(): TStringList;
+var
+  i: integer;
+begin
+  Result := TStringList.Create;
+
+  Result.Append('<table style="width: 900px;">');
+  Result.Append('<p>Параметры выбора данных: <br></p><tr><td>');
+  Result.Append('Строки: ' + RowComboBox.Caption + '<br>' +
+                'Столбцы: ' + ColComboBox.Caption);
+  Result.Append('</td><td>' + MetaData.Tables[RowComboBox.ItemIndex].Caption + ':<ul>');
+
+  for i := 0 to ColListBox.Count - 1 do
+    if (ColListBox.Checked[i]) then
+       Result.Append('<li>' + StringGrid.Cells[i + 1, 0] + '</li> ');
+
+  Result.Append('</ul></td><td>');
+  Result.Append(MetaData.Tables[ColComboBox.ItemIndex].Caption + ':<ul>');
+
+  for i := 0 to RowListBox.Count - 1 do
+    if (RowListBox.Checked[i]) then
+       Result.Append('<li>' + StringGrid.Cells[0, i + 1] + '</li> ');
+
+  Result.Append('</ul></td><td>Фильтры: <br><ul>');
+  for i:= 0 to high(DirectoryFilter) do
+    if (DirectoryFilter[i].Status) then
+      with DirectoryFilter[i]do
+      begin
+         Result.Append('<li>' + FieldBox.Caption + ' ' + ActionBox.Caption + ' ' +
+           FilterEdit.Caption + '</li>');
+      end;
+
+  Result.Append('</ul></td></tr>');
+  Result.Append('</table>');
+end;
+
+function TTimeTableForm.GetDataStringGrid (): TStringList;
+var
+  i, j, k: integer;
+begin
+  Result := TStringList.Create;
+
+  Result.Append('<br><tr>');
+  Result.Append('<td>');
+  Result.Append(RowComboBox.Caption);
+  Result.Append('</td>');
+
+  for k := 0 to ColListBox.Count - 1 do
+    if (ColListBox.Checked[k]) then
+    begin
+      Result.Append('<td>');
+      Result.Append(StringGrid.Cells[k + 1, 0]);
+      Result.Append('</td>');
+    end;
+
+  Result.Append('</tr>');
+
+  for i := 0 to high(DataArray) do
+  begin
+    if (RowListBox.Checked[i]) then
+    begin
+      Result.Append('<tr>');
+      Result.Append('<td>');
+      Result.Append(StringGrid.Cells[0, i + 1]);
+      Result.Append('</td>');
+
+      for k := 0 to high(DataArray[i]) do
+        if (ColListBox.Checked[k]) then
+        begin
+          Result.Append('<td>');
+          if (DataArray[i][k]<> nil) then
+            for j := 0 to DataArray[i][k].Count - 1 do
+              if (DataArray[i][k][j] <> '') then
+              begin
+                if (DataListBox.Checked[j - (j div DefCountStr)*DefCountStr]) then
+                  Result.Append(AnsiString(DataArray[i][k][j]) + '<br>');
+              end
+              else
+                  Result.Append('<br>');
+          Result.Append('</td>');
+        end;
+      Result.Append('</tr>');
+    end;
   end;
 end;
 
