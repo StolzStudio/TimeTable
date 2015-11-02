@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
   Grids, ExtCtrls, StdCtrls, CheckLst, Menus, Filters, DirectoryForms, Meta,
-  SQLGen, ChangeFormData, DBConnection;
+  SQLGen, ChangeFormData, DBConnection, ComObj, Variants;
 
 type
 
@@ -89,6 +89,7 @@ type
                        ASL : TStringList; Acnt : integer;
                        aRow, aCol : integer);
 
+    procedure SaveInExcel(FileName: string);
     function GetTextSaveToHTML() : TStringList;
     function GetDataSelection()  : TStringList;
     function GetDataStringGrid() : TStringList;
@@ -470,11 +471,66 @@ begin
            Stream.Free;
            exit;
          end;
-      //2: begin
-      //     SaveInExcel(s);
-      //   end;
+      2 : SaveInExcel(s);
     end;
   end;
+end;
+
+procedure TTimeTableForm.SaveInExcel(FileName: string);
+var
+  ExlApp, Sheet, Workbook, ArrayData, Range, Cell1, Cell2, ff: OleVariant;
+  i, j, k, r, c : integer;
+  SL            : TStringList;
+begin
+  ExlApp         := CreateOleObject('Excel.Application');
+  ExlApp.Visible := false;
+  Workbook       := ExlApp.Workbooks.Add;
+  Sheet          := ExlApp.Workbooks[1].WorkSheets[1];
+  Sheet.name     := 'TimeTable';
+
+  r         := StringGrid.RowCount;
+  c         := StringGrid.ColCount;
+  SL        := TStringList.Create;
+  ArrayData := VarArrayCreate([1, r, 1, c], varVariant);
+
+  for i := 1 to r do
+    ArrayData[i, 1] := Utf8Decode(StringGrid.Cells[0, i - 1]);
+
+  for j := 1 to c do
+    ArrayData[1, j] := Utf8Decode(StringGrid.Cells[j - 1, 0]);
+
+  for i := 0 to r - 2 do
+    for j := 0 to c - 2 do
+    begin
+      if (RowListBox.Checked[i]) and (ColListBox.Checked[j]) then
+        if (DataArray[i][j] <> nil) then
+          for k := 0 to DataArray[i][j].Count - 1 do
+            if (DataArray[i][j][k] <> '') then
+            begin
+              if (DataListBox.Checked[k - (k div DefCountStr) * DefCountStr]) then
+                SL.Append(Utf8Decode(DataArray[i][j][k]));
+            end
+            else
+              SL.Append(' ');
+      ArrayData[i + 2, j + 2] := SL.text;
+      SL.clear;
+    end;
+  Cell1       := WorkBook.WorkSheets[1].Cells[1, 1];
+  Cell2       := WorkBook.WorkSheets[1].Cells[r + 1, c + 1];
+  Range       := WorkBook.WorkSheets[1].Range[Cell1, Cell2];
+  Range.Value := ArrayData;
+
+  for i := 1 to c do
+    WorkBook.WorkSheets[1].Columns.Item[i].Autofit;
+
+  ExlApp.DisplayAlerts := False;
+  ExlApp.Visible       := true;
+  ff                   := FileName;
+
+  Workbook.SaveAs(ff);
+  ExlApp.Quit;
+  ExlApp := Unassigned;
+  Sheet  := Unassigned;
 end;
 
 function TTimeTableForm.GetTextSaveToHTML(): TStringList;

@@ -149,7 +149,7 @@ object TimeTableForm: TTimeTableForm
     end
   end
   object SaveDialog: TSaveDialog
-    Filter = '.html|.html'
+    Filter = '.html|.html|.xlsx|.xlsx'
     left = 1008
     top = 16
   end

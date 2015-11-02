@@ -73,7 +73,6 @@
         <ComponentName Value="DirectoryForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="directoryforms"/>
       </Unit5>
       <Unit6>
         <Filename Value="sqlgen.pas"/>
