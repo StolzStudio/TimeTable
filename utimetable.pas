@@ -93,6 +93,7 @@ type
     function GetTextSaveToHTML() : TStringList;
     function GetDataSelection()  : TStringList;
     function GetDataStringGrid() : TStringList;
+
     { /editing }
     procedure InsertClick(Ax, Ay: integer);
     procedure DeleteClick(Ax, Ay: integer);
@@ -482,7 +483,13 @@ var
   i, j, k, r, c : integer;
   SL            : TStringList;
 begin
-  ExlApp         := CreateOleObject('Excel.Application');
+  try
+    ExlApp := CreateOleObject('Excel.Application');
+  except
+    ShowMessage('Не удалось запустить MS Excel. Действие отменено.');
+    Exit;
+  end;
+
   ExlApp.Visible := false;
   Workbook       := ExlApp.Workbooks.Add;
   Sheet          := ExlApp.Workbooks[1].WorkSheets[1];
