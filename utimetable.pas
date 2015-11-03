@@ -486,7 +486,7 @@ begin
   try
     ExlApp := CreateOleObject('Excel.Application');
   except
-    ShowMessage('Не удалось запустить MS Excel. Действие отменено.');
+    ShowMessage(MetaData.TranslateList.Values['OpenExelError']);
     Exit;
   end;
 
@@ -561,7 +561,7 @@ begin
   Result := TStringList.Create;
 
   Result.Append('<table style="width: 900px;">');
-  Result.Append('<p>Параметры выбора данных: <br></p><tr><td>');
+  Result.Append('<p>' + MetaData.TranslateList.Values['HtmlTitle'] + '<br></p><tr><td>');
   Result.Append('Строки: ' + RowComboBox.Caption + '<br>' +
                 'Столбцы: ' + ColComboBox.Caption);
   Result.Append('</td><td>' + MetaData.Tables[RowComboBox.ItemIndex].Caption + ':<ul>');
