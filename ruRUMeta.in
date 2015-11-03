@@ -45,8 +45,6 @@ DeleteRecord=Вы действительно хотите удалить эту 
 DeleteError=Невозможно удалить эту запись т.к. она используется другой таблицей
 UpdateRecord=Редактирование записи
 InsertRecord=Новая запись
-OpenExelError=Не удалось запустить MS Excel. Действие отменено.
-HtmlTitle=Параметры выбора данных:
 
 width_id=80
 width_name=410
