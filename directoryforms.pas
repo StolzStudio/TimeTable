@@ -63,7 +63,6 @@ type
 
   TTableForms = class
     FForms : array of TDirectoryForm;
-    //procedure GlobalUpdate();
     constructor Create;
   end;
 

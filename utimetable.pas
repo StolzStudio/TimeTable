@@ -336,8 +336,8 @@ begin
   StringGrid.MouseToCell(EndX, EndY, Col, Row);
 
   DBDataModule.SQLQuery.Close;
-  DBDataModule.SQLQuery.SQL.Text := 'DELETE FROM ' + MetaData.Tables[Tag].Name +
-                                    ' WHERE ID = ' + DataCell[0];
+  DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenDeleteQuery(MetaData.Tables[Tag].Name,
+                                                                StrToInt(DataCell[0]));
   DBDataModule.SQLQuery.ExecSQL;
 
   DataCell[RowComboBox.ItemIndex + 1] := StringGrid.Cells[0, Row];
