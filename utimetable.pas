@@ -482,7 +482,11 @@ var
   ExlApp, Sheet, Workbook, ArrayData, Range, Cell1, Cell2, ff: OleVariant;
   i, j, k, r, c : integer;
   SL            : TStringList;
+  xlPosition    : integer;
+  xlColumnWidth : integer;
 begin
+  xlPosition    := -4160;
+  xlColumnWidth := 50;
   try
     ExlApp := CreateOleObject('Excel.Application');
   except
@@ -525,10 +529,12 @@ begin
   Cell1       := WorkBook.WorkSheets[1].Cells[1, 1];
   Cell2       := WorkBook.WorkSheets[1].Cells[r + 1, c + 1];
   Range       := WorkBook.WorkSheets[1].Range[Cell1, Cell2];
-  Range.Value := ArrayData;
 
-  for i := 1 to c do
-    WorkBook.WorkSheets[1].Columns.Item[i].Autofit;
+  Range.VerticalAlignment := xlPosition;
+  Range.Value             := ArrayData;
+
+  WorkBook.WorkSheets[1].Columns.ColumnWidth := xlColumnWidth;
+  WorkBook.WorkSheets[1].Rows.Autofit;
 
   ExlApp.DisplayAlerts := False;
   ExlApp.Visible       := true;
@@ -538,6 +544,7 @@ begin
   ExlApp.Quit;
   ExlApp := Unassigned;
   Sheet  := Unassigned;
+  Range  := Unassigned;
 end;
 
 function TTimeTableForm.GetTextSaveToHTML(): TStringList;
