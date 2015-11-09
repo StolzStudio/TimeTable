@@ -334,18 +334,11 @@ begin
 
   DataCell := ParsingDataCell(Row, Col, NumRec);
   StringGrid.MouseToCell(EndX, EndY, Col, Row);
-
-  DBDataModule.SQLQuery.Close;
-  {
-  DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenDeleteQuery(MetaData.Tables[Tag].Name,
-                                                                StrToInt(DataCell[0]));
-  DBDataModule.SQLQuery.ExecSQL;
-  }
   DataCell[RowComboBox.ItemIndex + 1] := StringGrid.Cells[0, Row];
   DataCell[ColComboBox.ItemIndex + 1] := StringGrid.Cells[Col, 0];
 
+  DBDataModule.SQLQuery.Close;
   DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenUpdateQuery(Tag).Text;
-
   DBDataModule.SQLQuery.ParamByName('p0').AsInteger := StrToInt(DataCell[0]);
 
   for i := 1 to high(MetaData.Tables[Tag].Fields) do
