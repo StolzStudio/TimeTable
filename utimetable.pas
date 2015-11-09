@@ -54,10 +54,9 @@ type
                                  aRect : TRect; aState : TGridDrawState);
     procedure StringGridMouseDown(Sender : TObject; Button : TMouseButton;
                                   Shift : TShiftState; X, Y : Integer);
-    procedure StringGridMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
+    procedure StringGridMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure StringGridMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+                                Shift: TShiftState; X, Y: Integer);
 
     procedure UpdateRowsHeight(Index : integer);
     procedure FillGridData();
@@ -203,7 +202,7 @@ end;
 procedure TTimeTableForm.StringGridDrawCell(Sender : TObject; aCol, aRow : Integer;
                                             aRect : TRect; aState : TGridDrawState);
 var
-  c, cnt : integer;
+  c, cnt       : integer;
   SL           : TStringList;
   PairNum      : integer = 8;
 begin
@@ -284,16 +283,16 @@ begin
     end;
 end;
 
-procedure TTimeTableForm.StringGridMouseDown(Sender : TObject;
-  Button : TMouseButton; Shift : TShiftState; X, Y : Integer);
+procedure TTimeTableForm.StringGridMouseDown(Sender : TObject; Button : TMouseButton;
+                                             Shift : TShiftState; X, Y : Integer);
 begin
   StringGrid.MouseToCell(X, Y, Col, Row);
   kX := x; kY := y;
   MouseDownFlag:= true;
 end;
 
-procedure TTimeTableForm.StringGridMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TTimeTableForm.StringGridMouseMove(Sender: TObject; Shift: TShiftState;
+                                             X, Y: Integer);
 begin
   cX := x; cY := y;
   if MouseDownFlag then DragDropFlag := true;
@@ -335,22 +334,17 @@ begin
 
   DataCell := ParsingDataCell(Row, Col, NumRec);
   StringGrid.MouseToCell(EndX, EndY, Col, Row);
-
-  DBDataModule.SQLQuery.Close;
-  DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenDeleteQuery(MetaData.Tables[Tag].Name,
-                                                                StrToInt(DataCell[0]));
-  DBDataModule.SQLQuery.ExecSQL;
-
   DataCell[RowComboBox.ItemIndex + 1] := StringGrid.Cells[0, Row];
   DataCell[ColComboBox.ItemIndex + 1] := StringGrid.Cells[Col, 0];
 
-  DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenInsertQuery(Tag).Text;
+  DBDataModule.SQLQuery.Close;
+  DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenUpdateQuery(Tag).Text;
   DBDataModule.SQLQuery.ParamByName('p0').AsInteger := StrToInt(DataCell[0]);
 
   for i := 1 to high(MetaData.Tables[Tag].Fields) do
   begin
     s := 'p' + IntToStr(i);
-    if MetaData.Tables[Tag].Fields[i].Reference <> nil then
+    if (MetaData.Tables[Tag].Fields[i].Reference <> nil) then
     begin
       SL := MetaData.Tables[Tag].GetDataFieldOfIndex(i);
       ParamNum := SQLGenerator.GetId(Tag, i - 1, SL.IndexOf(DataCell[i]));
@@ -368,10 +362,20 @@ end;
 procedure TTimeTableForm.StringGridMouseUp(Sender: TObject; Button: TMouseButton;
                                            Shift: TShiftState; X, Y: Integer);
 var
-  i, count: integer;
-  tCol, tRow: integer;
-  Fy, Fx, NumCol, r: integer;
+  i, count          : integer;
+  tCol, tRow        : integer;
+  Fy, Fx, NumCol, r : integer;
+  LengthToImg       : integer;
+  OffsetToImg       : integer;
+
+  function CheckPosToImg(ANum : integer; ALength : integer; AOffset : integer) : boolean;
+  begin
+    Result := (Fy > (ALength) * ANum + AOffset);
+  end;
+
 begin
+  tCol := 0;
+  tRow := 0;
   StringGrid.MouseToCell(x, y, tCol, tRow);
 
   if (tCol = 0) or (tRow = 0) then exit;
@@ -395,20 +399,19 @@ begin
     if (Fy < DefWidthImg + Margin) and (Fy > Margin) then
       InsertClick(Fx, Fy)
     else begin
-      NumCol := Fy div (count*DefHeightFont);
-      r      := 0;
+      NumCol      := Fy div (count * DefHeightFont);
+      r           := 0;
+      LengthToImg := Margin + DefWidthImg;
+      OffsetToImg := DefRowHeight * NumCol;
 
       for i := 1 to 2 do
-        if (Fy > (Margin + DefWidthImg) * i + DefRowHeight * NumCol) and
-           (Fy < (Margin + DefWidthImg) * (i + 1) + DefRowHeight * NumCol) then
-        begin
+        if (CheckPosToImg(i, LengthToImg, OffsetToImg)) then
           r := i;
-          break;
-        end;
-       case r of
-         1 : EditClick(Fx, Fy);
-         2 : DeleteClick(Fx, Fy);
-       end;
+
+      case r of
+        1 : EditClick(Fx, Fy);
+        2 : DeleteClick(Fx, Fy);
+      end;
     end;
     FillGridData();
   end;
@@ -466,11 +469,10 @@ begin
              Stream := TFileStream.Create(Utf8ToAnsi(s), fmCreate);
            end;
 
-           SL.Append(GetTextSaveToHTML().Text);
+           SL.AddStrings(GetTextSaveToHTML());
            SL.SaveToStream(stream);
            SL.free;
            Stream.Free;
-           exit;
          end;
       2 : SaveInExcel(s);
     end;
@@ -548,6 +550,8 @@ begin
 end;
 
 function TTimeTableForm.GetTextSaveToHTML(): TStringList;
+var
+  DataList : TStringList;
 begin
   Result := TstringList.Create;
   Result.Append('<html><head><meta charset="utf-8">' + '<style>' +
@@ -555,10 +559,15 @@ begin
             'px;' + 'border: 1px solid #000; border-collapse:collapse;}' +
             'td { border: 1px solid #000; padding: 5px; vertical-align: top;}' +
             '</style></head><body>');
-  Result.Append(GetDataSelection ().Text);
+
+  DataList := GetDataSelection();
+  Result.AddStrings(DataList);
   Result.Append('<table>');
-  Result.Append(GetDataStringGrid().Text);
+
+  DataList := GetDataStringGrid();
+  Result.AddStrings(DataList);
   Result.Append('</table></html>');
+  DataList.free;
 end;
 
 function TTimeTableForm.GetDataSelection(): TStringList;
@@ -585,7 +594,7 @@ begin
        Result.Append('<li>' + StringGrid.Cells[0, i + 1] + '</li> ');
 
   Result.Append('</ul></td><td>Фильтры: <br><ul>');
-  for i:= 0 to high(DirectoryFilter) do
+  for i := 0 to high(DirectoryFilter) do
     if (DirectoryFilter[i].Status) then
       with DirectoryFilter[i]do
       begin
@@ -735,7 +744,7 @@ procedure TTimeTableForm.FillListBox(AColList, ARowList : TStringList);
   begin
     AListBox.Clear;
 
-    for i :=0 to AList.Count - 1 do
+    for i := 0 to AList.Count - 1 do
     begin
       AListBox.Items.Add(AList[i]);
       if (length(AList[i]) > max) then max := length(AList[i]);
@@ -830,7 +839,7 @@ procedure TTimeTableForm.FillComboBox(AList: TStringList);
 var
   i : integer;
 begin
-  for i :=0 to AList.Count - 1 do
+  for i := 0 to AList.Count - 1 do
   begin
     ColComboBox.Items.Add(AList.ValueFromIndex[i]);
     RowComboBox.Items.Add(AList.ValueFromIndex[i]);

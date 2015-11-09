@@ -114,6 +114,7 @@ object TimeTableForm: TTimeTableForm
     Top = 112
     Width = 896
     Anchors = [akTop, akLeft, akRight, akBottom]
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goSmoothScroll, goScrollKeepVisible]
     TabOrder = 0
     OnDblClick = StringGridDblClick
     OnDrawCell = StringGridDrawCell
