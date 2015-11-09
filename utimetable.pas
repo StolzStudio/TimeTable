@@ -368,10 +368,20 @@ end;
 procedure TTimeTableForm.StringGridMouseUp(Sender: TObject; Button: TMouseButton;
                                            Shift: TShiftState; X, Y: Integer);
 var
-  i, count: integer;
-  tCol, tRow: integer;
-  Fy, Fx, NumCol, r: integer;
+  i, count          : integer;
+  tCol, tRow        : integer;
+  Fy, Fx, NumCol, r : integer;
+  LengthToImg       : integer;
+  OffsetToImg       : integer;
+
+  function CheckPos(ANum : integer; ALength : integer; AOffset : integer) : boolean;
+  begin
+    Result := (Fy > (ALength) * ANum + AOffset);
+  end;
+
 begin
+  tCol := 0;
+  tRow := 0;
   StringGrid.MouseToCell(x, y, tCol, tRow);
 
   if (tCol = 0) or (tRow = 0) then exit;
@@ -395,20 +405,19 @@ begin
     if (Fy < DefWidthImg + Margin) and (Fy > Margin) then
       InsertClick(Fx, Fy)
     else begin
-      NumCol := Fy div (count*DefHeightFont);
-      r      := 0;
+      NumCol      := Fy div (count * DefHeightFont);
+      r           := 0;
+      LengthToImg := Margin + DefWidthImg;
+      OffsetToImg := DefRowHeight * NumCol;
 
       for i := 1 to 2 do
-        if (Fy > (Margin + DefWidthImg) * i + DefRowHeight * NumCol) and
-           (Fy < (Margin + DefWidthImg) * (i + 1) + DefRowHeight * NumCol) then
-        begin
+        if (CheckPos(i, LengthToImg, OffsetToImg)) then
           r := i;
-          break;
-        end;
-       case r of
-         1 : EditClick(Fx, Fy);
-         2 : DeleteClick(Fx, Fy);
-       end;
+
+      case r of
+        1 : EditClick(Fx, Fy);
+        2 : DeleteClick(Fx, Fy);
+      end;
     end;
     FillGridData();
   end;
