@@ -474,11 +474,10 @@ begin
              Stream := TFileStream.Create(Utf8ToAnsi(s), fmCreate);
            end;
 
-           SL.Append(GetTextSaveToHTML().Text);
+           SL.AddStrings(GetTextSaveToHTML());
            SL.SaveToStream(stream);
            SL.free;
            Stream.Free;
-           exit;
          end;
       2 : SaveInExcel(s);
     end;
@@ -556,6 +555,8 @@ begin
 end;
 
 function TTimeTableForm.GetTextSaveToHTML(): TStringList;
+var
+  DataList : TStringList;
 begin
   Result := TstringList.Create;
   Result.Append('<html><head><meta charset="utf-8">' + '<style>' +
@@ -563,10 +564,15 @@ begin
             'px;' + 'border: 1px solid #000; border-collapse:collapse;}' +
             'td { border: 1px solid #000; padding: 5px; vertical-align: top;}' +
             '</style></head><body>');
-  Result.Append(GetDataSelection ().Text);
+
+  DataList := GetDataSelection();
+  Result.AddStrings(DataList);
   Result.Append('<table>');
-  Result.Append(GetDataStringGrid().Text);
+
+  DataList := GetDataStringGrid();
+  Result.AddStrings(DataList);
   Result.Append('</table></html>');
+  DataList.free;
 end;
 
 function TTimeTableForm.GetDataSelection(): TStringList;
