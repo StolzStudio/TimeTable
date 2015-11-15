@@ -142,6 +142,7 @@ procedure TFormData.ChangeApplyClick(Sender : TObject);
 var
   i, key   : integer;
   s        : string;
+  ParamNum : integer;
 
   function CheckEdit() : boolean;
   var
@@ -161,33 +162,32 @@ begin
       exit;
     end;
 
-    DBDataModule.SQLQuery.Active := False;
-    if Action = ctInsert then
+  DBDataModule.SQLQuery.Close;
+  if Action = ctInsert then
+  begin
+    key := SQLGenerator.GenUniqId();
+    DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenInsertQuery(Tag).Text;
+    DBDataModule.SQLQuery.ParamByName('p0').AsInteger := key;
+  end
+  else
+  begin
+    DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenUpdateQuery(Tag).Text;
+    DBDataModule.SQLQuery.ParamByName('p0').AsInteger := DataID;
+  end;
+  for i := 0 to high(DataControl) do
+  begin
+    s := 'p' + IntToStr(i + 1);
+    if MetaData.Tables[Tag].Fields[i + 1].Reference <> nil then
     begin
-      key := SQLGenerator.GenUniqId();
-      DBDataModule.SQLQuery.SQL.Text := SQLGenerator.GenInsertQuery(Tag).Text;
-      DBDataModule.SQLQuery.ParamByName('p0').AsInteger := key;
+      ParamNum := SQLGenerator.GetId(Tag, i, (DataControl[i] as TComboBox).ItemIndex);
+      DBDataModule.SQLQuery.ParamByName(s).AsInteger := ParamNum
     end
     else
     begin
-      DBDataModule.SQLQuery.SQL.Text:= SQLGenerator.GenUpdateQuery(Tag).Text;
-      DBDataModule.SQLQuery.ParamByName('p0').AsInteger := DataID;
+      DBDataModule.SQLQuery.ParamByName(s).AsString := (DataControl[i] as TEdit).Text;
     end;
-    for i:= 0 to high(DataControl) do
-    begin
-      s:= 'p' + IntToStr(i + 1);
-      if MetaData.Tables[Tag].Fields[i + 1].Reference <> nil then
-      begin
-        DBDataModule.SQLQuery.ParamByName(s).AsInteger := SQLGenerator.GetId(Tag, i,
-          (DataControl[i] as TComboBox).ItemIndex)
-      end
-      else
-      begin
-        DBDataModule.SQLQuery.ParamByName(s).AsString := (DataControl[i] as TEdit).Text;
-      end;
-    end;
-    DBDataModule.SQLQuery.ExecSQL;
-
+  end;
+  DBDataModule.SQLQuery.ExecSQL;
   DBDataModule.SQLTransaction.Commit;
   UpdateEvent;
   Close;

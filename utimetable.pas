@@ -304,7 +304,7 @@ var
   i            : integer;
   tX, tY       : integer;
   NumRec       : integer;
-  ParamNum     :integer;
+  ParamNum     : integer;
   DataCell, SL : TStringList;
   s: string;
 
@@ -356,7 +356,7 @@ begin
 
   DBDataModule.SQLQuery.ExecSQL;
   DBDataModule.SQLTransaction.Commit;
-  FillGridData();
+  UpdateEvent;
 end;
 
 procedure TTimeTableForm.StringGridMouseUp(Sender: TObject; Button: TMouseButton;
@@ -872,11 +872,11 @@ end;
 
 procedure TTimeTableForm.EditClick(Ax, Ay: integer);
 begin
-  EditingManager.OpenFormEditingTable (ctEdit, Tag, GetListDataCell(Ax, Ay));
+  EditingManager.OpenFormEditingTable(ctEdit, Tag, GetListDataCell(Ax, Ay));
 
   if (Col > 0) and (Row > 0) then
     StringGrid.Selection := StringGrid.CellRect(Col, Row);
-
+  FillGridData();
   StringGrid.RowHeights[Row] := CurrRowHeight;
 end;
 

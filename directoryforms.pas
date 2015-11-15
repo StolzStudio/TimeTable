@@ -173,6 +173,7 @@ begin
             (DataControl[k] as TEdit).Text := Alist[i];
           end;
         end;
+
     if AChangeType = ctEdit then
     begin
       Caption := MetaData.TranslateList.Values['UpdateRecord'];
