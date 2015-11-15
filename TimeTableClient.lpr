@@ -8,7 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   DBConnection, Forms, Main, ModeratorMode, Meta, directoryforms,
-  SQLgen, begin_prog, Filters, ChangeFormData, Utimetable;
+  SQLgen, begin_prog, Filters, ChangeFormData, Utimetable, Conflicts;
 
 {$R *.res}
 
