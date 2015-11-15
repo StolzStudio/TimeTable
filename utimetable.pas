@@ -19,6 +19,7 @@ type
     ColComboBox       : TComboBox;
     MainMenu          : TMainMenu;
     ExportMenuItem    : TMenuItem;
+    ConflictMenuItem  : TMenuItem;
     RowLabel          : TLabel;
     RowComboBox       : TComboBox;
     DataListBox       : TCheckListBox;
@@ -42,6 +43,7 @@ type
     { /end }
 
     procedure ApplyButtonClick(Sender : TObject);
+    procedure ConflictMenuItemClick(Sender: TObject);
     procedure DataListBoxItemClick(Sender: TObject; Index: integer);
     procedure ExportMenuItemClick(Sender: TObject);
     procedure FilterButtonClick(Sender: TObject);
@@ -436,6 +438,11 @@ begin
   FillListBox(ColSL, RowSL);
   FillGridData();
   UpdateHeaderVisible();
+end;
+
+procedure TTimeTableForm.ConflictMenuItemClick(Sender: TObject);
+begin
+
 end;
 
 procedure TTimeTableForm.DataListBoxItemClick(Sender: TObject; Index: integer);

@@ -148,6 +148,10 @@ object TimeTableForm: TTimeTableForm
       Caption = 'Сохранить'
       OnClick = ExportMenuItemClick
     end
+    object ConflictMenuItem: TMenuItem
+      Caption = 'Конфликты'
+      OnClick = ConflictMenuItemClick
+    end
   end
   object SaveDialog: TSaveDialog
     Filter = '.html|.html|.xlsx|.xlsx'
