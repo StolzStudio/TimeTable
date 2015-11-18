@@ -5,7 +5,8 @@ unit Conflicts;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Meta;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
+  Meta;
 
 type
 
@@ -55,7 +56,9 @@ type
     class property Caption : string read FCaption write FCaption;
   end;
 
+  { /TConflictForm }
   TConflictForm = class(TForm)
+    TreeView : TTreeView;
   private
     { private declarations }
   public
@@ -63,7 +66,7 @@ type
   end;
 
 var
-  ConflictForm: TConflictForm;
+  ConflictForm : TConflictForm;
 
 implementation
 

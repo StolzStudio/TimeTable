@@ -39,7 +39,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="13">
+    <Units Count="12">
       <Unit0>
         <Filename Value="TimeTableClient.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -108,16 +108,11 @@
       <Unit11>
         <Filename Value="conflicts.pas"/>
         <IsPartOfProject Value="True"/>
-        <HasResources Value="True"/>
-        <UnitName Value="Conflicts"/>
-      </Unit11>
-      <Unit12>
-        <Filename Value="conflicts.pas"/>
-        <IsPartOfProject Value="True"/>
         <ComponentName Value="ConflictForm"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Conflicts"/>
-      </Unit12>
+      </Unit11>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
