@@ -78,11 +78,11 @@ end;
 
 initialization
 
-TTeacherConflict.Caption       := MetaData.TranslateList.Values['teachers'];
-TTeacherCourseConflict.Caption := MetaData.TranslateList.Values['teachers_subjects'];
-TGroupConflict.Caption         := MetaData.TranslateList.Values['groups'];
-TGroupCourseConflict.Caption   := MetaData.TranslateList.Values['groups_subjects'];
-TClassroomConflict.Caption     := MetaData.TranslateList.Values['classrooms'];
+TTeacherConflict.Caption       := 'ПРЕПОДОВАТЕЛИ';
+TTeacherCourseConflict.Caption := 'ПРЕПОДОВАТЕЛЬ КУРИРУЕТ';
+TGroupConflict.Caption         := 'ГРУППЫ';
+TGroupCourseConflict.Caption   := 'ПРЕДМЕТ У ГРУППЫ';
+TClassroomConflict.Caption     := 'КАБИНЕТ';
 
 end.
 
