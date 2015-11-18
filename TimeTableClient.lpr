@@ -23,6 +23,7 @@ begin
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TFormData, FormData);
   Application.CreateForm(TTimeTableForm, TimeTableForm);
+  Application.CreateForm(TConflictForm, ConflictForm);
   Application.Run;
 end.
 

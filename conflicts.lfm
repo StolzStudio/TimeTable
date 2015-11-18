@@ -1,0 +1,7 @@
+object ConflictForm: TConflictForm
+  Left = 419
+  Height = 240
+  Top = 240
+  Width = 320
+  LCLVersion = '1.4.0.4'
+end
