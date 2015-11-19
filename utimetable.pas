@@ -547,7 +547,7 @@ begin
       SL.clear;
     end;
   Cell1       := WorkBook.WorkSheets[1].Cells[1, 1];
-  Cell2       := WorkBook.WorkSheets[1].Cells[r + 1, c + 1];
+  Cell2       := WorkBook.WorkSheets[1].Cells[r, c];
   Range       := WorkBook.WorkSheets[1].Range[Cell1, Cell2];
 
   Range.VerticalAlignment := xlPosition;
@@ -569,7 +569,7 @@ begin
   DescriptionData[2,4] := Utf8Decode(SL.Text);
 
   Cell1       := WorkBook.WorkSheets[2].Cells[1, 1];
-  Cell2       := WorkBook.WorkSheets[2].Cells[3, 5];
+  Cell2       := WorkBook.WorkSheets[2].Cells[2, 4];
   Range       := WorkBook.WorkSheets[2].Range[Cell1, Cell2];
   Range.VerticalAlignment := xlPosition;
   Range.Value             := DescriptionData;
