@@ -481,7 +481,7 @@ end;
 
 procedure TTimeTableForm.SaveInExcel(FileName: string);
 var
-  ExlApp, Sheet, Workbook, ArrayData, Range, Cell1, Cell2, ff: OleVariant;
+  ExlApp, SheetSchedule, SheetDescription, Workbook, ArrayData, Range, Cell1, Cell2, ff: OleVariant;
   i, j, k, r, c : integer;
   SL            : TStringList;
   xlPosition    : integer;
@@ -496,10 +496,12 @@ begin
     Exit;
   end;
 
-  ExlApp.Visible := false;
-  Workbook       := ExlApp.Workbooks.Add;
-  Sheet          := ExlApp.Workbooks[1].WorkSheets[1];
-  Sheet.name     := 'TimeTable';
+  ExlApp.Visible         := false;
+  Workbook               := ExlApp.Workbooks.Add;
+  SheetSchedule          := ExlApp.Workbooks[1].WorkSheets[1];
+  SheetDescription       := ExlApp.Workbooks[1].worksheets[2];
+  SheetSchedule.name     := 'TimeTable';
+  SheetDescription.name  := 'Description';
 
   r         := StringGrid.RowCount;
   c         := StringGrid.ColCount;
@@ -539,13 +541,12 @@ begin
   WorkBook.WorkSheets[1].Rows.Autofit;
 
   ExlApp.DisplayAlerts := False;
-  ExlApp.Visible       := true;
   ff                   := FileName;
 
   Workbook.SaveAs(ff);
   ExlApp.Quit;
   ExlApp := Unassigned;
-  Sheet  := Unassigned;
+  SheetSchedule  := Unassigned;
   Range  := Unassigned;
 end;
 
@@ -580,14 +581,14 @@ begin
   Result.Append('<p>' + MetaData.TranslateList.Values['HtmlTitle'] + '<br></p><tr><td>');
   Result.Append('Строки: ' + RowComboBox.Caption + '<br>' +
                 'Столбцы: ' + ColComboBox.Caption);
-  Result.Append('</td><td>' + MetaData.Tables[RowComboBox.ItemIndex].Caption + ':<ul>');
+  Result.Append('</td><td>' + ColComboBox.Caption + ':<ul>');
 
   for i := 0 to ColListBox.Count - 1 do
     if (ColListBox.Checked[i]) then
        Result.Append('<li>' + StringGrid.Cells[i + 1, 0] + '</li> ');
 
   Result.Append('</ul></td><td>');
-  Result.Append(MetaData.Tables[ColComboBox.ItemIndex].Caption + ':<ul>');
+  Result.Append(RowComboBox.Caption + ':<ul>');
 
   for i := 0 to RowListBox.Count - 1 do
     if (RowListBox.Checked[i]) then

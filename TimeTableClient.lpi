@@ -66,7 +66,6 @@
       <Unit4>
         <Filename Value="meta.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="Meta"/>
       </Unit4>
       <Unit5>
         <Filename Value="directoryforms.pas"/>
@@ -74,12 +73,10 @@
         <ComponentName Value="DirectoryForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="directoryforms"/>
       </Unit5>
       <Unit6>
         <Filename Value="sqlgen.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="SQLgen"/>
       </Unit6>
       <Unit7>
         <Filename Value="begin_prog.pas"/>
@@ -91,7 +88,6 @@
       <Unit8>
         <Filename Value="filters.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="Filters"/>
       </Unit8>
       <Unit9>
         <Filename Value="changeformdata.pas"/>
