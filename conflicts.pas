@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  Meta;
+  DBGrids, CheckLst, Meta;
 
 type
 
@@ -57,7 +57,12 @@ type
   end;
 
   { /TConflictForm }
+
+  { TConflictForm }
+
   TConflictForm = class(TForm)
+    CheckListBox1: TCheckListBox;
+    DBGrid1: TDBGrid;
     TreeView : TTreeView;
   private
     { private declarations }

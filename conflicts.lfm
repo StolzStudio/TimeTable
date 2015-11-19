@@ -1,18 +1,38 @@
 object ConflictForm: TConflictForm
-  Left = 253
+  Left = 254
   Height = 501
-  Top = 229
-  Width = 833
+  Top = 183
+  Width = 965
   ClientHeight = 501
-  ClientWidth = 833
+  ClientWidth = 965
   LCLVersion = '1.4.0.4'
   object TreeView: TTreeView
-    Left = 352
+    Left = 440
     Height = 501
     Top = 0
-    Width = 481
+    Width = 525
+    Anchors = [akTop, akLeft, akRight, akBottom]
     DefaultItemHeight = 18
     ScrollBars = ssNone
     TabOrder = 0
+  end
+  object DBGrid1: TDBGrid
+    Left = 0
+    Height = 384
+    Top = 0
+    Width = 440
+    Anchors = [akTop, akLeft, akBottom]
+    Color = clWindow
+    Columns = <>
+    TabOrder = 1
+  end
+  object CheckListBox1: TCheckListBox
+    Left = 0
+    Height = 117
+    Top = 384
+    Width = 440
+    Anchors = [akLeft, akBottom]
+    ItemHeight = 0
+    TabOrder = 2
   end
 end
