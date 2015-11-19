@@ -66,6 +66,7 @@
       <Unit4>
         <Filename Value="meta.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="Meta"/>
       </Unit4>
       <Unit5>
         <Filename Value="directoryforms.pas"/>

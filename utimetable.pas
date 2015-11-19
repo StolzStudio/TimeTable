@@ -88,10 +88,16 @@ type
                        ASL : TStringList; Acnt : integer;
                        aRow, aCol : integer);
 
-    procedure SaveInExcel(FileName: string);
-    function GetTextSaveToHTML() : TStringList;
-    function GetDataSelection()  : TStringList;
-    function GetDataStringGrid() : TStringList;
+    { /save }
+    procedure SaveInExcel(FileName : string);
+    function CreateExelHeaderArray() : TStringList;
+    function CreateExelFilter()      : TStringList;
+    function CreateExelCol()         : TStringList;
+    function CreateExelRow()         : TStringList;
+    function CreateExelSelection()   : TStringList;
+    function GetTextSaveToHTML()     : TStringList;
+    function GetDataSelection()      : TStringList;
+    function GetDataStringGrid()     : TStringList;
 
     { /editing }
     procedure InsertClick(Ax, Ay: integer);
@@ -291,15 +297,15 @@ begin
   MouseDownFlag:= true;
 end;
 
-procedure TTimeTableForm.StringGridMouseMove(Sender: TObject; Shift: TShiftState;
-                                             X, Y: Integer);
+procedure TTimeTableForm.StringGridMouseMove(Sender : TObject; Shift : TShiftState;
+                                             X, Y : Integer);
 begin
   cX := x; cY := y;
   if MouseDownFlag then DragDropFlag := true;
 end;
 
 
-procedure TTimeTableForm.DragDropRecord(EndX, EndY: integer);
+procedure TTimeTableForm.DragDropRecord(EndX, EndY : integer);
 var
   i            : integer;
   tX, tY       : integer;
@@ -308,7 +314,7 @@ var
   DataCell, SL : TStringList;
   s: string;
 
-  function ParsingDataCell(aRow, aCol, ANum: integer): TStringList;
+  function ParsingDataCell(aRow, aCol, ANum : integer) : TStringList;
   var
     i           : integer;
     SL, curr    : TStringList;
@@ -359,8 +365,8 @@ begin
   UpdateEvent;
 end;
 
-procedure TTimeTableForm.StringGridMouseUp(Sender: TObject; Button: TMouseButton;
-                                           Shift: TShiftState; X, Y: Integer);
+procedure TTimeTableForm.StringGridMouseUp(Sender : TObject; Button : TMouseButton;
+                                           Shift : TShiftState; X, Y : Integer);
 var
   i, count          : integer;
   tCol, tRow        : integer;
@@ -438,7 +444,7 @@ begin
   UpdateHeaderVisible();
 end;
 
-procedure TTimeTableForm.DataListBoxItemClick(Sender: TObject; Index: integer);
+procedure TTimeTableForm.DataListBoxItemClick(Sender : TObject; Index : integer);
 begin
   if GetCountCheckedItems < 3 then
     DataListBox.Checked[Index] := true
@@ -450,7 +456,7 @@ begin
   end;
 end;
 
-procedure TTimeTableForm.ExportMenuItemClick(Sender: TObject);
+procedure TTimeTableForm.ExportMenuItemClick(Sender : TObject);
 var
   s      : string;
   stream : TFileStream;
@@ -479,9 +485,11 @@ begin
   end;
 end;
 
-procedure TTimeTableForm.SaveInExcel(FileName: string);
+procedure TTimeTableForm.SaveInExcel(FileName : string);
 var
-  ExlApp, SheetSchedule, SheetDescription, Workbook, ArrayData, Range, Cell1, Cell2, ff: OleVariant;
+  ExlApp, SheetSchedule, SheetDescription, Workbook  : OleVariant;
+  ArrayData, DescriptionData, Range, Cell1, Cell2, ff : OleVariant;
+
   i, j, k, r, c : integer;
   SL            : TStringList;
   xlPosition    : integer;
@@ -503,6 +511,7 @@ begin
   SheetSchedule.name     := 'TimeTable';
   SheetDescription.name  := 'Description';
 
+  { /First page }
   r         := StringGrid.RowCount;
   c         := StringGrid.ColCount;
   SL        := TStringList.Create;
@@ -537,8 +546,32 @@ begin
   Range.VerticalAlignment := xlPosition;
   Range.Value             := ArrayData;
 
-  WorkBook.WorkSheets[1].Columns.ColumnWidth := xlColumnWidth;
-  WorkBook.WorkSheets[1].Rows.Autofit;
+  { /Second page }
+  DescriptionData := VarArrayCreate([1, 2, 1, 4], varVariant);
+  SL := CreateExelHeaderArray();
+  for i := 1 to 4 do
+    DescriptionData[1, i] := Utf8Decode(Sl[i - 1]);
+
+  SL := CreateExelSelection();
+  DescriptionData[2, 1] := Utf8Decode(SL.Text);
+  SL := CreateExelCol();
+  DescriptionData[2, 2] := Utf8Decode(SL.Text);
+  SL := CreateExelRow();
+  DescriptionData[2, 3] := Utf8Decode(SL.Text);
+  SL := CreateExelFilter();
+  DescriptionData[2,4] := Utf8Decode(SL.Text);
+
+  Cell1       := WorkBook.WorkSheets[2].Cells[1, 1];
+  Cell2       := WorkBook.WorkSheets[2].Cells[3, 5];
+  Range       := WorkBook.WorkSheets[2].Range[Cell1, Cell2];
+  Range.VerticalAlignment := xlPosition;
+  Range.Value             := DescriptionData;
+  { /end }
+  for i := 1 to 2 do
+  begin
+    WorkBook.WorkSheets[i].Columns.ColumnWidth := xlColumnWidth;
+    WorkBook.WorkSheets[i].Rows.Autofit;
+  end;
 
   ExlApp.DisplayAlerts := False;
   ff                   := FileName;
@@ -550,7 +583,55 @@ begin
   Range  := Unassigned;
 end;
 
-function TTimeTableForm.GetTextSaveToHTML(): TStringList;
+function TTimeTableForm.CreateExelHeaderArray() : TStringList;
+begin
+  Result := TStringList.Create;
+  Result.Append(MetaData.TranslateList.Values['HtmlTitle']);
+  Result.Append(ColComboBox.Caption);
+  Result.Append(RowComboBox.Caption);
+  Result.Append('Фильтры');
+end;
+
+function TTimeTableForm.CreateExelSelection() : TStringList;
+begin
+  Result := TStringList.Create;
+  Result.Append('Строки: ' + RowComboBox.Caption);
+  Result.Append('Столбцы: ' + ColComboBox.Caption);
+end;
+
+function TTimeTableForm.CreateExelCol() : TStringList;
+var
+  i : integer;
+begin
+  Result := TStringList.Create;
+  for i  := 0 to ColListBox.Count - 1 do
+    if (ColListBox.Checked[i]) then
+       Result.Append(StringGrid.Cells[i + 1, 0]);
+end;
+
+function TTimeTableForm.CreateExelRow() : TStringList;
+var
+  i : integer;
+begin
+  Result := TStringList.Create;
+  for i  := 0 to RowListBox.Count - 1 do
+    if (RowListBox.Checked[i]) then
+       Result.Append(StringGrid.Cells[0, i + 1]);
+end;
+
+function TTimeTableForm.CreateExelFilter() : TStringList;
+var
+  i : integer;
+begin
+  Result := TStringList.Create;
+  for i := 0 to high(DirectoryFilter) do
+    if (DirectoryFilter[i].Status) then
+      with DirectoryFilter[i]do
+         Result.Append(FieldBox.Caption + ' ' + ActionBox.Caption + ' ' +
+           FilterEdit.Caption);
+end;
+
+function TTimeTableForm.GetTextSaveToHTML() : TStringList;
 var
   DataList : TStringList;
 begin
@@ -571,14 +652,14 @@ begin
   DataList.free;
 end;
 
-function TTimeTableForm.GetDataSelection(): TStringList;
+function TTimeTableForm.GetDataSelection() : TStringList;
 var
   i: integer;
 begin
   Result := TStringList.Create;
 
   Result.Append('<table style="width: 900px;">');
-  Result.Append('<p>' + MetaData.TranslateList.Values['HtmlTitle'] + '<br></p><tr><td>');
+  Result.Append('<p>' + MetaData.TranslateList.Values['HtmlTitle'] + ':<br></p><tr><td>');
   Result.Append('Строки: ' + RowComboBox.Caption + '<br>' +
                 'Столбцы: ' + ColComboBox.Caption);
   Result.Append('</td><td>' + ColComboBox.Caption + ':<ul>');
@@ -607,7 +688,7 @@ begin
   Result.Append('</table>');
 end;
 
-function TTimeTableForm.GetDataStringGrid (): TStringList;
+function TTimeTableForm.GetDataStringGrid() : TStringList;
 var
   i, j, k: integer;
 begin
@@ -657,7 +738,7 @@ begin
   end;
 end;
 
-procedure TTimeTableForm.UpdateRowsHeight(Index: integer);
+procedure TTimeTableForm.UpdateRowsHeight(Index : integer);
 var
   k, c: integer;
 begin
