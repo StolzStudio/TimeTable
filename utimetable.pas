@@ -11,6 +11,8 @@ uses
 
 type
 
+  ExelFunction = function() : TStringList;
+
   { TTimeTableForm }
 
   TTimeTableForm = class(TForm)
@@ -497,10 +499,10 @@ var
   ExlApp, SheetSchedule, SheetDescription, Workbook  : OleVariant;
   ArrayData, DescriptionData, Range, Cell1, Cell2, ff : OleVariant;
 
-  i, j, k, r, c : integer;
-  SL            : TStringList;
-  xlPosition    : integer;
-  xlColumnWidth : integer;
+  i, j, k, r, c  : integer;
+  SL             : TStringList;
+  xlPosition     : integer;
+  xlColumnWidth  : integer;
 begin
   xlPosition    := -4160;
   xlColumnWidth := 50;
@@ -559,14 +561,10 @@ begin
   for i := 1 to 4 do
     DescriptionData[1, i] := Utf8Decode(Sl[i - 1]);
 
-  SL := CreateExelSelection();
-  DescriptionData[2, 1] := Utf8Decode(SL.Text);
-  SL := CreateExelCol();
-  DescriptionData[2, 2] := Utf8Decode(SL.Text);
-  SL := CreateExelRow();
-  DescriptionData[2, 3] := Utf8Decode(SL.Text);
-  SL := CreateExelFilter();
-  DescriptionData[2,4] := Utf8Decode(SL.Text);
+  DescriptionData[2, 1] := Utf8Decode(CreateExelSelection().Text);
+  DescriptionData[2, 2] := Utf8Decode(CreateExelCol().Text);
+  DescriptionData[2, 3] := Utf8Decode(CreateExelRow().Text);
+  DescriptionData[2, 4] := Utf8Decode(CreateExelFilter().Text);
 
   Cell1       := WorkBook.WorkSheets[2].Cells[1, 1];
   Cell2       := WorkBook.WorkSheets[2].Cells[2, 4];
