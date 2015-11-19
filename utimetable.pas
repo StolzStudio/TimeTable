@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
   Grids, ExtCtrls, StdCtrls, CheckLst, Menus, Filters, DirectoryForms, Meta,
-  SQLGen, ChangeFormData, DBConnection, ComObj, Variants;
+  SQLGen, ChangeFormData, DBConnection, ComObj, Variants, Conflicts;
 
 type
 
@@ -446,16 +446,12 @@ begin
   UpdateHeaderVisible();
 end;
 
-<<<<<<< HEAD
 procedure TTimeTableForm.ConflictMenuItemClick(Sender: TObject);
 begin
-
+  ConflictForm.show;
 end;
 
-procedure TTimeTableForm.DataListBoxItemClick(Sender: TObject; Index: integer);
-=======
 procedure TTimeTableForm.DataListBoxItemClick(Sender : TObject; Index : integer);
->>>>>>> refs/remotes/origin/master
 begin
   if GetCountCheckedItems < 3 then
     DataListBox.Checked[Index] := true
