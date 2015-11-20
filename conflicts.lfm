@@ -6,33 +6,58 @@ object ConflictForm: TConflictForm
   ClientHeight = 501
   ClientWidth = 965
   LCLVersion = '1.4.0.4'
-  object TreeView: TTreeView
+  object LeftTreeView: TTreeView
     Left = 440
     Height = 501
     Top = 0
     Width = 525
     Anchors = [akTop, akLeft, akRight, akBottom]
     DefaultItemHeight = 18
-    ScrollBars = ssNone
     TabOrder = 0
   end
-  object DBGrid1: TDBGrid
+  object HelpLabel: TLabel
+    Left = 8
+    Height = 15
+    Top = 424
+    Width = 79
+    Caption = 'Возможности:'
+    ParentColor = False
+  end
+  object DblClickLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 472
+    Width = 263
+    Caption = 'Для изменения записи нажмите на нее дважды;'
+    ParentColor = False
+  end
+  object ClickLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 448
+    Width = 296
+    Caption = 'Для просмотра конфликотов записи нажмите на нее;'
+    ParentColor = False
+  end
+  object RightTreeView: TTreeView
     Left = 0
-    Height = 384
+    Height = 425
     Top = 0
-    Width = 440
-    Anchors = [akTop, akLeft, akBottom]
-    Color = clWindow
-    Columns = <>
+    Width = 432
+    DefaultItemHeight = 18
     TabOrder = 1
   end
-  object CheckListBox1: TCheckListBox
-    Left = 0
-    Height = 117
-    Top = 384
-    Width = 440
-    Anchors = [akLeft, akBottom]
-    ItemHeight = 0
-    TabOrder = 2
+  object SQLQuery: TSQLQuery
+    FieldDefs = <>
+    Database = DBDataModule.IBConnection
+    Transaction = DBDataModule.SQLTransaction
+    Params = <>
+    left = 109
+    top = 167
+  end
+  object DataSource: TDataSource
+    DataSet = SQLQuery
+    left = 159
+    top = 215
   end
 end

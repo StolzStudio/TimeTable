@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  DBGrids, CheckLst, Meta;
+  DBGrids, StdCtrls, Grids, Meta, sqldb, db, DBConnection;
 
 type
 
@@ -18,6 +18,7 @@ type
     RecordID     : integer;
     ConflictType : TConflictClass;
   public
+    class procedure Check(LeftTree, RightTree : TTreeView);
     constructor Create(ARecordID : integer; AConflictType : TConflictClass);
   end;
 
@@ -25,6 +26,7 @@ type
   private
     class var FCaption : string;
   public
+    class procedure Check(LeftTree, RightTree : TTreeView);
     class property Caption : string read FCaption write FCaption;
   end;
 
@@ -32,6 +34,7 @@ type
   private
     class var FCaption : string;
   public
+    class procedure Check(LeftTree, RightTree : TTreeView);
     class property Caption : string read FCaption write FCaption;
   end;
 
@@ -39,6 +42,7 @@ type
   private
     class var FCaption : string;
   public
+    class procedure Check(LeftTree, RightTree : TTreeView);
     class property Caption : string read FCaption write FCaption;
   end;
 
@@ -46,6 +50,7 @@ type
   private
     class var FCaption : string;
   public
+    class procedure Check(LeftTree, RightTree : TTreeView);
     class property Caption : string read FCaption write FCaption;
   end;
 
@@ -53,6 +58,7 @@ type
   private
     class var FCaption : string;
   public
+    class procedure Check(LeftTree, RightTree : TTreeView);
     class property Caption : string read FCaption write FCaption;
   end;
 
@@ -61,9 +67,13 @@ type
   { TConflictForm }
 
   TConflictForm = class(TForm)
-    CheckListBox1: TCheckListBox;
-    DBGrid1: TDBGrid;
-    TreeView : TTreeView;
+    DataSource    : TDataSource;
+    HelpLabel     : TLabel;
+    DblClickLabel : TLabel;
+    ClickLabel    : TLabel;
+    SQLQuery      : TSQLQuery;
+    LeftTreeView  : TTreeView;
+    RightTreeView : TTreeView;
   private
     { private declarations }
   public
@@ -83,6 +93,44 @@ begin
   ConflictType := AconflictType;
 end;
 
+{ /check }
+class procedure TConflict.Check(LeftTree, RightTree: TTreeView);
+begin
+  RightTree.Items.Clear;
+  LeftTree.Items.Clear;
+
+  TTeacherConflict.Check(LeftTree, RightTree);
+  TGroupConflict.Check(LeftTree, RightTree);
+  TClassRoomConflict.Check(LeftTree, RightTree);
+  TTeacherCourseConflict.Check(LeftTree, RightTree);
+  TGroupCourseConflict.Check(LeftTree, RightTree);
+end;
+
+class procedure TTeacherConflict.Check(LeftTree, RightTree: TTreeView);
+begin
+
+end;
+
+class procedure TTeacherCourseConflict.Check(LeftTree, RightTree: TTreeView);
+begin
+
+end;
+
+class procedure TGroupConflict.Check(LeftTree, RightTree: TTreeView);
+begin
+
+end;
+
+class procedure TGroupCourseConflict.Check(LeftTree, RightTree: TTreeView);
+begin
+
+end;
+
+class procedure TClassRoomConflict.Check(LeftTree, RightTree: TTreeView);
+begin
+
+end;
+{ /end }
 
 initialization
 
