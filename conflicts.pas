@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  DBGrids, StdCtrls, Grids, Meta, sqldb, db, DBConnection, SQLgen;
+  DBGrids, StdCtrls, Grids, Meta, sqldb, db, DBConnection, SQLgen, TypInfo;
 
 type
 
@@ -77,9 +77,12 @@ type
     DblClickLabel : TLabel;
     ClickLabel    : TLabel;
     SQLQuery      : TSQLQuery;
-    RightTreeView  : TTreeView;
-    LeftTreeView : TTreeView;
+    RightTreeView : TTreeView;
+    LeftTreeView  : TTreeView;
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormPaint(Sender: TObject);
+
+    function GetRecord(RecordID: integer): string;
   private
     { private declarations }
   public
@@ -88,6 +91,10 @@ type
 
 var
   ConflictForm : TConflictForm;
+
+  procedure AddToTrees(LeftTree, RightTree: TTreeView; AParentNode: TTreeNode;
+                     AConflictObjects: TStringList);
+  function ConflictCaption(AConflictType: TConflictClass): string;
 
 implementation
 
@@ -101,12 +108,28 @@ begin
   LeftTreeView.Items.Clear;
   with SQLQuery do begin
     Close;
-    SQL.Append(SQLGenerator.GenParams(8).Text);
+    SQL.Append(SQLGenerator.GenParams(high(MetaData.Tables)).Text);
     Open;
   end;
   TConflict.Check(LeftTreeView, RightTreeView);
 end;
 
+procedure TConflictForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  CloseAction := caHide;
+end;
+
+function TConflictForm.GetRecord(RecordID: integer): string;
+var
+  FieldsName : array [0..5] of String = ('PAIRSNUM', 'WEEKDAYSWEEKDAY', 'GROUPSNAME',
+                                         'SUBJECTSNAME', 'CLASSROOMSNAME', 'TEACHERSNAME');
+  i : integer;
+begin
+  Result := '';
+  SQLQuery.Locate('lessonsid', Integer(RecordId), []);
+  for i := 0 to 5 do
+    Result := Result + string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ';
+end;
 constructor TConflict.Create(ARecordID : integer; AConflictType : TConflictClass);
 begin
   RecordID     := ARecordID;
@@ -141,7 +164,7 @@ begin
     'weekday_id', 'pair_id', 'teacher_id');
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TTeacherConflict.Caption);
-  //AddToTrees(LeftTree, RightTree, Node, ConfObjects);
+  AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
 end;
 
 class procedure TTeacherCourseConflict.Check(LeftTree, RightTree: TTreeView);
@@ -155,10 +178,11 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   NonExistentLinks(
-    Query, SL, ConflictObjects, TTeacherConflict,
+    Query, SL, ConflictObjects, TTeacherCourseConflict,
     'teacher_id', 'subject_id', 'teachers_subjects');
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TTeacherCourseConflict.Caption);
+  AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
 end;
 
 class procedure TGroupConflict.Check(LeftTree, RightTree: TTreeView);
@@ -172,10 +196,11 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   ExceptionalRows(
-    Query, SL, ConflictObjects, TTeacherConflict,
+    Query, SL, ConflictObjects, TGroupConflict,
     'weekday_id', 'pair_id', 'group_id');
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TGroupConflict.Caption);
+  AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
 end;
 
 class procedure TGroupCourseConflict.Check(LeftTree, RightTree: TTreeView);
@@ -189,10 +214,11 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   NonExistentLinks(
-    Query, SL, ConflictObjects, TTeacherConflict,
+    Query, SL, ConflictObjects, TGroupCourseConflict,
     'group_id', 'subject_id', 'groups_subjects');
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TGroupCourseConflict.Caption);
+  AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
 end;
 
 class procedure TClassRoomConflict.Check(LeftTree, RightTree: TTreeView);
@@ -206,10 +232,44 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   ExceptionalRows(
-    Query, SL, ConflictObjects, TTeacherConflict,
+    Query, SL, ConflictObjects, TClassRoomConflict,
     'weekday_id', 'pair_id', 'classroom_id');
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TClassRoomConflict.Caption);
+  AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
+end;
+
+procedure AddToTrees(LeftTree, RightTree: TTreeView; AParentNode: TTreeNode;
+                     AConflictObjects: TStringList);
+var
+  i, j: integer;
+  Node, LeftNode: TTreeNode;
+  Conflict: TConflict;
+begin
+  with AConflictObjects do begin
+    for i := 0 to AConflictObjects.Count - 1 do begin
+      Conflict := Objects[i] as TConflict;
+      Node := RightTree.Items.AddChildObject(AParentNode, ConflictForm.GetRecord(Conflict.RecordID), Conflict);
+      for j := 0 to Length(Conflict.ConflictID) - 1 do
+        RightTree.Items.AddChildObject(Node, ConflictForm.GetRecord(Conflict.ConflictID[j].RecordID), Conflict.ConflictID[j]);
+
+
+      LeftNode := LeftTree.Items.FindNodeWithData(Pointer(Conflict.RecordID));
+      if LeftNode = nil then
+        LeftNode := LeftTree.Items.AddObject(TTreeNode.Create(LeftTree.Items),
+                    ConflictForm.GetRecord(Conflict.RecordID), Pointer(Conflict.RecordID));
+      LeftTree.Items.AddChildObject(LeftNode, ConflictCaption(Conflict.ConflictType), Node);
+    end;
+  end;
+end;
+
+function ConflictCaption(AConflictType: TConflictClass): string;
+begin
+  if AConflictType = TTeacherConflict       then Result := TTeacherConflict.Caption;
+  if AConflictType = TGroupConflict         then Result := TGroupConflict.Caption;
+  if AConflictType = TClassroomConflict     then Result := TClassroomConflict.Caption;
+  if AConflictType = TTeacherCourseConflict then Result := TTeacherCourseConflict.Caption;
+  if AConflictType = TGroupCourseConflict   then Result := TGroupCourseConflict.Caption;
 end;
 
 { /work with conflict procedures }
@@ -271,7 +331,6 @@ begin
           SetLength(Conflict.ConflictID, Length(Conflict.ConflictID) + 1);
           Conflict.ConflictID[High(Conflict.ConflictID)] := AConflictObjects.Objects[j] as TConflict;
 	end;
-  showmessage(AConflictObjects.text);
 end;
 
 class procedure TConflict.NonExistentLinks(AQuery: TSQLQuery; ASL, AConflictObjects: TStringList;

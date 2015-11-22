@@ -5,6 +5,7 @@ object ConflictForm: TConflictForm
   Width = 965
   ClientHeight = 533
   ClientWidth = 965
+  OnClose = FormClose
   OnPaint = FormPaint
   LCLVersion = '1.4.0.4'
   object RightTreeView: TTreeView

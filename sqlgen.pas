@@ -52,7 +52,8 @@ begin
       if fld.Reference <> nil then
       begin
         j          := fld.Reference.TableTag;
-        QueryCmd   += Tables[j].Name + '.' + Tables[j].Fields[1].Name;
+        QueryCmd   += Tables[j].Name + '.' + Tables[j].Fields[1].Name
+                      + ' AS ' + Tables[j].Name + Tables[j].Fields[1].Name;
         s          := 'INNER JOIN ' + Tables[j].Name + ' ON ' + Tables[j].Name
                       + '.' + fld.Reference.Name + ' = ' + Tables[ANum].Name
                       + '.' + Tables[ANum].Fields[i].Name;
@@ -62,7 +63,8 @@ begin
       end
       else
         QueryCmd   +=   ' ' + Tables[ANum].Name
-                      + '.' + Tables[ANum].Fields[i].Name;
+                      + '.' + Tables[ANum].Fields[i].Name + ' AS '
+                      + Tables[ANum].Name + Tables[ANum].Fields[i].Name;
     end;
   end;
   Result.Append(QueryCmd);
