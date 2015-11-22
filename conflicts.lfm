@@ -1,14 +1,15 @@
 object ConflictForm: TConflictForm
   Left = 254
-  Height = 501
+  Height = 533
   Top = 183
   Width = 965
-  ClientHeight = 501
+  ClientHeight = 533
   ClientWidth = 965
+  OnPaint = FormPaint
   LCLVersion = '1.4.0.4'
-  object LeftTreeView: TTreeView
+  object RightTreeView: TTreeView
     Left = 440
-    Height = 501
+    Height = 533
     Top = 0
     Width = 525
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -39,7 +40,7 @@ object ConflictForm: TConflictForm
     Caption = 'Для просмотра конфликотов записи нажмите на нее;'
     ParentColor = False
   end
-  object RightTreeView: TTreeView
+  object LeftTreeView: TTreeView
     Left = 0
     Height = 425
     Top = 0

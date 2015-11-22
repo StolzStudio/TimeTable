@@ -505,7 +505,7 @@ var
   xlColumnWidth  : integer;
 begin
   xlPosition    := -4160;
-  xlColumnWidth := 50;
+  xlColumnWidth := 40;
   try
     ExlApp := CreateOleObject('Excel.Application');
   except
@@ -600,8 +600,8 @@ end;
 function TTimeTableForm.CreateExelSelection() : TStringList;
 begin
   Result := TStringList.Create;
-  Result.Append('Строки: ' + RowComboBox.Caption);
   Result.Append('Столбцы: ' + ColComboBox.Caption);
+  Result.Append('Строки: ' + RowComboBox.Caption);
 end;
 
 function TTimeTableForm.CreateExelCol() : TStringList;
