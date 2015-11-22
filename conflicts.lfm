@@ -6,7 +6,8 @@ object ConflictForm: TConflictForm
   ClientHeight = 533
   ClientWidth = 965
   OnClose = FormClose
-  OnPaint = FormPaint
+  OnCreate = FormCreate
+  OnShow = FormShow
   LCLVersion = '1.4.0.4'
   object RightTreeView: TTreeView
     Left = 440
@@ -48,6 +49,7 @@ object ConflictForm: TConflictForm
     Width = 432
     DefaultItemHeight = 18
     TabOrder = 1
+    OnDblClick = LeftTreeViewDblClick
   end
   object SQLQuery: TSQLQuery
     FieldDefs = <>

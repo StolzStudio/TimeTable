@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  DBGrids, StdCtrls, Grids, Meta, sqldb, db, DBConnection, SQLgen, TypInfo;
+  StdCtrls, Meta, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData;
 
 type
 
@@ -68,9 +68,6 @@ type
   end;
 
   { /TConflictForm }
-
-  { TConflictForm }
-
   TConflictForm = class(TForm)
     DataSource    : TDataSource;
     HelpLabel     : TLabel;
@@ -79,12 +76,15 @@ type
     SQLQuery      : TSQLQuery;
     RightTreeView : TTreeView;
     LeftTreeView  : TTreeView;
+    procedure ConflictUpdate;
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure FormPaint(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
 
-    function GetRecord(RecordID: integer): string;
+    function GetRecord(RecordID: integer): TStringList;
+    procedure LeftTreeViewDblClick(Sender: TObject);
   private
-    { private declarations }
+    EditingManager : TEditingManager;
   public
     { public declarations }
   end;
@@ -102,7 +102,7 @@ implementation
 
 { TConflictForm }
 
-procedure TConflictForm.FormPaint(Sender: TObject);
+procedure TConflictForm.ConflictUpdate;
 begin
   RightTreeView.Items.Clear;
   LeftTreeView.Items.Clear;
@@ -119,17 +119,67 @@ begin
   CloseAction := caHide;
 end;
 
-function TConflictForm.GetRecord(RecordID: integer): string;
+procedure TConflictForm.FormCreate(Sender: TObject);
+begin
+  EditingManager := TEditingManager.Create;
+end;
+
+procedure TConflictForm.FormShow(Sender: TObject);
+begin
+  ConflictUpdate;
+end;
+
+function TConflictForm.GetRecord(RecordID: integer): TStringList;
 var
-  FieldsName : array [0..5] of String = ('PAIRSNUM', 'WEEKDAYSWEEKDAY', 'GROUPSNAME',
+  FieldsName : array [0..6] of String = ('LESSONSID', 'PAIRSNUM', 'WEEKDAYSWEEKDAY', 'GROUPSNAME',
                                          'SUBJECTSNAME', 'CLASSROOMSNAME', 'TEACHERSNAME');
   i : integer;
 begin
-  Result := '';
-  SQLQuery.Locate('lessonsid', Integer(RecordId), []);
-  for i := 0 to 5 do
-    Result := Result + string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ';
+  Result := TStringList.Create;
+  SQLQuery.Locate('LESSONSID', Integer(RecordId), []);
+  for i := 0 to 6 do
+    Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
 end;
+
+procedure TConflictForm.LeftTreeViewDblClick(Sender: TObject);
+var
+  Node      : TTreeNode;
+  RightNode : TTreeNode;
+
+  function ParseNode(ANodeText : string) : TStringList;
+  var
+    i, k : integer;
+    id   : string;
+    s    : TStringList;
+    m    : string;
+  begin
+    s  := TStringList.Create;
+    id := copy(ANodeText, 1, pos(' ', AnodeText) - 1);
+    s  := GetRecord(StrToInt(id));
+    Result := TStringList.Create;
+    for i := 0 to 6 do
+    begin
+      m := s[i];
+      k := pos('  ', s[i]);
+      delete(m, k, k + 2);
+      Result.Append(m);
+    end;
+  end;
+
+begin
+  Node := LeftTreeView.Selected;
+  if Node.GetFirstChild <> nil then
+  begin
+    EditingManager.OpenFormEditingTable(ctEdit, high(MetaData.Tables), ParseNode(node.text));
+  end
+  else begin
+    RightNode := TObject(Node.Data) as TTreeNode;
+    RightTreeView.Items.SelectOnlyThis(RightNode);
+    RightNode.Expand(true);
+    ActiveControl := RightTreeView;
+  end;
+end;
+
 constructor TConflict.Create(ARecordID : integer; AConflictType : TConflictClass);
 begin
   RecordID     := ARecordID;
@@ -158,7 +208,7 @@ var
 begin
   SL              := TStringList.Create;
   ConflictObjects := TStringList.Create;
-  Query           := DBDataModule.SQLQuery;
+  Query           := DBDataModule.SQLQuery1;
   ExceptionalRows(
     Query, SL, ConflictObjects, TTeacherConflict,
     'weekday_id', 'pair_id', 'teacher_id');
@@ -249,15 +299,15 @@ begin
   with AConflictObjects do begin
     for i := 0 to AConflictObjects.Count - 1 do begin
       Conflict := Objects[i] as TConflict;
-      Node := RightTree.Items.AddChildObject(AParentNode, ConflictForm.GetRecord(Conflict.RecordID), Conflict);
+      Node := RightTree.Items.AddChildObject(AParentNode, ConflictForm.GetRecord(Conflict.RecordID).text, Conflict);
       for j := 0 to Length(Conflict.ConflictID) - 1 do
-        RightTree.Items.AddChildObject(Node, ConflictForm.GetRecord(Conflict.ConflictID[j].RecordID), Conflict.ConflictID[j]);
+        RightTree.Items.AddChildObject(Node, ConflictForm.GetRecord(Conflict.ConflictID[j].RecordID).text, Conflict.ConflictID[j]);
 
 
       LeftNode := LeftTree.Items.FindNodeWithData(Pointer(Conflict.RecordID));
       if LeftNode = nil then
         LeftNode := LeftTree.Items.AddObject(TTreeNode.Create(LeftTree.Items),
-                    ConflictForm.GetRecord(Conflict.RecordID), Pointer(Conflict.RecordID));
+                    ConflictForm.GetRecord(Conflict.RecordID).text, Pointer(Conflict.RecordID));
       LeftTree.Items.AddChildObject(LeftNode, ConflictCaption(Conflict.ConflictType), Node);
     end;
   end;

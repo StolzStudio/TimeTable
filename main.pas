@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DBConnection, ExtCtrls, ModeratorMode, TypInfo, Meta,
-  DirectoryForms, SQLgen, UTimeTable, ChangeFormData;
+  DirectoryForms, SQLgen, UTimeTable, ChangeFormData, Conflicts;
 
 type
 
@@ -225,6 +225,8 @@ begin
       end;
   if (TimeTableForm <> nil) then
     TimeTableForm.FillGridData();
+  //if (ConflictForm <> nil) then
+  //    ConflictForm.ConflictUpdate;
 end;
 end.
 
