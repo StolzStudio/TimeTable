@@ -17,6 +17,7 @@ object ConflictForm: TConflictForm
     Anchors = [akTop, akLeft, akRight, akBottom]
     DefaultItemHeight = 18
     TabOrder = 0
+    OnDblClick = RightTreeViewDblClick
   end
   object HelpLabel: TLabel
     Left = 8

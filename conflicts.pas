@@ -68,6 +68,9 @@ type
   end;
 
   { /TConflictForm }
+
+  { TConflictForm }
+
   TConflictForm = class(TForm)
     DataSource    : TDataSource;
     HelpLabel     : TLabel;
@@ -83,8 +86,11 @@ type
 
     function GetRecord(RecordID: integer): TStringList;
     procedure LeftTreeViewDblClick(Sender: TObject);
+    procedure RightTreeViewDblClick(Sender: TObject);
   private
     EditingManager : TEditingManager;
+
+    function ParseNode(ANodeText : string) : TStringList;
   public
     { public declarations }
   end;
@@ -141,36 +147,39 @@ begin
     Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
 end;
 
+function TConflictForm.ParseNode(ANodeText : string) : TStringList;
+var
+  i, k : integer;
+  id   : string;
+  s    : TStringList;
+  m    : string;
+begin
+  s  := TStringList.Create;
+  id := copy(ANodeText, 1, pos(' ', AnodeText) - 1);
+  s  := GetRecord(StrToInt(id));
+  Result := TStringList.Create;
+  for i := 0 to 6 do
+  begin
+    m := s[i];
+    k := pos('  ', s[i]);
+    delete(m, k, k + 2);
+    Result.Append(m);
+  end;
+end;
 procedure TConflictForm.LeftTreeViewDblClick(Sender: TObject);
 var
   Node      : TTreeNode;
   RightNode : TTreeNode;
 
-  function ParseNode(ANodeText : string) : TStringList;
-  var
-    i, k : integer;
-    id   : string;
-    s    : TStringList;
-    m    : string;
-  begin
-    s  := TStringList.Create;
-    id := copy(ANodeText, 1, pos(' ', AnodeText) - 1);
-    s  := GetRecord(StrToInt(id));
-    Result := TStringList.Create;
-    for i := 0 to 6 do
-    begin
-      m := s[i];
-      k := pos('  ', s[i]);
-      delete(m, k, k + 2);
-      Result.Append(m);
-    end;
-  end;
-
 begin
   Node := LeftTreeView.Selected;
   if Node.GetFirstChild <> nil then
   begin
-    EditingManager.OpenFormEditingTable(ctEdit, high(MetaData.Tables), ParseNode(node.text));
+    EditingManager.OpenFormEditingTable(
+                                        ctEdit,
+                                        high(MetaData.Tables),
+                                        ParseNode(node.text)
+                                        );
   end
   else begin
     RightNode := TObject(Node.Data) as TTreeNode;
@@ -178,6 +187,21 @@ begin
     RightNode.Expand(true);
     ActiveControl := RightTreeView;
   end;
+end;
+
+procedure TConflictForm.RightTreeViewDblClick(Sender: TObject);
+var
+  Tree : TTreeView;
+  Conflict : TConflict;
+begin
+  Tree     := Sender as TTreeView;
+  Conflict := TObject(Tree.Selected.Data) as TConflict;
+  if Conflict = nil then exit;
+  EditingManager.OpenFormEditingTable(
+                                      ctEdit,
+                                      high(MetaData.Tables),
+                                      ParseNode(IntToStr(Conflict.RecordID) + '  ')
+                                      );
 end;
 
 constructor TConflict.Create(ARecordID : integer; AConflictType : TConflictClass);
