@@ -1,0 +1,72 @@
+object ConflictForm: TConflictForm
+  Left = 254
+  Height = 533
+  Top = 183
+  Width = 965
+  ClientHeight = 533
+  ClientWidth = 965
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnShow = FormShow
+  LCLVersion = '1.4.0.4'
+  object RightTreeView: TTreeView
+    Left = 440
+    Height = 533
+    Top = 0
+    Width = 525
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    DefaultItemHeight = 18
+    ReadOnly = True
+    TabOrder = 0
+    OnDblClick = RightTreeViewDblClick
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+  end
+  object HelpLabel: TLabel
+    Left = 8
+    Height = 15
+    Top = 424
+    Width = 79
+    Caption = 'Возможности:'
+    ParentColor = False
+  end
+  object DblClickLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 472
+    Width = 263
+    Caption = 'Для изменения записи нажмите на нее дважды;'
+    ParentColor = False
+  end
+  object ClickLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 448
+    Width = 296
+    Caption = 'Для просмотра конфликотов записи нажмите на нее;'
+    ParentColor = False
+  end
+  object LeftTreeView: TTreeView
+    Left = 0
+    Height = 425
+    Top = 0
+    Width = 432
+    DefaultItemHeight = 18
+    ReadOnly = True
+    TabOrder = 1
+    OnDblClick = LeftTreeViewDblClick
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+  end
+  object SQLQuery: TSQLQuery
+    FieldDefs = <>
+    Database = DBDataModule.IBConnection
+    Transaction = DBDataModule.SQLTransaction
+    Params = <>
+    left = 109
+    top = 167
+  end
+  object DataSource: TDataSource
+    DataSet = SQLQuery
+    left = 159
+    top = 215
+  end
+end

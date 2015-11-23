@@ -7,9 +7,11 @@ interface
 uses
   Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
   Grids, ExtCtrls, StdCtrls, CheckLst, Menus, Filters, DirectoryForms, Meta,
-  SQLGen, ChangeFormData, DBConnection, ComObj, Variants;
+  SQLGen, ChangeFormData, DBConnection, ComObj, Variants, Conflicts;
 
 type
+
+  ExelFunction = function() : TStringList;
 
   { TTimeTableForm }
 
@@ -19,6 +21,7 @@ type
     ColComboBox       : TComboBox;
     MainMenu          : TMainMenu;
     ExportMenuItem    : TMenuItem;
+    ConflictMenuItem  : TMenuItem;
     RowLabel          : TLabel;
     RowComboBox       : TComboBox;
     DataListBox       : TCheckListBox;
@@ -42,6 +45,7 @@ type
     { /end }
 
     procedure ApplyButtonClick(Sender : TObject);
+    procedure ConflictMenuItemClick(Sender: TObject);
     procedure DataListBoxItemClick(Sender: TObject; Index: integer);
     procedure ExportMenuItemClick(Sender: TObject);
     procedure FilterButtonClick(Sender: TObject);
@@ -444,6 +448,11 @@ begin
   UpdateHeaderVisible();
 end;
 
+procedure TTimeTableForm.ConflictMenuItemClick(Sender: TObject);
+begin
+  ConflictForm.show;
+end;
+
 procedure TTimeTableForm.DataListBoxItemClick(Sender : TObject; Index : integer);
 begin
   if GetCountCheckedItems < 3 then
@@ -490,13 +499,13 @@ var
   ExlApp, SheetSchedule, SheetDescription, Workbook  : OleVariant;
   ArrayData, DescriptionData, Range, Cell1, Cell2, ff : OleVariant;
 
-  i, j, k, r, c : integer;
-  SL            : TStringList;
-  xlPosition    : integer;
-  xlColumnWidth : integer;
+  i, j, k, r, c  : integer;
+  SL             : TStringList;
+  xlPosition     : integer;
+  xlColumnWidth  : integer;
 begin
   xlPosition    := -4160;
-  xlColumnWidth := 50;
+  xlColumnWidth := 40;
   try
     ExlApp := CreateOleObject('Excel.Application');
   except
@@ -540,7 +549,7 @@ begin
       SL.clear;
     end;
   Cell1       := WorkBook.WorkSheets[1].Cells[1, 1];
-  Cell2       := WorkBook.WorkSheets[1].Cells[r + 1, c + 1];
+  Cell2       := WorkBook.WorkSheets[1].Cells[r, c];
   Range       := WorkBook.WorkSheets[1].Range[Cell1, Cell2];
 
   Range.VerticalAlignment := xlPosition;
@@ -552,17 +561,13 @@ begin
   for i := 1 to 4 do
     DescriptionData[1, i] := Utf8Decode(Sl[i - 1]);
 
-  SL := CreateExelSelection();
-  DescriptionData[2, 1] := Utf8Decode(SL.Text);
-  SL := CreateExelCol();
-  DescriptionData[2, 2] := Utf8Decode(SL.Text);
-  SL := CreateExelRow();
-  DescriptionData[2, 3] := Utf8Decode(SL.Text);
-  SL := CreateExelFilter();
-  DescriptionData[2,4] := Utf8Decode(SL.Text);
+  DescriptionData[2, 1] := Utf8Decode(CreateExelSelection().Text);
+  DescriptionData[2, 2] := Utf8Decode(CreateExelCol().Text);
+  DescriptionData[2, 3] := Utf8Decode(CreateExelRow().Text);
+  DescriptionData[2, 4] := Utf8Decode(CreateExelFilter().Text);
 
   Cell1       := WorkBook.WorkSheets[2].Cells[1, 1];
-  Cell2       := WorkBook.WorkSheets[2].Cells[3, 5];
+  Cell2       := WorkBook.WorkSheets[2].Cells[2, 4];
   Range       := WorkBook.WorkSheets[2].Range[Cell1, Cell2];
   Range.VerticalAlignment := xlPosition;
   Range.Value             := DescriptionData;
@@ -595,8 +600,8 @@ end;
 function TTimeTableForm.CreateExelSelection() : TStringList;
 begin
   Result := TStringList.Create;
-  Result.Append('Строки: ' + RowComboBox.Caption);
   Result.Append('Столбцы: ' + ColComboBox.Caption);
+  Result.Append('Строки: ' + RowComboBox.Caption);
 end;
 
 function TTimeTableForm.CreateExelCol() : TStringList;
