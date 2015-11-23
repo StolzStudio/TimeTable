@@ -99,7 +99,7 @@ var
   ConflictForm : TConflictForm;
 
   procedure AddToTrees(LeftTree, RightTree: TTreeView; AParentNode: TTreeNode;
-                     AConflictObjects: TStringList);
+                       AConflictObjects: TStringList);
   function ConflictCaption(AConflictType: TConflictClass): string;
 
 implementation
@@ -235,8 +235,9 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery1;
   ExceptionalRows(
-    Query, SL, ConflictObjects, TTeacherConflict,
-    'weekday_id', 'pair_id', 'teacher_id');
+                  Query, SL, ConflictObjects, TTeacherConflict,
+                  'weekday_id', 'pair_id', 'teacher_id'
+                  );
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TTeacherConflict.Caption);
   AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
@@ -253,8 +254,9 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   NonExistentLinks(
-    Query, SL, ConflictObjects, TTeacherCourseConflict,
-    'teacher_id', 'subject_id', 'teachers_subjects');
+                   Query, SL, ConflictObjects, TTeacherCourseConflict,
+                   'teacher_id', 'subject_id', 'teachers_subjects'
+                   );
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TTeacherCourseConflict.Caption);
   AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
@@ -271,8 +273,9 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   ExceptionalRows(
-    Query, SL, ConflictObjects, TGroupConflict,
-    'weekday_id', 'pair_id', 'group_id');
+                  Query, SL, ConflictObjects, TGroupConflict,
+                  'weekday_id', 'pair_id', 'group_id'
+                  );
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TGroupConflict.Caption);
   AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
@@ -289,8 +292,9 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   NonExistentLinks(
-    Query, SL, ConflictObjects, TGroupCourseConflict,
-    'group_id', 'subject_id', 'groups_subjects');
+                   Query, SL, ConflictObjects, TGroupCourseConflict,
+                   'group_id', 'subject_id', 'groups_subjects'
+                   );
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TGroupCourseConflict.Caption);
   AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
@@ -307,8 +311,9 @@ begin
   ConflictObjects := TStringList.Create;
   Query           := DBDataModule.SQLQuery;
   ExceptionalRows(
-    Query, SL, ConflictObjects, TClassRoomConflict,
-    'weekday_id', 'pair_id', 'classroom_id');
+                  Query, SL, ConflictObjects, TClassRoomConflict,
+                  'weekday_id', 'pair_id', 'classroom_id'
+                  );
 
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TClassRoomConflict.Caption);
   AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
@@ -384,18 +389,20 @@ begin
     while not EOF do
     begin
       ASL.AddObject(
-        FieldByName('l' + Field1).AsString + '#' +
-        FieldByName('l' + Field2).AsString + '##' +
-        FieldByName('l' + Field3).AsString,
-        TObject(Pointer(Integer(FieldByName('lid').AsInteger))));
+                    FieldByName('l' + Field1).AsString + '#' +
+                    FieldByName('l' + Field2).AsString + '##' +
+                    FieldByName('l' + Field3).AsString,
+                    TObject(Pointer(Integer(FieldByName('lid').AsInteger)))
+                    );
       Next;
     end;
   end;
 
   for i := 0 to ASL.Count - 1 do
     AConflictObjects.AddObject(
-      IntToStr(Integer(Pointer(ASL.Objects[i]))),
-      TConflict.Create(Integer(Pointer(ASL.Objects[i])), AConflictType));
+                               IntToStr(Integer(Pointer(ASL.Objects[i]))),
+                               TConflict.Create(Integer(Pointer(ASL.Objects[i])), AConflictType)
+                               );
 
   with ASL do
     for i := 0 to Count - 1 do
@@ -433,8 +440,9 @@ begin
   end;
   for i := 0 to ASL.Count - 1 do
     AConflictObjects.AddObject(
-      IntToStr(Integer(Pointer(ASL.Objects[i]))),
-      TConflict.Create(Integer(Pointer(ASL.Objects[i])), AConflictType));
+                               IntToStr(Integer(Pointer(ASL.Objects[i]))),
+                               TConflict.Create(Integer(Pointer(ASL.Objects[i])), AConflictType)
+                               );
 end;
 { /end }
 
