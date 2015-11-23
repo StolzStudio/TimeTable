@@ -224,9 +224,9 @@ begin
         SQLGenerator.SetColName(FDBGrid, Tag);
       end;
   if (TimeTableForm <> nil) then
-    TimeTableForm.FillGridData();
-  //if (ConflictForm <> nil) then
-  //    ConflictForm.ConflictUpdate;
+    TimeTableForm.FillGridData;
+  if (ConflictForm <> nil) then
+      ConflictForm.ConflictUpdate;
 end;
 end.
 

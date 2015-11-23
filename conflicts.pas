@@ -114,6 +114,7 @@ begin
   LeftTreeView.Items.Clear;
   with SQLQuery do begin
     Close;
+    SQL.Clear;
     SQL.Append(SQLGenerator.GenParams(high(MetaData.Tables)).Text);
     Open;
   end;

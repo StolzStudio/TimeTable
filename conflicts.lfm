@@ -16,8 +16,10 @@ object ConflictForm: TConflictForm
     Width = 525
     Anchors = [akTop, akLeft, akRight, akBottom]
     DefaultItemHeight = 18
+    ReadOnly = True
     TabOrder = 0
     OnDblClick = RightTreeViewDblClick
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
   end
   object HelpLabel: TLabel
     Left = 8
@@ -49,8 +51,10 @@ object ConflictForm: TConflictForm
     Top = 0
     Width = 432
     DefaultItemHeight = 18
+    ReadOnly = True
     TabOrder = 1
     OnDblClick = LeftTreeViewDblClick
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
   end
   object SQLQuery: TSQLQuery
     FieldDefs = <>
