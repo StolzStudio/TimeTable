@@ -135,7 +135,7 @@ procedure TConflictForm.FormShow(Sender: TObject);
 begin
   ConflictUpdate;
 end;
-
+//problem1
 function TConflictForm.GetRecord(RecordID: integer): TStringList;
 var
   FieldsName : array [0..6] of String = ('LESSONSID', 'PAIRSNUM', 'WEEKDAYSWEEKDAY', 'GROUPSNAME',
@@ -147,7 +147,7 @@ begin
   for i := 0 to 6 do
     Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
 end;
-
+//problem2
 function TConflictForm.ParseNode(ANodeText : string) : TStringList;
 var
   i, k : integer;
@@ -167,6 +167,7 @@ begin
     Result.Append(m);
   end;
 end;
+
 procedure TConflictForm.LeftTreeViewDblClick(Sender: TObject);
 var
   Node      : TTreeNode;
