@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, Meta, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData;
+  StdCtrls, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData, Meta;
 
 type
 
@@ -135,18 +135,39 @@ procedure TConflictForm.FormShow(Sender: TObject);
 begin
   ConflictUpdate;
 end;
-//problem1
+
 function TConflictForm.GetRecord(RecordID: integer): TStringList;
 var
-  FieldsName : array [0..6] of String = ('LESSONSID', 'PAIRSNUM', 'WEEKDAYSWEEKDAY', 'GROUPSNAME',
-                                         'SUBJECTSNAME', 'CLASSROOMSNAME', 'TEACHERSNAME');
-  i : integer;
+  FieldsName : array of String;
+
+  i, j       : integer;
+  ATag       : integer;
+  fld        : TField;
 begin
   Result := TStringList.Create;
-  SQLQuery.Locate('LESSONSID', Integer(RecordId), []);
-  for i := 0 to 6 do
-    Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
+
+  with (MetaData) do
+  begin
+    ATag  := high(Tables);
+    for i := 0 to high(Tables[ATag].Fields) do
+    begin
+      fld := Tables[ATag].Fields[i];
+      setlength(FieldsName, Length(FieldsName) + 1);
+
+      if fld.Reference <> nil then
+      begin
+        j          := fld.Reference.TableTag;
+        FieldsName[i] := Tables[j].Name + Tables[j].Fields[1].Name;
+      end else
+        FieldsName[i] := Tables[ATag].Name + Tables[ATag].Fields[i].Name;
+    end;
+    SQLQuery.Locate(FieldsName[0], Integer(RecordId), []);
+    for i := 0 to 6 do
+      Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
+  end;
+  setlength(FieldsName, 0);
 end;
+
 //problem2
 function TConflictForm.ParseNode(ANodeText : string) : TStringList;
 var
