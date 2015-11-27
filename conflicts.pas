@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, Meta, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData;
+  StdCtrls, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData, Meta;
 
 type
 
@@ -90,7 +90,7 @@ type
   private
     EditingManager : TEditingManager;
 
-    function ParseNode(ANodeText : string) : TStringList;
+    function ParseNode(ARecordID : integer) : TStringList;
   public
     { public declarations }
   end;
@@ -138,28 +138,50 @@ end;
 
 function TConflictForm.GetRecord(RecordID: integer): TStringList;
 var
-  FieldsName : array [0..6] of String = ('LESSONSID', 'PAIRSNUM', 'WEEKDAYSWEEKDAY', 'GROUPSNAME',
-                                         'SUBJECTSNAME', 'CLASSROOMSNAME', 'TEACHERSNAME');
-  i : integer;
+  FieldsName : array of String;
+
+  i, j       : integer;
+  ATag       : integer;
+  fld        : TField;
 begin
   Result := TStringList.Create;
-  SQLQuery.Locate('LESSONSID', Integer(RecordId), []);
-  for i := 0 to 6 do
-    Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
+
+  with (MetaData) do
+  begin
+    ATag  := high(Tables);
+    for i := 0 to high(Tables[ATag].Fields) do
+    begin
+      fld := Tables[ATag].Fields[i];
+      setlength(FieldsName, Length(FieldsName) + 1);
+
+      if fld.Reference <> nil then
+      begin
+        j          := fld.Reference.TableTag;
+        FieldsName[i] := Tables[j].Name + Tables[j].Fields[1].Name;
+      end else
+        FieldsName[i] := Tables[ATag].Name + Tables[ATag].Fields[i].Name;
+    end;
+    SQLQuery.Locate(FieldsName[0], Integer(RecordId), []);
+    for i := 1 to 6 do
+      Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
+  end;
+  setlength(FieldsName, 0);
 end;
 
-function TConflictForm.ParseNode(ANodeText : string) : TStringList;
+//problem2
+function TConflictForm.ParseNode(ARecordID : integer) : TStringList;
 var
   i, k : integer;
-  id   : string;
   s    : TStringList;
   m    : string;
 begin
   s  := TStringList.Create;
-  id := copy(ANodeText, 1, pos(' ', AnodeText) - 1);
-  s  := GetRecord(StrToInt(id));
+  s  := GetRecord(ARecordID);
   Result := TStringList.Create;
-  for i := 0 to 6 do
+  Result.Append(IntToStr(ARecordID));
+
+  showmessage(Result.text);
+  for i := 0 to 5 do
   begin
     m := s[i];
     k := pos('  ', s[i]);
@@ -167,6 +189,7 @@ begin
     Result.Append(m);
   end;
 end;
+
 procedure TConflictForm.LeftTreeViewDblClick(Sender: TObject);
 var
   Node      : TTreeNode;
@@ -174,12 +197,12 @@ var
 
 begin
   Node := LeftTreeView.Selected;
-  if Node.GetFirstChild <> nil then
+  if (Node.GetFirstChild <> nil) then
   begin
     EditingManager.OpenFormEditingTable(
                                         ctEdit,
                                         high(MetaData.Tables),
-                                        ParseNode(node.text)
+                                        ParseNode(Integer(Node.Data))
                                         );
   end
   else begin
@@ -197,11 +220,11 @@ var
 begin
   Tree     := Sender as TTreeView;
   Conflict := TObject(Tree.Selected.Data) as TConflict;
-  if Conflict = nil then exit;
+  if (Conflict = nil) then exit;
   EditingManager.OpenFormEditingTable(
                                       ctEdit,
                                       high(MetaData.Tables),
-                                      ParseNode(IntToStr(Conflict.RecordID) + '  ')
+                                      ParseNode(Conflict.RecordID)
                                       );
 end;
 
