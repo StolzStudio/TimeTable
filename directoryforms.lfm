@@ -1,11 +1,11 @@
 object DirectoryForm: TDirectoryForm
-  Left = 162
+  Left = 63
   Height = 505
   Top = 207
-  Width = 1069
+  Width = 1249
   Anchors = [akTop, akLeft, akRight, akBottom]
   ClientHeight = 505
-  ClientWidth = 1069
+  ClientWidth = 1249
   Color = clWindow
   Constraints.MinHeight = 505
   Constraints.MinWidth = 878
@@ -2808,7 +2808,7 @@ object DirectoryForm: TDirectoryForm
   ParentBiDiMode = False
   LCLVersion = '1.4.0.4'
   object FilterPanel: TPanel
-    Left = 621
+    Left = 801
     Height = 506
     Top = 0
     Width = 448
@@ -2831,7 +2831,7 @@ object DirectoryForm: TDirectoryForm
     Left = 8
     Height = 464
     Top = 8
-    Width = 616
+    Width = 796
     Anchors = [akTop, akLeft, akRight, akBottom]
     Color = clWindow
     Columns = <>

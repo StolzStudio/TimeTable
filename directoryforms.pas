@@ -187,7 +187,6 @@ begin
     CreateApplyBtn();
     Show;
   end;
-  UpdateEvent;
 end;
 procedure TDirectoryForm.DeleteButtonClick(Sender: TObject);
 begin

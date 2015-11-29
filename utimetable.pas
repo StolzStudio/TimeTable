@@ -127,7 +127,7 @@ var
 
   const Margin          = 2;
   const DefHeightFont   = 17;
-  const DefCountStr     = 8;
+  const DefCountStr     = 10;
   const DefWidthCol     = 350;
   const DefWidthImg     = 15;
 {$R *.lfm}
@@ -214,7 +214,7 @@ procedure TTimeTableForm.StringGridDrawCell(Sender : TObject; aCol, aRow : Integ
 var
   c, cnt       : integer;
   SL           : TStringList;
-  PairNum      : integer = 8;
+  PairNum      : integer = 10;
 begin
   cnt := GetCountCheckedItems + 1;
 

@@ -20,6 +20,9 @@ teachers_subjects=Преподаватель курирует
 weekdays=Дни Недели
 weekday=День Недели
 num=Номер
+begincourse=начало курса
+endcourse=конец курса 
+
 
 connect=подключено
 disconnect=отключено 
@@ -59,6 +62,8 @@ width_weekday_id=120
 width_group_id=110
 width_classroom_id=130
 width_teacher_id=210
+width_begincourse=120
+width_endcourse=120
 
 reference_pair_id=Номер пары
 reference_weekday_id=День недели
@@ -66,4 +71,6 @@ reference_group_id=Группa
 reference_subject_id=Предмет
 reference_classroom_id=Аудитория
 reference_teacher_id=Преподователь
+reference_begincourse=начало курса
+reference_endcourse=конец курса
 
