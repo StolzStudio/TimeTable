@@ -98,6 +98,7 @@ begin
   param              := 0;
   ResultQuery        := GenParams(ANum);
 
+  //problem1
   for i := 1 to high(AFilter) do
     if (AFilter[i].Status) then
     begin
