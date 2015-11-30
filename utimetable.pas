@@ -988,7 +988,7 @@ begin
   RecordNum := AY div DefRowHeight;
 
   if DataArray[Row - 1][Col - 1] <> nil then
-    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 6 do
+    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 8 do
     begin
       s := DataArray[Row - 1][Col - 1][i];
       k := pos(':', s);
