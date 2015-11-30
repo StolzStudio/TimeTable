@@ -5,9 +5,10 @@ unit Utimetable;
 interface
 
 uses
-  Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
-  Grids, ExtCtrls, StdCtrls, CheckLst, Menus, Filters, DirectoryForms, Meta,
-  SQLGen, ChangeFormData, DBConnection, ComObj, Variants, Conflicts;
+  Classes, SysUtils, sqldb, db, FileUtil, DateTimePicker, Forms, Controls,
+  Graphics, Dialogs, Grids, ExtCtrls, StdCtrls, CheckLst, Menus, ExtDlgs,
+  Filters, DirectoryForms, Meta, SQLGen, ChangeFormData, DBConnection, ComObj,
+  Variants, Conflicts;
 
 type
 
@@ -18,7 +19,12 @@ type
   TTimeTableForm = class(TForm)
     { /interface }
     ApplyButton       : TButton;
+    CalendarDialog    : TCalendarDialog;
     ColComboBox       : TComboBox;
+    BeginCourseLabel  : TLabel;
+    BeginDateTime     : TDateTimePicker;
+    EndDateTime       : TDateTimePicker;
+    EndCourseLabel    : TLabel;
     MainMenu          : TMainMenu;
     ExportMenuItem    : TMenuItem;
     ConflictMenuItem  : TMenuItem;
