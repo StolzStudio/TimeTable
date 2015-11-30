@@ -99,6 +99,9 @@ begin
   ResultQuery        := GenParams(ANum);
 
   //problem1
+  //добавить 2 аргумента даты
+  //перенести where и к нему добавить функцию пересечения отрезка по дате,
+  //фильтры добавлять только с and
   for i := 1 to high(AFilter) do
     if (AFilter[i].Status) then
     begin
