@@ -179,7 +179,6 @@ begin
   Result := TStringList.Create;
   Result.Append(IntToStr(ARecordID));
 
-  showmessage(Result.text);
   for i := 0 to 5 do
   begin
     m := s[i];

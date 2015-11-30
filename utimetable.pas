@@ -899,6 +899,7 @@ begin
 
   ChangeCaptionColumn(ColSL, RowSL);
   UpdateHeaderVisible();
+  StringGrid.Invalidate;
 end;
 
 procedure TTImeTableForm.SetParam(Sender : TObject);
