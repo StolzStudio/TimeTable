@@ -273,7 +273,7 @@ begin
 
   if (FilterChangeStatus = true) then
   begin
-    SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+    SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftDirectory);
     SQLGenerator.SetColName(FDBGrid, Tag);
     FilterChangeStatus := false;
   end;
@@ -282,7 +282,7 @@ end;
 
 procedure TDirectoryForm.FormShow(Sender : TObject);
 begin
-  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftDirectory);
   SQLGenerator.SetColName(FDBGrid, Tag);
 end;
 

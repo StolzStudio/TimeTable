@@ -876,7 +876,8 @@ var
 
 begin
   FSQLQuery.Close;
-  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+  SQLGenerator.SetDates(BeginDateTime.Date, EndDateTime.Date);
+  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftSchedule);
   FSQLQuery.Open;
 
   RowSL := MetaData.Tables[Tag].GetDataFieldOfIndex(RowComboBox.ItemIndex + 1);

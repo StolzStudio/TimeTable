@@ -9,6 +9,9 @@ uses
   DBConnection, IBConnection;
 
 type
+
+  TFormType = (ftSchedule, ftDirectory);
+
   TSQL = class
     function GenParams(ANum : integer)                        : TStringList;
     function GenUniqId()                                      : integer;
@@ -19,14 +22,24 @@ type
     function GetNameField(ATag, Index : integer)              : string;
 
     procedure SetColName(ADBGrid : TDBGrid; ANum : integer);
+    procedure SetDates(ABegin, AEnd : TDateTime);
     procedure GenFilters(ANum : integer; AFilter : array of TDirectoryFilter;
-      ASQLQuery : TSQLQuery);
+      ASQLQuery : TSQLQuery; AFormType : TFormType);
+  private
+    FBeginCourse : String;
+    FEndCourse   : String;
   end;
 
 var
   SQLGenerator   : TSQL;
 
 implementation
+
+procedure TSQL.SetDates(ABegin, AEnd : TDateTime);
+begin
+  FBeginCourse := FormatDateTime('dd/mm/yyyy', ABegin);
+  FEndCourse   := FormatDateTime('dd/mm/yyyy', AEnd);
+end;
 
 function TSQL.GenParams(ANum : integer) : TStringList;
 var
@@ -87,7 +100,7 @@ begin
 end;
 
 procedure TSQL.GenFilters(ANum : integer; AFilter : array of TDirectoryFilter;
-  ASQLQuery : TSQLQuery);
+  ASQLQuery : TSQLQuery; AFormType : TFormType);
 var
   i, param      : integer;
   First         : boolean = True;
@@ -98,10 +111,12 @@ begin
   param              := 0;
   ResultQuery        := GenParams(ANum);
 
-  //problem1
-  //добавить 2 аргумента даты
-  //перенести where и к нему добавить функцию пересечения отрезка по дате,
-  //фильтры добавлять только с and
+  if (AFormType = ftSchedule) then
+  begin
+    QueryCmd := 'WHERE LESSONS.BEGINCOURSE <= :e AND LESSONS.ENDCOURSE >= :b';
+    First    := False;
+  end;
+
   for i := 1 to high(AFilter) do
     if (AFilter[i].Status) then
     begin
@@ -117,6 +132,12 @@ begin
   ASQLQuery.SQL.Text := ResultQuery.Text;
 
   { /set perameters }
+  if (AFormType = ftSchedule) then
+  begin
+    ASQLQuery.ParamByName('e').AsString := FEndCourse;
+    ASQLQuery.ParamByName('b').AsString := FBeginCourse;
+  end;
+
   if (param > 0) then
   begin
     param := 0;

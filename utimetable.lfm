@@ -144,6 +144,7 @@ object TimeTableForm: TTimeTableForm
     Top = 24
     Width = 79
     CenturyFrom = 1941
+    DateDisplayOrder = ddoYMD
     MaxDate = 2958465
     MinDate = -53780
     TabOrder = 8
@@ -166,6 +167,7 @@ object TimeTableForm: TTimeTableForm
     Top = 64
     Width = 79
     CenturyFrom = 1941
+    DateDisplayOrder = ddoYMD
     MaxDate = 2958465
     MinDate = -53780
     TabOrder = 9
