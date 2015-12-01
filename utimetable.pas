@@ -5,9 +5,10 @@ unit Utimetable;
 interface
 
 uses
-  Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
-  Grids, ExtCtrls, StdCtrls, CheckLst, Menus, Filters, DirectoryForms, Meta,
-  SQLGen, ChangeFormData, DBConnection, ComObj, Variants, Conflicts;
+  Classes, SysUtils, sqldb, db, FileUtil, DateTimePicker, Forms, Controls,
+  Graphics, Dialogs, Grids, ExtCtrls, StdCtrls, CheckLst, Menus, ExtDlgs,
+  Filters, DirectoryForms, Meta, SQLGen, ChangeFormData, DBConnection, ComObj,
+  Variants, Conflicts;
 
 type
 
@@ -18,7 +19,12 @@ type
   TTimeTableForm = class(TForm)
     { /interface }
     ApplyButton       : TButton;
+    CalendarDialog    : TCalendarDialog;
     ColComboBox       : TComboBox;
+    BeginCourseLabel  : TLabel;
+    BeginDateTime     : TDateTimePicker;
+    EndDateTime       : TDateTimePicker;
+    EndCourseLabel    : TLabel;
     MainMenu          : TMainMenu;
     ExportMenuItem    : TMenuItem;
     ConflictMenuItem  : TMenuItem;
@@ -127,7 +133,7 @@ var
 
   const Margin          = 2;
   const DefHeightFont   = 17;
-  const DefCountStr     = 8;
+  const DefCountStr     = 10;
   const DefWidthCol     = 350;
   const DefWidthImg     = 15;
 {$R *.lfm}
@@ -214,7 +220,7 @@ procedure TTimeTableForm.StringGridDrawCell(Sender : TObject; aCol, aRow : Integ
 var
   c, cnt       : integer;
   SL           : TStringList;
-  PairNum      : integer = 8;
+  PairNum      : integer = 10;
 begin
   cnt := GetCountCheckedItems + 1;
 
@@ -870,7 +876,8 @@ var
 
 begin
   FSQLQuery.Close;
-  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+  SQLGenerator.SetDates(BeginDateTime.Date, EndDateTime.Date);
+  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftSchedule);
   FSQLQuery.Open;
 
   RowSL := MetaData.Tables[Tag].GetDataFieldOfIndex(RowComboBox.ItemIndex + 1);
@@ -989,7 +996,7 @@ begin
   RecordNum := AY div DefRowHeight;
 
   if DataArray[Row - 1][Col - 1] <> nil then
-    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 6 do
+    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 8 do
     begin
       s := DataArray[Row - 1][Col - 1][i];
       k := pos(':', s);

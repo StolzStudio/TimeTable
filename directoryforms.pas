@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, sqldb, db, FileUtil, Forms, Controls, Graphics, Dialogs,
   DBGrids, Meta, Menus, DbCtrls, Buttons, ExtCtrls, ModeratorMode,
-  SQLgen, Filters, ChangeFormData, StdCtrls, DBConnection;
+  SQLgen, Filters, ChangeFormData, StdCtrls, DBConnection, DateTimePicker;
 
 type
 
@@ -131,8 +131,9 @@ end;
 procedure TEditingManager.OpenFormEditingTable(AChangeType : TChangeType;
   ATag : integer; AList : TStringList);
 var
-  i, k   : integer;
-  SL     : TStringList;
+  i, k         : integer;
+  SL           : TStringList;
+  FieldCaption : String;
 begin
   Randomize;
   SetLength(FFormsChange, length(FFormsChange) + 1);
@@ -146,33 +147,47 @@ begin
     Top           := ATag * Height;
     Action        := AChangeType;
     BorderStyle   := bsSingle;
-
     if AList.Count <> 0 then
       DataID := StrToInt(AList[0]);
 
     with MetaData.Tables[ATag] do
       for i := 0 to high(Fields) do
-        if (Fields[i].Caption <> MetaData.TranslateList.Values['id']) then
+      begin
+        FieldCaption := Fields[i].Caption;
+        if (FieldCaption <> MetaData.TranslateList.Values['id']) then
         begin
-          SL := GetDataFieldOfIndex(i);
-
           SetLength(DataControl, length(DataControl) + 1);
-          if (Fields[i].Reference <> nil) then
+
+          if (FieldCaption <> MetaData.TranslateList.Values['begincourse']) and
+             (FieldCaption <> MetaData.TranslateList.Values['endcourse']) then
           begin
-            CreateComboBox(SL, Fields[i].Caption, Fields[i].Width);
-            k := high(DataControl);
-            if (AChangeType = ctEdit) then
-              (DataControl[k] as TComboBox).ItemIndex := SL.IndexOf(Alist[i])
+            SL := GetDataFieldOfIndex(i);
+            if (Fields[i].Reference <> nil) then
+            begin
+              CreateComboBox(SL, Fields[i].Caption, Fields[i].Width);
+              k := high(DataControl);
+              if (AChangeType = ctEdit) then
+                (DataControl[k] as TComboBox).ItemIndex := SL.IndexOf(Alist[i])
+              else
+                (DataControl[k] as TComboBox).ItemIndex := Random(SL.Count);
+            end
             else
-              (DataControl[k] as TComboBox).ItemIndex := Random(SL.Count);
+            begin
+              CreateEdit(Fields[i].Caption, Fields[i].Width);
+              k := high(DataControl);
+              (DataControl[k] as TEdit).Text := Alist[i];
+            end;
           end
-          else
-          begin
-            CreateEdit(Fields[i].Caption, Fields[i].Width);
-            k := high(DataControl);
-            (DataControl[k] as TEdit).Text := Alist[i];
+          else begin
+             CreateDateTimePicker(Fields[i].Caption);
+             k := high(DataControl);
+             if (AList.count = 0) then
+               (DataControl[k] as TDateTimePicker).Date := StrToDateTime('01.01.2015')
+             else
+               (DataControl[k] as TDateTimePicker).Date := StrToDateTime(AList[i]);
           end;
         end;
+      end;
 
     if AChangeType = ctEdit then
     begin
@@ -187,7 +202,6 @@ begin
     CreateApplyBtn();
     Show;
   end;
-  UpdateEvent;
 end;
 procedure TDirectoryForm.DeleteButtonClick(Sender: TObject);
 begin
@@ -259,7 +273,7 @@ begin
 
   if (FilterChangeStatus = true) then
   begin
-    SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+    SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftDirectory);
     SQLGenerator.SetColName(FDBGrid, Tag);
     FilterChangeStatus := false;
   end;
@@ -268,7 +282,7 @@ end;
 
 procedure TDirectoryForm.FormShow(Sender : TObject);
 begin
-  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+  SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftDirectory);
   SQLGenerator.SetColName(FDBGrid, Tag);
 end;
 

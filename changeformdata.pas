@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, StdCtrls, FileUtil, Forms, Controls, Graphics, Dialogs,
-  Buttons, meta, DBConnection, SQLgen;
+  Buttons, meta, DBConnection, SQLgen, DateTimePicker;
 
 type
 
@@ -30,6 +30,7 @@ type
     { /work with controls }
     procedure CreateComboBox(AList : TStringList; AName : string; AWidth : integer);
     procedure CreateEdit(AName : string; AWidth : integer);
+    procedure CreateDateTimePicker(AName : string);
     procedure ChangeApplyClick(Sender : TObject);
     procedure CreateApplyBtn();
 
@@ -110,6 +111,33 @@ begin
     Left         := 10;
     Width        := AWidth + 10;
     Height       := 24;
+    Visible      := true;
+    UsedHeight   += Height + 5;
+  end;
+end;
+
+procedure TFormData.CreateDateTimePicker(AName : string);
+var
+  ALabel : TLabel;
+begin
+  ALabel := TLabel.Create(Self);
+  with ALabel do
+  begin
+    Parent       := self;
+    Top          := 10 + UsedHeight;
+    Left         := 10;
+    Width        := 50;
+    Height       := 18;
+    Visible      := true;
+    UsedHeight   += Height;
+  end;
+  ALabel.Caption := AName + ':';
+  DataControl[high(DataControl)] := TDateTimePicker.Create(Self);
+  with (DataControl[high(DataControl)] as TDateTimePicker) do
+  begin
+    Parent       := self;
+    Top          := 10 + UsedHeight;
+    Left         := 10;
     Visible      := true;
     UsedHeight   += Height + 5;
   end;

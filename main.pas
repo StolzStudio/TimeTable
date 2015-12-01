@@ -220,7 +220,7 @@ begin
     if (TableForms.FForms[i] <> nil) then
       with (TableForms.FForms[i]) do
       begin
-        SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery);
+        SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftDirectory);
         SQLGenerator.SetColName(FDBGrid, Tag);
       end;
   if (TimeTableForm <> nil) then

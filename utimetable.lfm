@@ -13,17 +13,17 @@ object TimeTableForm: TTimeTableForm
   LCLVersion = '1.4.0.4'
   object FilterPanel: TPanel
     Left = 888
-    Height = 486
-    Top = 110
+    Height = 460
+    Top = 136
     Width = 448
     Anchors = [akTop, akRight, akBottom]
-    ClientHeight = 486
+    ClientHeight = 460
     ClientWidth = 448
     TabOrder = 1
     object FilterButton: TButton
       Left = 24
       Height = 25
-      Top = 452
+      Top = 426
       Width = 416
       Anchors = [akRight, akBottom]
       Caption = 'Добавить новый фильтр'
@@ -34,14 +34,14 @@ object TimeTableForm: TTimeTableForm
   object FilterLabel: TLabel
     Left = 1096
     Height = 15
-    Top = 96
+    Top = 112
     Width = 53
     Anchors = [akTop, akRight]
     Caption = 'Фильтры:'
     ParentColor = False
   end
   object DataListBox: TCheckListBox
-    Left = 720
+    Left = 1152
     Height = 96
     Top = 8
     Width = 176
@@ -50,7 +50,7 @@ object TimeTableForm: TTimeTableForm
     TabOrder = 2
   end
   object ColListBox: TCheckListBox
-    Left = 536
+    Left = 968
     Height = 96
     Top = 8
     Width = 176
@@ -59,7 +59,7 @@ object TimeTableForm: TTimeTableForm
     TabOrder = 3
   end
   object RowListBox: TCheckListBox
-    Left = 352
+    Left = 784
     Height = 96
     Top = 8
     Width = 176
@@ -100,9 +100,9 @@ object TimeTableForm: TTimeTableForm
     ParentColor = False
   end
   object ApplyButton: TButton
-    Left = 264
+    Left = 464
     Height = 66
-    Top = 22
+    Top = 24
     Width = 75
     Caption = 'применить'
     OnClick = ApplyButtonClick
@@ -121,6 +121,68 @@ object TimeTableForm: TTimeTableForm
     OnMouseDown = StringGridMouseDown
     OnMouseMove = StringGridMouseMove
     OnMouseUp = StringGridMouseUp
+  end
+  object BeginCourseLabel: TLabel
+    Left = 272
+    Height = 15
+    Top = 24
+    Width = 77
+    Caption = 'начало курса:'
+    ParentColor = False
+  end
+  object EndCourseLabel: TLabel
+    Left = 279
+    Height = 15
+    Top = 64
+    Width = 70
+    Caption = 'конец курса:'
+    ParentColor = False
+  end
+  object BeginDateTime: TDateTimePicker
+    Left = 368
+    Height = 23
+    Top = 24
+    Width = 79
+    CenturyFrom = 1941
+    DateDisplayOrder = ddoYMD
+    MaxDate = 2958465
+    MinDate = -53780
+    TabOrder = 8
+    TrailingSeparator = False
+    TextForNullDate = 'NULL'
+    LeadingZeros = True
+    Kind = dtkDate
+    TimeFormat = tf24
+    TimeDisplay = tdHMS
+    DateMode = dmComboBox
+    Date = 42005
+    Time = 0.531314837964601
+    UseDefaultSeparators = True
+    HideDateTimeParts = []
+    MonthNames = 'Long'
+  end
+  object EndDateTime: TDateTimePicker
+    Left = 368
+    Height = 23
+    Top = 64
+    Width = 79
+    CenturyFrom = 1941
+    DateDisplayOrder = ddoYMD
+    MaxDate = 2958465
+    MinDate = -53780
+    TabOrder = 9
+    TrailingSeparator = False
+    TextForNullDate = 'NULL'
+    LeadingZeros = True
+    Kind = dtkDate
+    TimeFormat = tf24
+    TimeDisplay = tdHMS
+    DateMode = dmComboBox
+    Date = 42735
+    Time = 0.531784826423973
+    UseDefaultSeparators = True
+    HideDateTimeParts = []
+    MonthNames = 'Long'
   end
   object FSQLQuery: TSQLQuery
     FieldDefs = <>
@@ -142,8 +204,8 @@ object TimeTableForm: TTimeTableForm
     top = 448
   end
   object MainMenu: TMainMenu
-    left = 944
-    top = 16
+    left = 488
+    top = 448
     object ExportMenuItem: TMenuItem
       Caption = 'Сохранить'
       OnClick = ExportMenuItemClick
@@ -154,8 +216,17 @@ object TimeTableForm: TTimeTableForm
     end
   end
   object SaveDialog: TSaveDialog
+    Width = 28
+    Height = 28
     Filter = '.html|.html|.xlsx|.xlsx'
-    left = 1008
-    top = 16
+    left = 448
+    top = 400
+  end
+  object CalendarDialog: TCalendarDialog
+    Date = 42338
+    OKCaption = '&ОК'
+    CancelCaption = 'Отмена'
+    left = 528
+    top = 496
   end
 end
