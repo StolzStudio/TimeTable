@@ -175,7 +175,6 @@ begin
     for i := 1 to 8 do
     begin
       Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
-      showmessage(Result.text);
     end;
   end;
   setlength(FieldsName, 0);
@@ -510,8 +509,6 @@ begin
     Clear;
     Append('SELECT id, ' + Field1 + ', ' + Field2);
     Append('FROM LESSONS WHERE ' + Field1 + ' > ' + Field2);
-    //Append('FROM ' + LinkTable + ' AS tab');
-    //Append('WHERE tab.' + Field1 + ' = l.' + Field1 + ' AND tab.' + Field2 + ' = l.' + Field2 + ')');
   end;
   with AQuery do begin
     Open; First;

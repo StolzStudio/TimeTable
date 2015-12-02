@@ -225,8 +225,8 @@ begin
       end;
   if (TimeTableForm <> nil) then
     TimeTableForm.FillGridData;
-  if (ConflictForm <> nil) then
-      ConflictForm.ConflictUpdate;
+  //if (ConflictForm <> nil) then
+  //    ConflictForm.ConflictUpdate;
 end;
 end.
 
