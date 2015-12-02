@@ -210,7 +210,7 @@ begin
       ParamNum := SQLGenerator.GetId(Tag, i, (DataControl[i] as TComboBox).ItemIndex);
       DBDataModule.SQLQuery.ParamByName(s).AsInteger := ParamNum
     end
-    else
+    else //problem1
     begin
       DBDataModule.SQLQuery.ParamByName(s).AsString := (DataControl[i] as TEdit).Text;
     end;
