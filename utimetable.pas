@@ -89,14 +89,15 @@ type
     procedure FillListBox(AColList, ARowList : TStringList);
     procedure UpdateHeaderVisible();
     procedure ChangeCaptionColumn(AColList, ARowList : TStringList);
-    procedure DrawImg(ACanvas : TCanvas; ARect : TRect;
-                      ACountItems : integer; ANum : integer);
+    procedure DrawImg(ACanvas : TCanvas; ARect : TRect; ACountItems : integer;
+                      ANum : integer; str : string);
     procedure AddNewFilter();
     procedure DrawArrow(ACanvas : TCanvas; ARect : TRect;
                         aRow : Integer; AText : String);
     procedure DrawText(ACanvas : TCanvas; ARect : TRect;
                        ASL : TStringList; Acnt : integer;
                        aRow, aCol : integer);
+    function GetID(ASL : TStringList) : TStringList;
 
     { /save }
     procedure SaveInExcel(FileName : string);
@@ -128,8 +129,8 @@ var
 implementation
 
 var
-  ListNamesImg: array [0..2] of string =
-    ('tt_add.png', 'tt_edit.png', 'tt_del.png');
+  ListNamesImg: array [0..3] of string =
+    ('tt_add.png', 'tt_edit.png', 'tt_del.png', 'tt_conflict.png');
 
   const Margin          = 2;
   const DefHeightFont   = 17;
@@ -186,6 +187,25 @@ begin
   UpdateHeaderVisible();
 end;
 
+function TTimeTableForm.GetID(ASL : TStringList) : TStringList;
+var
+  m : string;
+  s : string;
+  i : integer;
+begin
+  Result := TStringList.Create;
+  for i := 0 to ASL.count - 1 do
+  begin
+    s := ASL[i];
+    m := copy(s, 1, pos(':', s));
+    if (m = 'ИН:') then
+    begin
+       delete(s, 1, pos(':', s) + 1);
+       Result.Append(s);
+    end;
+  end;
+end;
+
 procedure TTimeTableForm.StringGridDblClick(Sender : TObject);
 var
   count : integer;
@@ -218,29 +238,53 @@ end;
 procedure TTimeTableForm.StringGridDrawCell(Sender : TObject; aCol, aRow : Integer;
                                             aRect : TRect; aState : TGridDrawState);
 var
-  c, cnt       : integer;
-  SL           : TStringList;
-  PairNum      : integer = 10;
+  c, cnt  : integer;
+  SL      : TStringList;
+  PairNum : integer = 10;
 begin
+  SL   := TStringList.Create;
+
   cnt := GetCountCheckedItems + 1;
 
   if (length(DataArray) <> 0) and (aRow <> 0) and (aCol <> 0) then
     with (StringGrid) do
     begin
 
-      Canvas.Draw(DefWidthCol + aRect.Left - ImgArray[0].Width - Margin, aRect.Top +
-        Margin, ImgArray[0].Graphic);
+      Canvas.Draw(
+                  DefWidthCol + aRect.Left - ImgArray[0].Width - Margin,
+                  aRect.Top + Margin,
+                  ImgArray[0].Graphic
+                  );
 
       SL := DataArray[aRow - 1][aCol - 1];
+
       if (SL <> nil) then
       begin
-        DrawImg(StringGrid.Canvas, aRect, cnt, 0);
+        DrawImg(
+                StringGrid.Canvas,
+                aRect,
+                cnt,
+                0,
+                GetID(SL)[0]
+                );
+
         c := SL.Count div PairNum;
-        DrawText(Canvas, aRect, Sl, cnt, aRow, aCol);
+        DrawText(
+                 Canvas,
+                 aRect,
+                 Sl,
+                 cnt,
+                 aRow,
+                 aCol
+                 );
 
         if (StringGrid.RowHeights[aRow] < c * DefRowHeight) then
-          DrawArrow(StringGrid.Canvas, aRect, aRow, ' ↓ ' +
-                    IntToStr(c - RowHeights[aRow] div DefRowHeight));
+          DrawArrow(
+                    StringGrid.Canvas,
+                    aRect,
+                    aRow,
+                    ' ↓ ' + IntToStr(c - RowHeights[aRow] div DefRowHeight)
+                    );
       end;
   end;
 end;
@@ -249,8 +293,11 @@ procedure TTimeTableForm.DrawText(ACanvas : TCanvas; ARect : TRect;
                                   ASL : TStringList; Acnt : integer;
                                   aRow, aCol : integer);
 var
-  i, j: integer;
+  i, j : integer;
+  IDSL : TStringList;
 begin
+  IDSL := TStringList.Create;
+  IDSL := GetID(ASL);
   j := -1;
   for i := 0 to ASL.Count - 1 do
     if (ASL[i] <> '') then
@@ -258,14 +305,25 @@ begin
       if (DataListBox.Checked[i - (i div DefCountStr) * DefCountStr]) then
       begin
         inc(j);
-        ACanvas.TextOut(ARect.Left + Margin, ARect.Top + j * DefHeightFont, ASL[i]);
+        ACanvas.TextOut(
+                        ARect.Left + Margin,
+                        ARect.Top + j * DefHeightFont,
+                        ASL[i]
+                        );
       end;
     end
     else if (i <> DataArray[aRow - 1][aCol - 1].Count - 1) then
     begin
       inc(j);
-      DrawImg (StringGrid.Canvas, ARect, Acnt, round(i / DefCountStr));
+      DrawImg(
+              StringGrid.Canvas,
+              ARect,
+              Acnt,
+              round(i / DefCountStr),
+              IDSL[i div 9]
+              );
     end;
+    IDSL.free;
 end;
 
 procedure TTimeTableForm.DrawArrow(ACanvas : TCanvas; ARect : TRect;
@@ -277,26 +335,37 @@ begin
     Font.Color  := clGreen;
     Font.Size   := 10;
 
-    TextOut(DefWidthCol + aRect.Left - 27 - Margin,
-            aRect.Top + StringGrid.RowHeights[aRow] - 20, AText);
+    TextOut(
+            DefWidthCol + aRect.Left - 27 - Margin,
+            aRect.Top + StringGrid.RowHeights[aRow] - 20,
+            AText
+            );
 
     Font.Color  := clBlack;
     Font.Size   := 0;
   end;
 end;
 
-procedure TTimeTableForm.DrawImg(ACanvas: TCanvas; ARect: TRect;
-                                 ACountItems: integer; ANum: integer);
+procedure TTimeTableForm.DrawImg(ACanvas: TCanvas; ARect: TRect; ACountItems: integer;
+                                 ANum: integer; str : string);
 var
-  i: integer;
+  i : integer;
+  n : integer;
 begin
   with ACanvas do
-    for i := 1 to 2 do
+  begin
+    if (ConflictForm.CheckRecord(StrToInt(str))) then
+      n := 3
+    else
+      n := 2;
+
+    for i := 1 to n do
     begin
       Draw(DefWidthCol + aRect.Left - ImgArray[i].Width - Margin,
            aRect.Top + (i) * ImgArray[i].Height + 2 * Margin +
            ACountItems * DefHeightFont * ANum, ImgArray[i].Graphic);
     end;
+  end;
 end;
 
 procedure TTimeTableForm.StringGridMouseDown(Sender : TObject; Button : TMouseButton;
@@ -383,6 +452,7 @@ var
   Fy, Fx, NumCol, r : integer;
   LengthToImg       : integer;
   OffsetToImg       : integer;
+  SL                : TStringList;
 
   function CheckPosToImg(ANum : integer; ALength : integer; AOffset : integer) : boolean;
   begin
@@ -420,13 +490,18 @@ begin
       LengthToImg := Margin + DefWidthImg;
       OffsetToImg := DefRowHeight * NumCol;
 
-      for i := 1 to 2 do
+      for i := 1 to 3 do
         if (CheckPosToImg(i, LengthToImg, OffsetToImg)) then
           r := i;
 
       case r of
         1 : EditClick(Fx, Fy);
         2 : DeleteClick(Fx, Fy);
+        3 : begin
+              SL := GetListDataCell(Fx, Fy);
+              if (ConflictForm.CheckRecord(StrToInt(SL[0]))) then
+                ConflictForm.ShowConflict(StrToInt(SL[0]));
+            end;
       end;
     end;
     FillGridData();
@@ -452,6 +527,7 @@ begin
   FillListBox(ColSL, RowSL);
   FillGridData();
   UpdateHeaderVisible();
+  UpdateEvent;
 end;
 
 procedure TTimeTableForm.ConflictMenuItemClick(Sender: TObject);

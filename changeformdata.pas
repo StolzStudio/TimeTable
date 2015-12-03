@@ -210,8 +210,12 @@ begin
       ParamNum := SQLGenerator.GetId(Tag, i, (DataControl[i] as TComboBox).ItemIndex);
       DBDataModule.SQLQuery.ParamByName(s).AsInteger := ParamNum
     end
-    else
+    else if (MetaData.Tables[Tag].Fields[i + 1].Name = 'BEGINCOURSE') or
+            (MetaData.Tables[Tag].Fields[i + 1].Name = 'ENDCOURSE') then
     begin
+      DBDataModule.SQLQuery.ParamByName(s).asDate := (DataControl[i] as TDateTimePicker).Date;
+    end
+    else begin
       DBDataModule.SQLQuery.ParamByName(s).AsString := (DataControl[i] as TEdit).Text;
     end;
   end;

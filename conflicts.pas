@@ -18,10 +18,12 @@ type
     RecordID     : integer;
     ConflictID   : array of TConflict;
     ConflictType : TConflictClass;
-    class procedure ExceptionalRows(AQuery: TSQLQuery; ASL, AConflictObjects: TStringList;
-                                    AConflictType: TConflictClass; Field1, Field2, Field3: string);
-    class procedure NonExistentLinks(AQuery: TSQLQuery; ASL, AConflictObjects: TStringList;
-                                     AConflictType: TConflictClass; Field1, Field2, LinkTable: string);
+    class procedure ExceptionalRows(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
+                                    AConflictType : TConflictClass; Field1, Field2, Field3 : string);
+    class procedure NonExistentLinks(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
+                                     AConflictType : TConflictClass; Field1, Field2, LinkTable : string);
+    class procedure TimeRows(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
+                             AConflictType : TConflictClass; Field1, Field2 : string);
   public
     class procedure Check(LeftTree, RightTree : TTreeView);
     constructor Create(ARecordID : integer; AConflictType : TConflictClass);
@@ -67,6 +69,14 @@ type
     class property Caption : string read FCaption write FCaption;
   end;
 
+  TDateTimeConflict = class (Tconflict)
+  private
+    class var FCaption : string;
+  public
+    class procedure Check(LeftTree, RightTree : TTreeView);
+    class property Caption : string read FCaption write Fcaption;
+  end;
+
   { /TConflictForm }
 
   { TConflictForm }
@@ -90,9 +100,10 @@ type
   private
     EditingManager : TEditingManager;
 
-    function ParseNode(ARecordID : integer) : TStringList;
+    function ParseNode(RecordID : integer) : TStringList;
   public
-    { public declarations }
+    function CheckRecord(RecordID : integer) : boolean;
+    procedure ShowConflict(RecordID : integer);
   end;
 
 var
@@ -136,6 +147,22 @@ begin
   ConflictUpdate;
 end;
 
+procedure TConflictForm.ShowConflict(RecordID : integer);
+var
+  i : integer;
+begin
+  Show;
+  LeftTreeView.SetFocus;
+  for i := 0 to LeftTreeView.Items.Count - 1 do
+    if (RecordID = Integer(LeftTreeView.Items.Item[i].Data)) then
+      LeftTreeView.Items.Item[i].Selected := true;
+end;
+
+function TConflictForm.CheckRecord(RecordID : integer) : boolean;
+begin
+  Result := LeftTreeView.Items.FindNodeWithData(Pointer(RecordID)) <> nil;
+end;
+
 function TConflictForm.GetRecord(RecordID: integer): TStringList;
 var
   FieldsName : array of String;
@@ -162,24 +189,26 @@ begin
         FieldsName[i] := Tables[ATag].Name + Tables[ATag].Fields[i].Name;
     end;
     SQLQuery.Locate(FieldsName[0], Integer(RecordId), []);
-    for i := 1 to 6 do
+    for i := 1 to 8 do
+    begin
       Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
+    end;
   end;
   setlength(FieldsName, 0);
 end;
 
-function TConflictForm.ParseNode(ARecordID : integer) : TStringList;
+function TConflictForm.ParseNode(RecordID : integer) : TStringList;
 var
   i, k : integer;
   s    : TStringList;
   m    : string;
 begin
   s  := TStringList.Create;
-  s  := GetRecord(ARecordID);
+  s  := GetRecord(RecordID);
   Result := TStringList.Create;
-  Result.Append(IntToStr(ARecordID));
+  Result.Append(IntToStr(RecordID));
 
-  for i := 0 to 5 do
+  for i := 0 to 7 do
   begin
     m := s[i];
     k := pos('  ', s[i]);
@@ -243,6 +272,7 @@ begin
   TClassRoomConflict.Check(LeftTree, RightTree);
   TTeacherCourseConflict.Check(LeftTree, RightTree);
   TGroupCourseConflict.Check(LeftTree, RightTree);
+  TDateTimeConflict.Check(LeftTree,RightTree);
 end;
 
 class procedure TTeacherConflict.Check(LeftTree, RightTree: TTreeView);
@@ -340,6 +370,25 @@ begin
   AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
 end;
 
+class procedure TDateTimeConflict.Check(LeftTree, RightTree : TTreeView);
+var
+  Query           : TSQLQuery;
+  SL              : TStringList;
+  ConflictObjects : TStringList;
+  Node            : TTreeNode;
+begin
+  SL              := TStringList.Create;
+  ConflictObjects := TStringList.Create;
+  Query           := DBDataModule.SQLQuery;
+  TimeRows(
+           Query, SL,
+           ConflictObjects, TDateTimeConflict,
+           'begincourse', 'endcourse'
+           );
+  Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TDateTimeConflict.Caption);
+  AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
+end;
+
 procedure AddToTrees(LeftTree, RightTree: TTreeView; AParentNode: TTreeNode;
                      AConflictObjects: TStringList);
 var
@@ -371,6 +420,7 @@ begin
   if AConflictType = TClassroomConflict     then Result := TClassroomConflict.Caption;
   if AConflictType = TTeacherCourseConflict then Result := TTeacherCourseConflict.Caption;
   if AConflictType = TGroupCourseConflict   then Result := TGroupCourseConflict.Caption;
+  if AConflictType = TDateTimeConflict      then Result := TDateTimeConflict.Caption;
 end;
 
 { /work with conflict procedures }
@@ -465,6 +515,35 @@ begin
                                TConflict.Create(Integer(Pointer(ASL.Objects[i])), AConflictType)
                                );
 end;
+
+class procedure TConflict.TimeRows(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
+                                   AConflictType : TConflictClass; Field1, Field2 : string);
+var
+  i : integer;
+begin
+  AQuery.Close;
+  with AQuery.SQL do begin
+    Clear;
+    Append('SELECT id, ' + Field1 + ', ' + Field2);
+    Append('FROM LESSONS WHERE ' + Field1 + ' > ' + Field2);
+  end;
+  with AQuery do begin
+    Open; First;
+    while not EOF do begin
+      ASL.AddObject(
+        FieldByName(Field1).AsString + '#' +
+        FieldByName(Field2).AsString,
+        TObject(Pointer(Integer(FieldByName('id').AsInteger))));
+      Next;
+    end;
+  end;
+  for i := 0 to ASL.Count - 1 do
+    AConflictObjects.AddObject(
+                               IntToStr(Integer(Pointer(ASL.Objects[i]))),
+                               TConflict.Create(Integer(Pointer(ASL.Objects[i])), AConflictType)
+                               );
+end;
+
 { /end }
 
 initialization
@@ -474,6 +553,7 @@ TTeacherCourseConflict.Caption := 'ПРЕПОДОВАТЕЛЬ КУРИРУЕТ';
 TGroupConflict.Caption         := 'ГРУППЫ';
 TGroupCourseConflict.Caption   := 'ПРЕДМЕТ У ГРУППЫ';
 TClassroomConflict.Caption     := 'КАБИНЕТ';
+TDateTimeConflict.Caption      := 'ПЕРИОД';
 
 end.
 
