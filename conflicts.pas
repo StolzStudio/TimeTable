@@ -100,9 +100,9 @@ type
   private
     EditingManager : TEditingManager;
 
-    function ParseNode(ARecordID : integer) : TStringList;
+    function ParseNode(RecordID : integer) : TStringList;
   public
-    { public declarations }
+    function CheckRecord(RecordID : integer) : boolean;
   end;
 
 var
@@ -146,6 +146,11 @@ begin
   ConflictUpdate;
 end;
 
+function TConflictForm.CheckRecord(RecordID : integer) : boolean;
+begin
+  Result := LeftTreeView.Items.FindNodeWithData(Pointer(RecordID)) <> nil;
+end;
+
 function TConflictForm.GetRecord(RecordID: integer): TStringList;
 var
   FieldsName : array of String;
@@ -180,16 +185,16 @@ begin
   setlength(FieldsName, 0);
 end;
 
-function TConflictForm.ParseNode(ARecordID : integer) : TStringList;
+function TConflictForm.ParseNode(RecordID : integer) : TStringList;
 var
   i, k : integer;
   s    : TStringList;
   m    : string;
 begin
   s  := TStringList.Create;
-  s  := GetRecord(ARecordID);
+  s  := GetRecord(RecordID);
   Result := TStringList.Create;
-  Result.Append(IntToStr(ARecordID));
+  Result.Append(IntToStr(RecordID));
 
   for i := 0 to 7 do
   begin

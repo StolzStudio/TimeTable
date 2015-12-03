@@ -223,10 +223,10 @@ begin
         SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftDirectory);
         SQLGenerator.SetColName(FDBGrid, Tag);
       end;
+  if (ConflictForm <> nil) then
+      ConflictForm.ConflictUpdate;
   if (TimeTableForm <> nil) then
     TimeTableForm.FillGridData;
-  //if (ConflictForm <> nil) then
-  //    ConflictForm.ConflictUpdate;
 end;
 end.
 
