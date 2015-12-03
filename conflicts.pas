@@ -103,6 +103,7 @@ type
     function ParseNode(RecordID : integer) : TStringList;
   public
     function CheckRecord(RecordID : integer) : boolean;
+    procedure ShowConflict(RecordID : integer);
   end;
 
 var
@@ -144,6 +145,18 @@ end;
 procedure TConflictForm.FormShow(Sender: TObject);
 begin
   ConflictUpdate;
+end;
+
+procedure TConflictForm.ShowConflict(RecordID : integer);
+var
+  i : integer;
+begin
+  //for i := 0 to LeftTreeView.Items.Count - 1 do
+  //  if (RecordID = Integer(LeftTreeView.Items[i].Data)) then
+  //  begin
+  //    LeftTreeView.Selected := LeftTreeView.Items[i];
+  //  end;
+  Show;
 end;
 
 function TConflictForm.CheckRecord(RecordID : integer) : boolean;

@@ -452,6 +452,7 @@ var
   Fy, Fx, NumCol, r : integer;
   LengthToImg       : integer;
   OffsetToImg       : integer;
+  SL                : TStringList;
 
   function CheckPosToImg(ANum : integer; ALength : integer; AOffset : integer) : boolean;
   begin
@@ -489,13 +490,18 @@ begin
       LengthToImg := Margin + DefWidthImg;
       OffsetToImg := DefRowHeight * NumCol;
 
-      for i := 1 to 2 do
+      for i := 1 to 3 do
         if (CheckPosToImg(i, LengthToImg, OffsetToImg)) then
           r := i;
 
       case r of
         1 : EditClick(Fx, Fy);
         2 : DeleteClick(Fx, Fy);
+        3 : begin
+              SL := GetListDataCell(Fx, Fy);
+              if (ConflictForm.CheckRecord(StrToInt(SL[0]))) then
+                ConflictForm.ShowConflict(StrToInt(SL[0]));
+            end;
       end;
     end;
     FillGridData();
