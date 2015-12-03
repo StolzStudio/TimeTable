@@ -151,12 +151,11 @@ procedure TConflictForm.ShowConflict(RecordID : integer);
 var
   i : integer;
 begin
-  //for i := 0 to LeftTreeView.Items.Count - 1 do
-  //  if (RecordID = Integer(LeftTreeView.Items[i].Data)) then
-  //  begin
-  //    LeftTreeView.Selected := LeftTreeView.Items[i];
-  //  end;
   Show;
+  LeftTreeView.SetFocus;
+  for i := 0 to LeftTreeView.Items.Count - 1 do
+    if (RecordID = Integer(LeftTreeView.Items.Item[i].Data)) then
+      LeftTreeView.Items.Item[i].Selected := true;
 end;
 
 function TConflictForm.CheckRecord(RecordID : integer) : boolean;
