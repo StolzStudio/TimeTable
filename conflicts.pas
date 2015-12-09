@@ -535,7 +535,8 @@ begin
   with AQuery.SQL do begin
     Clear;
     Append('SELECT id, ' + Field1 + ', ' + Field2);
-    Append('FROM LESSONS WHERE ' + Field1 + ' > ' + Field2);
+    Append('FROM LESSONS WHERE ');
+    Append('DATEDIFF(day, ' + Field1 + ', ' + Field2 + ') < 7');
   end;
   with AQuery do begin
     Open; First;
