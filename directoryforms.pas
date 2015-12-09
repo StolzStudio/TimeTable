@@ -30,8 +30,8 @@ type
   { TDirectoryForm }
   TDirectoryForm = class(TForm)
     AddFilterButton   : TSpeedButton;
-    FilterButton1: TButton;
-    FilterPanel: TPanel;
+    FilterButton1     : TButton;
+    FilterPanel       : TPanel;
     InsertButton      : TSpeedButton;
     EditButton        : TSpeedButton;
     DeleteButton      : TSpeedButton;

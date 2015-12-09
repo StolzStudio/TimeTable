@@ -1,7 +1,7 @@
 object TimeTableForm: TTimeTableForm
-  Left = 32
+  Left = 24
   Height = 616
-  Top = 138
+  Top = 291
   Width = 1336
   Caption = 'TimeTableForm'
   ClientHeight = 596

@@ -148,14 +148,10 @@ begin
 end;
 
 procedure TConflictForm.ShowConflict(RecordID : integer);
-var
-  i : integer;
 begin
-  Show;
   LeftTreeView.SetFocus;
-  for i := 0 to LeftTreeView.Items.Count - 1 do
-    if (RecordID = Integer(LeftTreeView.Items.Item[i].Data)) then
-      LeftTreeView.Items.Item[i].Selected := true;
+  LeftTreeView.Items.SelectOnlyThis(LeftTreeView.Items.FindNodeWithData(Pointer(RecordID)));
+  Show;
 end;
 
 function TConflictForm.CheckRecord(RecordID : integer) : boolean;
@@ -399,16 +395,30 @@ begin
   with AConflictObjects do begin
     for i := 0 to AConflictObjects.Count - 1 do begin
       Conflict := Objects[i] as TConflict;
-      Node := RightTree.Items.AddChildObject(AParentNode, ConflictForm.GetRecord(Conflict.RecordID).text, Conflict);
+      Node := RightTree.Items.AddChildObject(
+                                             AParentNode,
+                                             ConflictForm.GetRecord(Conflict.RecordID).text,
+                                             Conflict
+                                             );
       for j := 0 to Length(Conflict.ConflictID) - 1 do
-        RightTree.Items.AddChildObject(Node, ConflictForm.GetRecord(Conflict.ConflictID[j].RecordID).text, Conflict.ConflictID[j]);
-
+        RightTree.Items.AddChildObject(
+                                       Node,
+                                       ConflictForm.GetRecord(Conflict.ConflictID[j].RecordID).text,
+                                       Conflict.ConflictID[j]
+                                       );
 
       LeftNode := LeftTree.Items.FindNodeWithData(Pointer(Conflict.RecordID));
       if LeftNode = nil then
-        LeftNode := LeftTree.Items.AddObject(TTreeNode.Create(LeftTree.Items),
-                    ConflictForm.GetRecord(Conflict.RecordID).text, Pointer(Conflict.RecordID));
-      LeftTree.Items.AddChildObject(LeftNode, ConflictCaption(Conflict.ConflictType), Node);
+        LeftNode := LeftTree.Items.AddObject(
+                                             TTreeNode.Create(LeftTree.Items),
+                                             ConflictForm.GetRecord(Conflict.RecordID).text,
+                                             Pointer(Conflict.RecordID)
+                                             );
+      LeftTree.Items.AddChildObject(
+                                    LeftNode,
+                                    ConflictCaption(Conflict.ConflictType),
+                                    Node
+                                    );
     end;
   end;
 end;
