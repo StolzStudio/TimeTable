@@ -9,7 +9,7 @@ uses
 
 type
 
-  TTypeField    = (TInt, TStr);
+  TTypeField    = (TInt, TStr, TDate);
   TLanguage     = (ruRU, enUS);
 
   TField = class
@@ -44,6 +44,7 @@ type
   private
     FName       : string;
     FCaption    : string;
+    function GetFieldType(ANum : integer) : TTypeField;
   published
     property Name        : string read FName write FName;
     property Caption     : string read FCaption write FCaption;
@@ -152,6 +153,7 @@ begin
        Caption      := MetaData.TranslateList.Values[s];
        TableTag     := high(MetaData.Tables);
        Width        := StrToInt(MetaData.TranslateList.Values['width_' + s]);
+       FieldType    := GetFieldType(TempSQLQuery.Fields[1].AsInteger);
      end;
      TempSQLQuery.Next;
    end;
@@ -159,6 +161,15 @@ begin
    TempDSource.Free;
    TempSQLQuery.Free;
    TempSQLTransaction.Free;
+end;
+
+function TTable.GetFieldType(ANum : integer): TTypeField;
+begin
+  case ANum of
+    8  : Result := TInt;
+    37 : Result := TStr;
+    12 : Result := TDate;
+  end;
 end;
 
 procedure TTable.FillReferencedField();

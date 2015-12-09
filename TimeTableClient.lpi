@@ -94,6 +94,7 @@
       <Unit8>
         <Filename Value="filters.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="Filters"/>
       </Unit8>
       <Unit9>
         <Filename Value="changeformdata.pas"/>

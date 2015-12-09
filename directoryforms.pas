@@ -133,7 +133,6 @@ procedure TEditingManager.OpenFormEditingTable(AChangeType : TChangeType;
 var
   i, k         : integer;
   SL           : TStringList;
-  FieldCaption : String;
 begin
   Randomize;
   SetLength(FFormsChange, length(FFormsChange) + 1);
@@ -153,13 +152,11 @@ begin
     with MetaData.Tables[ATag] do
       for i := 0 to high(Fields) do
       begin
-        FieldCaption := Fields[i].Caption;
-        if (FieldCaption <> MetaData.TranslateList.Values['id']) then
+        if (Fields[i].Caption <> MetaData.TranslateList.Values['id']) then
         begin
           SetLength(DataControl, length(DataControl) + 1);
 
-          if (FieldCaption <> MetaData.TranslateList.Values['begincourse']) and
-             (FieldCaption <> MetaData.TranslateList.Values['endcourse']) then
+          if (Fields[i].FieldType <> TDate) then
           begin
             SL := GetDataFieldOfIndex(i);
             if (Fields[i].Reference <> nil) then
