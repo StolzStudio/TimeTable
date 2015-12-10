@@ -23,7 +23,7 @@ type
     class procedure NonExistentLinks(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
                                      AConflictType : TConflictClass; Field1, Field2, LinkTable : string);
     class procedure TimeRows(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
-                             AConflictType : TConflictClass; Field1, Field2 : string);
+                             AConflictType : TConflictClass; Field1, Field2, Field3: string);
   public
     class procedure Check(LeftTree, RightTree : TTreeView);
     constructor Create(ARecordID : integer; AConflictType : TConflictClass);
@@ -149,9 +149,9 @@ end;
 
 procedure TConflictForm.ShowConflict(RecordID : integer);
 begin
+  Show;
   LeftTreeView.SetFocus;
   LeftTreeView.Items.SelectOnlyThis(LeftTreeView.Items.FindNodeWithData(Pointer(RecordID)));
-  Show;
 end;
 
 function TConflictForm.CheckRecord(RecordID : integer) : boolean;
@@ -379,7 +379,7 @@ begin
   TimeRows(
            Query, SL,
            ConflictObjects, TDateTimeConflict,
-           'begincourse', 'endcourse'
+           'begincourse', 'endcourse', 'weekday_id'
            );
   Node := RightTree.Items.Add(TTreeNode.Create(RightTree.Items), TDateTimeConflict.Caption);
   AddToTrees(LeftTree, RightTree, Node, ConflictObjects);
@@ -527,24 +527,38 @@ begin
 end;
 
 class procedure TConflict.TimeRows(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
-                                   AConflictType : TConflictClass; Field1, Field2 : string);
+                                   AConflictType : TConflictClass; Field1, Field2, Field3 : string);
 var
   i : integer;
+
+  function CheckWeekDay(b, e, d : integer) : boolean;
+  begin
+    Result := False;
+    if ((e < d) and (b < d)) or ((e < d) and (b > d)) or ((e > d) and (b > d)) then
+      Result := True;
+  end;
+
 begin
   AQuery.Close;
   with AQuery.SQL do begin
     Clear;
-    Append('SELECT id, ' + Field1 + ', ' + Field2);
+    Append('SELECT id, ' + Field1 + ', ' + Field2 + ', ' + Field3);
     Append('FROM LESSONS WHERE ');
     Append('DATEDIFF(day, ' + Field1 + ', ' + Field2 + ') < 7');
   end;
   with AQuery do begin
     Open; First;
     while not EOF do begin
-      ASL.AddObject(
-        FieldByName(Field1).AsString + '#' +
-        FieldByName(Field2).AsString,
-        TObject(Pointer(Integer(FieldByName('id').AsInteger))));
+      if CheckWeekDay(
+                      DayOfWeek(FieldByName(Field1).AsDateTime),
+                      DayOfWeek(FieldByName(Field2).AsDateTime),
+                      FieldByName(Field3).AsInteger - 500
+                      )
+      then
+        ASL.AddObject(
+                      FieldByName(Field1).AsString + '#' + FieldByName(Field2).AsString,
+                      TObject(Pointer(Integer(FieldByName('id').AsInteger)))
+                      );
       Next;
     end;
   end;
