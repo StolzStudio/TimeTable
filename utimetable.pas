@@ -391,7 +391,7 @@ var
   NumRec       : integer;
   ParamNum     : integer;
   DataCell, SL : TStringList;
-  s: string;
+  s            : string;
 
   function ParsingDataCell(aRow, aCol, ANum : integer) : TStringList;
   var
