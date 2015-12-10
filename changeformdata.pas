@@ -182,6 +182,22 @@ var
     result := false;
   end;
 
+  function CheckDates() : boolean;
+  var
+    date : array [0..2] of TDateTime;
+    i, j : integer;
+  begin
+    j := 0;
+    Result := false;
+    for i := 0 to high(DataControl) do
+      if (DataControl[i] is TDateTimePicker) then
+      begin
+        date[j] := (DataControl[i] as TDateTimePicker).Date;
+        inc(j);
+      end;
+    if date[0] > date[1] then Result := true;
+  end;
+
 begin
   if (Action = ctEdit) or (Action = ctInsert) then
     if CheckEdit() then
@@ -189,7 +205,11 @@ begin
       ShowMessage(MetaData.TranslateList.Values['FillField']);
       exit;
     end;
-
+  if CheckDates() then
+  begin
+    ShowMessage(MetaData.TranslateList.Values['DateError']);
+    exit;
+  end;
   DBDataModule.SQLQuery.Close;
   if Action = ctInsert then
   begin
@@ -210,8 +230,7 @@ begin
       ParamNum := SQLGenerator.GetId(Tag, i, (DataControl[i] as TComboBox).ItemIndex);
       DBDataModule.SQLQuery.ParamByName(s).AsInteger := ParamNum
     end
-    else if (MetaData.Tables[Tag].Fields[i + 1].Name = 'BEGINCOURSE') or
-            (MetaData.Tables[Tag].Fields[i + 1].Name = 'ENDCOURSE') then
+    else if (MetaData.Tables[Tag].Fields[i + 1].FieldType = TDate) then
     begin
       DBDataModule.SQLQuery.ParamByName(s).asDate := (DataControl[i] as TDateTimePicker).Date;
     end
