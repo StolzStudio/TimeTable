@@ -531,9 +531,29 @@ class procedure TConflict.TimeRows(AQuery : TSQLQuery; ASL, AConflictObjects : T
 var
   i : integer;
 
-  function CheckWeekDay(b, e, d : integer) : boolean;
+  function CheckWeekDay(b, e, id : integer) : boolean;
+  var
+    Query : TSQLQuery;
+    d     : integer;
   begin
     Result := False;
+
+    Query := DBDataModule.SQLQuery1;
+    Query.Close;
+    Query.SQL.Clear;
+
+    Query.SQL.Append('SELECT weekday FROM WEEKDAYS WHERE id = ' + IntToStr(id));
+    Query.Open;
+    case Query.FieldByName('weekday').AsString of
+    'понедельник' : d := 1;
+    'вторник'     : d := 2;
+    'cреда'       : d := 3;
+    'четверг'     : d := 4;
+    'пятница'     : d := 5;
+    'суббота'     : d := 6;
+    'воскресение' : d := 7;
+    end;
+
     if ((e < d) and (b < d)) or ((e < d) and (b > d)) or ((e > d) and (b > d)) then
       Result := True;
   end;
