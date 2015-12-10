@@ -544,18 +544,20 @@ var
 
     Query.SQL.Append('SELECT weekday FROM WEEKDAYS WHERE id = ' + IntToStr(id));
     Query.Open;
+
     case Query.FieldByName('weekday').AsString of
-    'понедельник' : d := 1;
-    'вторник'     : d := 2;
-    'cреда'       : d := 3;
-    'четверг'     : d := 4;
-    'пятница'     : d := 5;
-    'суббота'     : d := 6;
-    'воскресение' : d := 7;
+    'Понедельник' : d := 1;
+    'Вторник'     : d := 2;
+    'Среда'       : d := 3;
+    'Четверг'     : d := 4;
+    'Пятница'     : d := 5;
+    'Суббота'     : d := 6;
+    'Воскресение' : d := 7;
     end;
 
-    if ((e < d) and (b < d)) or ((e < d) and (b > d)) or ((e > d) and (b > d)) then
-      Result := True;
+    if ((b < d) and (e < d) and (b <= e)) or
+       ((b > d) and (e < d) and (b >  e)) or
+       ((b > d) and (e > d) and (b <= e)) then Result := True;
   end;
 
 begin
@@ -570,9 +572,9 @@ begin
     Open; First;
     while not EOF do begin
       if CheckWeekDay(
-                      DayOfWeek(FieldByName(Field1).AsDateTime),
-                      DayOfWeek(FieldByName(Field2).AsDateTime),
-                      FieldByName(Field3).AsInteger - 500
+                      DayOfWeek(FieldByName(Field1).AsDateTime) - 1,
+                      DayOfWeek(FieldByName(Field2).AsDateTime) - 1,
+                      FieldByName(Field3).AsInteger
                       )
       then
         ASL.AddObject(
