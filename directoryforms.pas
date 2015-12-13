@@ -103,9 +103,12 @@ var
   LS   : TStringList;
 begin
   LS    := TStringList.Create;
-  for i :=0 to FSQLQuery.Fields.Count - 1 do
+  for i := 0 to FSQLQuery.Fields.Count - 1 do
   begin
-    LS.Append(string(FSQLQuery.Fields.Fields[i].Value));
+    if (FSQLQuery.Fields.Fields[i].Value <> NULL) then
+      LS.Append(string(FSQLQuery.Fields.Fields[i].Value))
+    else
+      LS.Append('0');
   end;
   EditingManager.EditRecord(Tag, LS);
   Ls.free;
@@ -117,7 +120,7 @@ var
  i   : integer;
 begin
  Fd    := nil;
- for i :=0 to high(FFormsChange) do
+ for i := 0 to high(FFormsChange) do
     if FFormsChange[i].DataId = StrToInt(AList[0]) then
       Fd := FFormsChange[i];
  if Fd = nil then
@@ -138,7 +141,6 @@ begin
   SetLength(FFormsChange, length(FFormsChange) + 1);
   FFormsChange[high(FFormsChange)] := TFormData.Create(Application);
   SL := TStringList.Create;
-
   with FFormsChange[high(FFormsChange)] do
   begin
     Tag           := ATag;

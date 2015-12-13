@@ -134,7 +134,7 @@ var
 
   const Margin          = 2;
   const DefHeightFont   = 17;
-  const DefCountStr     = 10;
+  const DefCountStr     = 11;
   const DefWidthCol     = 350;
   const DefWidthImg     = 15;
 {$R *.lfm}
@@ -240,7 +240,7 @@ procedure TTimeTableForm.StringGridDrawCell(Sender : TObject; aCol, aRow : Integ
 var
   c, cnt  : integer;
   SL      : TStringList;
-  PairNum : integer = 10;
+  PairNum : integer = 11;
 begin
   SL   := TStringList.Create;
 
@@ -1072,7 +1072,7 @@ begin
   RecordNum := AY div DefRowHeight;
 
   if DataArray[Row - 1][Col - 1] <> nil then
-    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 8 do
+    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 9 do
     begin
       s := DataArray[Row - 1][Col - 1][i];
       k := pos(':', s);
