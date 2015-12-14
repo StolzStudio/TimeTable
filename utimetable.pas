@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, sqldb, db, FileUtil, DateTimePicker, Forms, Controls,
   Graphics, Dialogs, Grids, ExtCtrls, StdCtrls, CheckLst, Menus, ExtDlgs,
   Filters, DirectoryForms, Meta, SQLGen, ChangeFormData, DBConnection, ComObj,
-  Variants, Conflicts;
+  Variants, Conflicts, DateUtils;
 
 type
 
@@ -25,6 +25,7 @@ type
     BeginDateTime     : TDateTimePicker;
     EndDateTime       : TDateTimePicker;
     EndCourseLabel    : TLabel;
+    WeekLabel         : TLabel;
     MainMenu          : TMainMenu;
     ExportMenuItem    : TMenuItem;
     ConflictMenuItem  : TMenuItem;
@@ -34,6 +35,7 @@ type
     ColListBox        : TCheckListBox;
     ColLabel          : TLabel;
     RowListBox        : TCheckListBox;
+    WeekListBox       : TCheckListBox;
     SaveDialog        : TSaveDialog;
     StringGrid        : TStringGrid;
     { /end }
@@ -134,7 +136,7 @@ var
 
   const Margin          = 2;
   const DefHeightFont   = 17;
-  const DefCountStr     = 10;
+  const DefCountStr     = 11;
   const DefWidthCol     = 350;
   const DefWidthImg     = 15;
 {$R *.lfm}
@@ -240,7 +242,7 @@ procedure TTimeTableForm.StringGridDrawCell(Sender : TObject; aCol, aRow : Integ
 var
   c, cnt  : integer;
   SL      : TStringList;
-  PairNum : integer = 10;
+  PairNum : integer = 11;
 begin
   SL   := TStringList.Create;
 
@@ -935,24 +937,41 @@ var
 
   procedure FillCell(ARow, ACol : integer);
   var
-    k  : integer;
-    s  : string;
+    k    : integer;
+    s    : string;
+    b, e : integer;
   begin
     if DataArray[aRow][aCol] = nil then
       DataArray[aRow][aCol] := TStringList.Create;
 
-    for k :=0 to FSQLQuery.FieldCount - 1 do
+    for k := 0 to FSQLQuery.FieldCount - 1 do
     begin
       s := MetaData.Tables[Tag].Fields[k].Caption;
       DataArray[aRow][aCol].Append(s + ': ' + FSQLQuery.Fields[k].AsString);
     end;
-
     DataArray[aRow][aCol].Append('');
+    if DaysBetween(BeginDateTime.Date, EndDateTime.Date) < 14 then
+    begin
+    b := WeekOfTheMonth(FSQLQuery.Fields[7].AsDateTime);
+    e := WeekOfTheMonth(FSQLQuery.Fields[8].AsDateTime);
+    if (b >= WeekOfTheMonth(BeginDateTime.Date)) or (e <= WeekOfTheMonth(EndDateTime.Date)) then exit;
+    for k := DataArray[aRow][aCol].Count - 1 downto FSQLQuery.FieldCount - 1 do
+      DataArray[aRow][aCol].Delete(i);
+    end;
+  end;
+
+  function GetWeekPeriodData(ACheckListBox : TCheckListBox) : TstringList;
+  begin
+    Result := TStringList.Create;
+    if ACheckListBox.Checked[0] then Result.Append('0');
+    if ACheckListBox.Checked[1] then Result.Append('2');
+    if ACheckListBox.Checked[2] then Result.Append('1');
   end;
 
 begin
   FSQLQuery.Close;
   SQLGenerator.SetDates(BeginDateTime.Date, EndDateTime.Date);
+  SQLGenerator.SetPeriod(GetWeekPeriodData(WeekListBox));
   SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftSchedule);
   FSQLQuery.Open;
 
@@ -999,6 +1018,7 @@ begin
   for i := 0 to high(MetaData.Tables[Tag].Fields) do
     DataListBox.Items.Add(MetaData.Tables[Tag].Fields[i].Caption);
 
+  WeekListBox.CheckAll(cbChecked);
   DataListBox.CheckAll(cbChecked);
   DataListBox.Checked[0] := false;
 
@@ -1072,7 +1092,7 @@ begin
   RecordNum := AY div DefRowHeight;
 
   if DataArray[Row - 1][Col - 1] <> nil then
-    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 8 do
+    for i := RecordNum * DefCountStr to RecordNum * DefCountStr + 9 do
     begin
       s := DataArray[Row - 1][Col - 1][i];
       k := pos(':', s);

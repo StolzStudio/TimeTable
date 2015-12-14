@@ -21,7 +21,8 @@ weekdays=Дни Недели
 weekday=День Недели
 num=Номер
 begincourse=начало курса
-endcourse=конец курса 
+endcourse=конец курса
+period=номер недели
 
 
 connect=подключено
@@ -65,6 +66,7 @@ width_classroom_id=130
 width_teacher_id=210
 width_begincourse=120
 width_endcourse=120
+width_period=80
 
 reference_pair_id=Номер пары
 reference_weekday_id=День недели

@@ -23,11 +23,13 @@ type
 
     procedure SetColName(ADBGrid : TDBGrid; ANum : integer);
     procedure SetDates(ABegin, AEnd : TDateTime);
+    procedure SetPeriod(APeriod : TStringList);
     procedure GenFilters(ANum : integer; AFilter : array of TDirectoryFilter;
       ASQLQuery : TSQLQuery; AFormType : TFormType);
   private
     FBeginCourse : String;
     FEndCourse   : String;
+    FPeriodList  : TstringList;
   end;
 
 var
@@ -39,6 +41,11 @@ procedure TSQL.SetDates(ABegin, AEnd : TDateTime);
 begin
   FBeginCourse := FormatDateTime('dd/mm/yyyy', ABegin);
   FEndCourse   := FormatDateTime('dd/mm/yyyy', AEnd);
+end;
+
+procedure TSQL.SetPeriod(APeriod : TStringList);
+begin
+  FPeriodList := APeriod;
 end;
 
 function TSQL.GenParams(ANum : integer) : TStringList;
@@ -114,7 +121,15 @@ begin
   if (AFormType = ftSchedule) then
   begin
     QueryCmd := 'WHERE LESSONS.BEGINCOURSE <= :e AND LESSONS.ENDCOURSE >= :b';
-    First    := False;
+    QueryCmd += ' AND (';
+    for i := 0 to FPeriodList.Count - 1 do
+    begin
+      if not First then
+         QueryCmd += ' OR ';
+      QueryCmd += 'LESSONS.PERIOD = :w' + IntToStr(i);
+      First    := False;
+    end;
+    QueryCmd += ')';
   end;
 
   for i := 1 to high(AFilter) do
@@ -130,12 +145,13 @@ begin
     end;
   ResultQuery.Append(QueryCmd);
   ASQLQuery.SQL.Text := ResultQuery.Text;
-
   { /set perameters }
   if (AFormType = ftSchedule) then
   begin
     ASQLQuery.ParamByName('e').AsString := FEndCourse;
     ASQLQuery.ParamByName('b').AsString := FBeginCourse;
+    for i := 0 to FPeriodList.Count - 1 do
+        ASQLQuery.ParamByName('w' + IntToStr(i)).AsString := FPeriodList[i];
   end;
 
   if (param > 0) then

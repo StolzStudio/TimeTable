@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData, Meta;
+  StdCtrls, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData, Meta, DateUtils;
 
 type
 
