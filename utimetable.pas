@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, sqldb, db, FileUtil, DateTimePicker, Forms, Controls,
   Graphics, Dialogs, Grids, ExtCtrls, StdCtrls, CheckLst, Menus, ExtDlgs,
   Filters, DirectoryForms, Meta, SQLGen, ChangeFormData, DBConnection, ComObj,
-  Variants, Conflicts;
+  Variants, Conflicts, DateUtils;
 
 type
 
@@ -25,7 +25,7 @@ type
     BeginDateTime     : TDateTimePicker;
     EndDateTime       : TDateTimePicker;
     EndCourseLabel    : TLabel;
-    WeekLabel: TLabel;
+    WeekLabel         : TLabel;
     MainMenu          : TMainMenu;
     ExportMenuItem    : TMenuItem;
     ConflictMenuItem  : TMenuItem;
@@ -937,19 +937,27 @@ var
 
   procedure FillCell(ARow, ACol : integer);
   var
-    k  : integer;
-    s  : string;
+    k    : integer;
+    s    : string;
+    b, e : integer;
   begin
     if DataArray[aRow][aCol] = nil then
       DataArray[aRow][aCol] := TStringList.Create;
 
-    for k :=0 to FSQLQuery.FieldCount - 1 do
+    for k := 0 to FSQLQuery.FieldCount - 1 do
     begin
       s := MetaData.Tables[Tag].Fields[k].Caption;
       DataArray[aRow][aCol].Append(s + ': ' + FSQLQuery.Fields[k].AsString);
     end;
-
     DataArray[aRow][aCol].Append('');
+    if DaysBetween(BeginDateTime.Date, EndDateTime.Date) < 14 then
+    begin
+    b := WeekOfTheMonth(FSQLQuery.Fields[7].AsDateTime);
+    e := WeekOfTheMonth(FSQLQuery.Fields[8].AsDateTime);
+    if (b >= WeekOfTheMonth(BeginDateTime.Date)) or (e <= WeekOfTheMonth(EndDateTime.Date)) then exit;
+    for k := DataArray[aRow][aCol].Count - 1 downto FSQLQuery.FieldCount - 1 do
+      DataArray[aRow][aCol].Delete(i);
+    end;
   end;
 
   function GetWeekPeriodData(ACheckListBox : TCheckListBox) : TstringList;
