@@ -937,9 +937,10 @@ var
 
   procedure FillCell(ARow, ACol : integer);
   var
-    k    : integer;
-    s    : string;
-    b, e : integer;
+    k       : integer;
+    s       : string;
+    b, e, d : integer;
+    check   : integer;
   begin
     if DataArray[aRow][aCol] = nil then
       DataArray[aRow][aCol] := TStringList.Create;
@@ -952,11 +953,20 @@ var
     DataArray[aRow][aCol].Append('');
     if DaysBetween(BeginDateTime.Date, EndDateTime.Date) < 14 then
     begin
-    b := WeekOfTheMonth(FSQLQuery.Fields[7].AsDateTime);
-    e := WeekOfTheMonth(FSQLQuery.Fields[8].AsDateTime);
-    if (b >= WeekOfTheMonth(BeginDateTime.Date)) or (e <= WeekOfTheMonth(EndDateTime.Date)) then exit;
-    for k := DataArray[aRow][aCol].Count - 1 downto FSQLQuery.FieldCount - 1 do
-      DataArray[aRow][aCol].Delete(i);
+
+    b := DayOfWeek(BeginDateTime.Date);
+    e := DayOfWeek(EndDateTime.Date);
+    d := GetDay(FSQLQuery.Fields[2].AsString);
+
+    check := WeekOfTheMonth(EndDateTime.Date);
+    if d > b then
+      check := WeekOfTheMonth(BeginDateTime.Date)
+    else
+      check := WeekOfTheMonth(EndDateTime.Date);
+
+    if (FSQLQuery.Fields[9].AsInteger <> check) and (FSQLQuery.Fields[9].AsInteger <> 0) then
+      for k := 0 to 10 do
+        DataArray[aRow][aCol].Delete(DataArray[aRow][aCol].Count - 1);
     end;
   end;
 

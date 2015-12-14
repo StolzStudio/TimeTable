@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, sqldb, db, DBConnection, SQLgen, DirectoryForms, ChangeFormData, Meta, DateUtils;
+  StdCtrls, ActnList, sqldb, db, DBConnection, SQLgen, DirectoryForms,
+  ChangeFormData, Meta, DateUtils;
 
 type
 
@@ -82,6 +83,7 @@ type
   { TConflictForm }
 
   TConflictForm = class(TForm)
+    ActionList1: TActionList;
     DataSource    : TDataSource;
     HelpLabel     : TLabel;
     DblClickLabel : TLabel;
@@ -112,6 +114,7 @@ var
   procedure AddToTrees(LeftTree, RightTree: TTreeView; AParentNode: TTreeNode;
                        AConflictObjects: TStringList);
   function ConflictCaption(AConflictType: TConflictClass): string;
+  function GetDay(a : string) : integer;
 
 implementation
 
@@ -185,7 +188,7 @@ begin
         FieldsName[i] := Tables[ATag].Name + Tables[ATag].Fields[i].Name;
     end;
     SQLQuery.Locate(FieldsName[0], Integer(RecordId), []);
-    for i := 1 to 8 do
+    for i := 1 to 9 do
     begin
       Result.Append(string(SQLQuery.FieldByName(FieldsName[i]).value) + '  ');
     end;
@@ -204,13 +207,14 @@ begin
   Result := TStringList.Create;
   Result.Append(IntToStr(RecordID));
 
-  for i := 0 to 7 do
+  for i := 0 to 8 do
   begin
     m := s[i];
     k := pos('  ', s[i]);
     delete(m, k, k + 2);
     Result.Append(m);
   end;
+
 end;
 
 procedure TConflictForm.LeftTreeViewDblClick(Sender: TObject);
@@ -526,6 +530,19 @@ begin
                                );
 end;
 
+function GetDay(a : string) : integer;
+begin
+  case a of
+    'Понедельник' : Result := 1;
+    'Вторник'     : Result := 2;
+    'Среда'       : Result := 3;
+    'Четверг'     : Result := 4;
+    'Пятница'     : Result := 5;
+    'Суббота'     : Result := 6;
+    'Воскресение' : Result := 7;
+    end;
+end;
+
 class procedure TConflict.TimeRows(AQuery : TSQLQuery; ASL, AConflictObjects : TStringList;
                                    AConflictType : TConflictClass; Field1, Field2, Field3 : string);
 var
@@ -545,15 +562,7 @@ var
     Query.SQL.Append('SELECT weekday FROM WEEKDAYS WHERE id = ' + IntToStr(id));
     Query.Open;
 
-    case Query.FieldByName('weekday').AsString of
-    'Понедельник' : d := 1;
-    'Вторник'     : d := 2;
-    'Среда'       : d := 3;
-    'Четверг'     : d := 4;
-    'Пятница'     : d := 5;
-    'Суббота'     : d := 6;
-    'Воскресение' : d := 7;
-    end;
+    d := GetDay(Query.FieldByName('weekday').AsString);
 
     if ((b < d) and (e < d) and (b <= e)) or
        ((b > d) and (e < d) and (b >  e)) or
@@ -564,7 +573,7 @@ begin
   AQuery.Close;
   with AQuery.SQL do begin
     Clear;
-    Append('SELECT id, ' + Field1 + ', ' + Field2 + ', ' + Field3);
+    Append('SELECT id, ' + Field1 + ', ' + Field2 + ', ' + Field3 + ', PERIOD');
     Append('FROM LESSONS WHERE ');
     Append('DATEDIFF(day, ' + Field1 + ', ' + Field2 + ') < 7');
   end;
@@ -576,6 +585,11 @@ begin
                       DayOfWeek(FieldByName(Field2).AsDateTime) - 1,
                       FieldByName(Field3).AsInteger
                       )
+      or ((FieldByName('PERIOD').AsInteger <> 0)
+         and
+         ((FieldByName('PERIOD').AsInteger <> WeekOfTheMonth(FieldByName(Field1).AsDateTime))
+         and
+         (FieldByName('PERIOD').AsInteger <> WeekOfTheMonth(FieldByName(Field2).AsDateTime))))
       then
         ASL.AddObject(
                       FieldByName(Field1).AsString + '#' + FieldByName(Field2).AsString,

@@ -69,4 +69,8 @@ object ConflictForm: TConflictForm
     left = 159
     top = 215
   end
+  object ActionList1: TActionList
+    left = 932
+    top = 227
+  end
 end
