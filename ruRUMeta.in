@@ -21,8 +21,8 @@ weekdays=Дни Недели
 weekday=День Недели
 num=Номер
 begincourse=начало курса
-endcourse=конец курса 
-номер недели=период
+endcourse=конец курса
+period=номер недели
 
 
 connect=подключено

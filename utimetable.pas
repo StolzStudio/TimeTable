@@ -25,6 +25,7 @@ type
     BeginDateTime     : TDateTimePicker;
     EndDateTime       : TDateTimePicker;
     EndCourseLabel    : TLabel;
+    WeekLabel: TLabel;
     MainMenu          : TMainMenu;
     ExportMenuItem    : TMenuItem;
     ConflictMenuItem  : TMenuItem;
@@ -34,6 +35,7 @@ type
     ColListBox        : TCheckListBox;
     ColLabel          : TLabel;
     RowListBox        : TCheckListBox;
+    WeekListBox       : TCheckListBox;
     SaveDialog        : TSaveDialog;
     StringGrid        : TStringGrid;
     { /end }
@@ -950,9 +952,18 @@ var
     DataArray[aRow][aCol].Append('');
   end;
 
+  function GetWeekPeriodData(ACheckListBox : TCheckListBox) : TstringList;
+  begin
+    Result := TStringList.Create;
+    if ACheckListBox.Checked[0] then Result.Append('0');
+    if ACheckListBox.Checked[1] then Result.Append('2');
+    if ACheckListBox.Checked[2] then Result.Append('1');
+  end;
+
 begin
   FSQLQuery.Close;
   SQLGenerator.SetDates(BeginDateTime.Date, EndDateTime.Date);
+  SQLGenerator.SetPeriod(GetWeekPeriodData(WeekListBox));
   SQLGenerator.GenFilters(Tag, DirectoryFilter, FSQLQuery, ftSchedule);
   FSQLQuery.Open;
 
@@ -999,6 +1010,7 @@ begin
   for i := 0 to high(MetaData.Tables[Tag].Fields) do
     DataListBox.Items.Add(MetaData.Tables[Tag].Fields[i].Caption);
 
+  WeekListBox.CheckAll(cbChecked);
   DataListBox.CheckAll(cbChecked);
   DataListBox.Checked[0] := false;
 

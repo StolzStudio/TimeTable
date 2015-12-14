@@ -100,7 +100,7 @@ object TimeTableForm: TTimeTableForm
     ParentColor = False
   end
   object ApplyButton: TButton
-    Left = 464
+    Left = 640
     Height = 66
     Top = 24
     Width = 75
@@ -183,6 +183,31 @@ object TimeTableForm: TTimeTableForm
     UseDefaultSeparators = True
     HideDateTimeParts = []
     MonthNames = 'Long'
+  end
+  object WeekListBox: TCheckListBox
+    Left = 456
+    Height = 58
+    Top = 32
+    Width = 168
+    Items.Strings = (
+      'без периода'
+      'в четные недели'
+      'в нечетные недели'
+    )
+    ItemHeight = 17
+    OnItemClick = RowListBoxItemClick
+    TabOrder = 10
+    Data = {
+      03000000000000
+    }
+  end
+  object WeekLabel: TLabel
+    Left = 488
+    Height = 15
+    Top = 8
+    Width = 102
+    Caption = 'Отображать пары:'
+    ParentColor = False
   end
   object FSQLQuery: TSQLQuery
     FieldDefs = <>
